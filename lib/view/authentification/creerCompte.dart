@@ -150,7 +150,7 @@ class CreationCompte extends StatelessWidget {
                                 },
                                 child: Text('OK'),
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.orange, // Couleur du bouton
+                                  backgroundColor: Colors.orange, // Couleur du bouton
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30.0),
                                   ),
@@ -170,9 +170,8 @@ class CreationCompte extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
-                  ),
+                  ), backgroundColor: Colors.orange,
                   padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  primary: Colors.orange,
                 ),
               ),
             ],

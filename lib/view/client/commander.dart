@@ -140,7 +140,7 @@ class _PageCommanderState extends State<PageCommander> {
                               },
                               child: Text('Commander'),
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.orange,
+                                backgroundColor: Colors.orange,
                                 padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30.0),
