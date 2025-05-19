@@ -116,7 +116,7 @@ class PageLivreur extends StatelessWidget {
                               },
                               child: Text('Accepter'),
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.orange,
+                               backgroundColor: Colors.orange,
                                 padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30.0),
