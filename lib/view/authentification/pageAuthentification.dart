@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:menji/view/authentification/recupererMotPass.dart';
+import 'package:menji/controller/LivraisonController.dart';
+import 'package:menji/compenent/blockMoyenTransport.dart';
 
-import '../client/pageAccueille.dart';
 import 'creerCompte.dart';
 
 void main() {
@@ -139,10 +140,8 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PageAccueil()),
-                  );
+
+                  LivraisonController(context).createLivraison();
                 },
                 child: Text(
                   'Connexion',
