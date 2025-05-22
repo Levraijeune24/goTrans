@@ -165,12 +165,14 @@ class _PageCommanderState extends State<PageCommander> {
                                   controllerNumeroDestinateur.text
                                 ]
                                 );
-                                LivraisonController(context).storeLivraison(controllerAdresseExpediteur.text,
-                                    controllerAdresseDestinateur.text,
-                                    controllerNumeroDestinateur.text,
-                                    recaPoid[1]
+                                 LivraisonController(context).storeLivraison(controllerAdresseExpediteur.text,
+                                     controllerAdresseDestinateur.text,
+                                     controllerNumeroDestinateur.text,
+                                     recaPoid[1]
 
-                                );
+                                 );
+
+
                               },
                               child: Text('Commander'),
                               style: ElevatedButton.styleFrom(

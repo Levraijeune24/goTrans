@@ -17,11 +17,12 @@ class LivraisonController {
 
   void createLivraison() async{
     final donnees= await Apilivraison().typeVehicule();
-    print(donnees);
+    final donneesLivraison= await Apilivraison().getLivraison(3);
+
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MyApp(donnees)),
+      MaterialPageRoute(builder: (context) => MyApp(donnees,donneesLivraison)),
     );
   }
   void creationLivraison(List<String> nom_type){
@@ -39,8 +40,11 @@ class LivraisonController {
     final donnees= await Apilivraison().SaveLivraison(adresseExpedition,
         adresseDestination,telephoneDestination,moyenTransport);
 
+    createLivraison() ;
+
 
   }
+
 
 
 

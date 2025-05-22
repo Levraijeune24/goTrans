@@ -9,7 +9,8 @@ import 'package:menji/compenent/ListeBlockTransport.dart';
 class MyApp extends StatelessWidget {
 
   List<Map<String,String>> listes;
-  MyApp(this.listes);
+  List<Map<String,String>> listesLivraison;
+  MyApp(this.listes,this.listesLivraison);
 
   @override
   Widget build(BuildContext context) {
@@ -19,25 +20,27 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: PageAccueil(this.listes),
+      home: PageAccueil(this.listes,this.listesLivraison),
     );
   }
 }
 
 class PageAccueil extends StatefulWidget {
   late List<Map<String,String>> listes;
-  PageAccueil(this.listes);
+  List<Map<String,String>> listesLivraison;
+  PageAccueil(this.listes,this.listesLivraison);
 
   @override
-  PageAccueilstate createState() => PageAccueilstate(this.listes);
+  PageAccueilstate createState() => PageAccueilstate(this.listes,this.listesLivraison);
 }
 
 
 class PageAccueilstate extends State<PageAccueil> {
 
   late List<Map<String,String>> listes;
+  List<Map<String,String>> listesLivraison;
 
-  PageAccueilstate(this.listes);
+  PageAccueilstate(this.listes,this.listesLivraison);
 
   @override
   void initState() {
@@ -99,10 +102,13 @@ class PageAccueilstate extends State<PageAccueil> {
                 Icon(Icons.local_shipping, size: 24, color: Colors.orange),
               ],
             ),
-            SizedBox(height: 5),
-            _buildDeliveryCard('Bob', 'Bus', 'En cours...', 'Heure:'),
-            SizedBox(height: 10),
-            _buildDeliveryCard('Mike', 'Bus', 'En attente...', '12/12/2025'),
+            Column(
+              children:  listesLivraison.map((livraison) {
+                return _buildDeliveryCard('Bob', livraison["moyen_transport"]!, livraison["status"]!, livraison["date"]!);
+              }).toList(),
+            ),
+
+
 
             // Barre de navigation en bas
             SizedBox(height: 5), // Espace pour éviter le débordement
@@ -159,8 +165,9 @@ class PageAccueilstate extends State<PageAccueil> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Nom', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Mode de transport', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Heure', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('transport', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
+
               ],
             ),
             Divider(), // Ligne de séparation
@@ -171,18 +178,35 @@ class PageAccueilstate extends State<PageAccueil> {
                 Text(name),
                 Text(transportMode),
                 Text(time),
+
               ],
             ),
             Divider(), // Ligne de séparation
             // Statut avec conteneur coloré
-            Container(
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: statusColor, // Utiliser la couleur définie ci-dessus
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Text(status, style: TextStyle(color: Colors.white)),
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: statusColor, // Utiliser la couleur définie ci-dessus
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text("statut : "+status, style: TextStyle(color: Colors.white)),
+                ),
+
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.red, // Utiliser la couleur définie ci-dessus
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text("Annulee", style: TextStyle(color: Colors.white)),
+                )
+
+              ],
+            )
+            ,
           ],
         ),
       ),
