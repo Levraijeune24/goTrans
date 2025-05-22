@@ -100,13 +100,36 @@ class PageAccueilstate extends State<PageAccueil> {
                 ),
                 SizedBox(width: 20),
                 Icon(Icons.local_shipping, size: 24, color: Colors.orange),
+                SizedBox(width: 20),
+                IconButton(
+                  icon: Icon(Icons.refresh, color: Colors.orange, size: 24),
+                  onPressed: () {
+                    setState(() {
+
+                    });
+                  },
+                )
               ],
             ),
-            Column(
-              children:  listesLivraison.map((livraison) {
-                return _buildDeliveryCard('Bob', livraison["moyen_transport"]!, livraison["status"]!, livraison["date"]!);
-              }).toList(),
-            ),
+            SingleChildScrollView(
+
+              child:Container(
+
+                height:300 ,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children:  listesLivraison.map((livraison) {
+                      return _buildDeliveryCard('Bob', livraison["moyen_transport"]!, livraison["status"]!, livraison["date"]!);
+                    }).toList(),
+                  )  ,
+                )
+
+               ,
+              )
+
+             ,
+            )
+            ,
 
 
 
@@ -145,7 +168,7 @@ class PageAccueilstate extends State<PageAccueil> {
     Color statusColor;
 
     // Définir la couleur en fonction du statut
-    if (status == 'En cours...') {
+    if (status == 'en_cours') {
       statusColor = Colors.blue; // Couleur bleue pour "En cours"
     } else {
       statusColor = Colors.orange; // Couleur par défaut pour "En attente"
@@ -178,7 +201,6 @@ class PageAccueilstate extends State<PageAccueil> {
                 Text(name),
                 Text(transportMode),
                 Text(time),
-
               ],
             ),
             Divider(), // Ligne de séparation
@@ -202,6 +224,14 @@ class PageAccueilstate extends State<PageAccueil> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text("Annulee", style: TextStyle(color: Colors.white)),
+                ),
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.blue, // Utiliser la couleur définie ci-dessus
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text("edit", style: TextStyle(color: Colors.white)),
                 )
 
               ],

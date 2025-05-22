@@ -32,6 +32,7 @@ class _PageCommanderState extends State<PageCommander> {
   final TextEditingController controllerAdresseDestinateur = TextEditingController();
   final TextEditingController controllerNumeroDestinateur = TextEditingController();
   final TextEditingController controllerNomDestinateur = TextEditingController();
+  final TextEditingController controllerNumeroExpediteur=TextEditingController();
 
 
   @override
@@ -128,6 +129,13 @@ class _PageCommanderState extends State<PageCommander> {
                             icon: Icons.person,
                           ),
                           SizedBox(height: 20),
+                          _buildTextField(
+                            controller: controllerNumeroExpediteur,
+                            label: 'Entrez le numero de expediteur',
+                            hintText: 'Expéditeur',
+                            icon: Icons.phone,
+                          ),
+                          SizedBox(height: 20),
                           Text(
                             'Destinataire',
                             style: TextStyle(
@@ -159,15 +167,16 @@ class _PageCommanderState extends State<PageCommander> {
                           Center(
                             child: ElevatedButton(
                               onPressed: () {
-                                print([controllerAdresseExpediteur.text,
-                                controllerAdresseDestinateur.text,
-                                  controllerNomDestinateur.text,
-                                  controllerNumeroDestinateur.text
-                                ]
-                                );
+                                // print([controllerAdresseExpediteur.text,
+                                // controllerAdresseDestinateur.text,
+                                //   controllerNomDestinateur.text,
+                                //   controllerNumeroDestinateur.text
+                                // ]
+                                // );
                                  LivraisonController(context).storeLivraison(controllerAdresseExpediteur.text,
                                      controllerAdresseDestinateur.text,
                                      controllerNumeroDestinateur.text,
+                                     controllerNumeroExpediteur.text,
                                      recaPoid[1]
 
                                  );

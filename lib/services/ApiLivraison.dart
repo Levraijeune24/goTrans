@@ -97,7 +97,7 @@ class Apilivraison {
 
   Future<void>  SaveLivraison (String adresseExpedition,
       String adresseDestination,
-      String telephoneDestination,String moyenTransport)async {
+      String telephoneDestination,String telephoneExpedition ,String moyenTransport)async {
 
     final url = Uri.parse('https://gotrans.menjidrc.com/api/livraison/store');
 
@@ -109,7 +109,7 @@ class Apilivraison {
       },
       body: jsonEncode({
         "adresse_expedition":adresseExpedition,
-        "tel_expedition": "0827429136",
+        "tel_expedition": telephoneExpedition,
         "adresse_destination":adresseDestination,
         "tel_destination":telephoneDestination,
         "date":dateDuJour(),
