@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:menji/controller/LivraisonController.dart';
 
-void main() {
-  runApp(MyApp());
-}
 
-class MyApp extends StatelessWidget {
+class MyApps extends StatelessWidget {
+
+  List<String> recaPoid;
+  MyApps(this.recaPoid);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -12,17 +13,27 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: PageCommander(),
+      home: PageCommander(recaPoid),
     );
   }
 }
 
 class PageCommander extends StatefulWidget {
+  List<String> recaPoid;
+  PageCommander(this.recaPoid);
   @override
-  _PageCommanderState createState() => _PageCommanderState();
+  _PageCommanderState createState() => _PageCommanderState(this.recaPoid);
 }
 
 class _PageCommanderState extends State<PageCommander> {
+  List<String> recaPoid;
+  _PageCommanderState(this.recaPoid);
+  final TextEditingController controllerAdresseExpediteur = TextEditingController();
+  final TextEditingController controllerAdresseDestinateur = TextEditingController();
+  final TextEditingController controllerNumeroDestinateur = TextEditingController();
+  final TextEditingController controllerNomDestinateur = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,6 +99,14 @@ class _PageCommanderState extends State<PageCommander> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
+                            'recap :  '+recaPoid[0],
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
                             'Adresse de destination',
                             style: TextStyle(
                               fontSize: 20,
@@ -103,6 +122,7 @@ class _PageCommanderState extends State<PageCommander> {
                             ),
                           ),
                           _buildTextField(
+                            controller: controllerAdresseExpediteur,
                             label: 'Entrez l\'adresse ou utilisez maps',
                             hintText: 'Expéditeur',
                             icon: Icons.person,
@@ -116,18 +136,21 @@ class _PageCommanderState extends State<PageCommander> {
                             ),
                           ),
                           _buildTextField(
+                            controller: controllerAdresseDestinateur,
                             label: 'Entrez l\'adresse ou utilisez maps',
                             hintText: 'Destinataire',
                             icon: Icons.location_on,
                           ),
                           SizedBox(height: 20),
                           _buildTextField(
+                            controller: controllerNomDestinateur,
                             label: 'Entrez votre nom',
                             hintText: 'Nom complet',
                             icon: Icons.person,
                           ),
                           SizedBox(height: 20),
                           _buildTextField(
+                            controller: controllerNumeroDestinateur,
                             label: 'Entrez votre numéro de téléphone',
                             hintText: 'Téléphone',
                             icon: Icons.phone,
@@ -136,7 +159,18 @@ class _PageCommanderState extends State<PageCommander> {
                           Center(
                             child: ElevatedButton(
                               onPressed: () {
-                                _showAlertDialog(context);
+                                print([controllerAdresseExpediteur.text,
+                                controllerAdresseDestinateur.text,
+                                  controllerNomDestinateur.text,
+                                  controllerNumeroDestinateur.text
+                                ]
+                                );
+                                LivraisonController(context).storeLivraison(controllerAdresseExpediteur.text,
+                                    controllerAdresseDestinateur.text,
+                                    controllerNumeroDestinateur.text,
+                                    recaPoid[1]
+
+                                );
                               },
                               child: Text('Commander'),
                               style: ElevatedButton.styleFrom(
@@ -161,11 +195,12 @@ class _PageCommanderState extends State<PageCommander> {
     );
   }
 
-  Widget _buildTextField({required String label, required String hintText, required IconData icon}) {
+  Widget _buildTextField({required String label, required String hintText, required IconData icon,required controller}) {
     return Row(
       children: [
         Expanded(
           child: TextField(
+            controller:controller ,
             decoration: InputDecoration(
               labelText: label,
               hintText: hintText,

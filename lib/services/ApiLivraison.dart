@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import 'package:menji/utils/elpers/elperDate.dart';
+import 'package:menji/utils/elpers/elperLivraisons.dart';
 
 
 class Apilivraison {
@@ -9,7 +10,7 @@ class Apilivraison {
 
 
 
-  Apilivraison({this.token="2|T9Of60n4r1IjQuu8j1L9jeZ788sSS3n6q1Ak3p9B7673c987"});
+  Apilivraison({this.token="39|5IjcfWeKj7SNyGXYg9GP2KsxJjfWoLqEWFNMmRqh3e56db33"});
 
   Future<void> fetLivraison(String id) async {
 
@@ -92,10 +93,37 @@ class Apilivraison {
       }),
     );
 
-    print('Statut : ${response.statusCode}');
-    print('Réponse brute : ${response.body}');
+  }
 
+  Future<void>  SaveLivraison (String adresseExpedition,
+      String adresseDestination,
+      String telephoneDestination,String moyenTransport)async {
 
+    final url = Uri.parse('https://gotrans.menjidrc.com/api/livraison/store');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json'
+        // On envoie le token ici
+      },
+      body: jsonEncode({
+        "adresse_expedition":adresseExpedition,
+        "tel_expedition": "0827429136",
+        "adresse_destination":adresseDestination,
+        "tel_destination":telephoneDestination,
+        "date":dateDuJour(),
+        "code":genererCodeLivraison(),
+        "status":"en_attente",
+        "montant":"",
+        "Kilo_total":"",
+        "client_expediteur_id": "3",
+        "client_destinateur_id":"3",
+        "moyen_transport":moyenTransport
+      }),
+    );
+    final data = jsonDecode(response.body);
+    print(data);
 
   }
 }

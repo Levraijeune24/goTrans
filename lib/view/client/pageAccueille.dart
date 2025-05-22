@@ -24,10 +24,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PageAccueil extends StatelessWidget {
-
-  List<Map<String,String>> listes;
+class PageAccueil extends StatefulWidget {
+  late List<Map<String,String>> listes;
   PageAccueil(this.listes);
+
+  @override
+  PageAccueilstate createState() => PageAccueilstate(this.listes);
+}
+
+
+class PageAccueilstate extends State<PageAccueil> {
+
+  late List<Map<String,String>> listes;
+
+  PageAccueilstate(this.listes);
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialise les données ici
+  }
+
 
   @override
   Widget build(BuildContext context) {
