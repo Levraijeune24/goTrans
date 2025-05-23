@@ -23,6 +23,7 @@ class PageCommander extends StatefulWidget {
 }
 
 class _PageCommanderState extends State<PageCommander> {
+
   final TextEditingController controllerAdresseExpediteur = TextEditingController();
   final TextEditingController controllerAdresseDestinateur = TextEditingController();
   final TextEditingController controllerNumeroDestinateur = TextEditingController();
@@ -87,16 +88,16 @@ class _PageCommanderState extends State<PageCommander> {
                         ),
                         SizedBox(height: 20),
                         _sectionTitle('Expéditeur'),
-                        _buildTextField(controller: controllerAdresseExpediteur, label: 'Adresse', icon: Icons.person),
+                        _buildTextField(controller: controllerAdresseExpediteur, label: 'Adresse', icon: Icons.person,type:TextInputType.text ),
                         SizedBox(height: 20),
-                        _buildTextField(controller: controllerNumeroExpediteur, label: 'Numéro téléphone', icon: Icons.phone),
+                        _buildTextField(controller: controllerNumeroExpediteur, label: 'Numéro téléphone', icon: Icons.phone,type:TextInputType.phone ),
                         SizedBox(height: 20),
                         _sectionTitle('Destinataire'),
-                        _buildTextField(controller: controllerAdresseDestinateur, label: 'Adresse', icon: Icons.location_on),
+                        _buildTextField(controller: controllerAdresseDestinateur, label: 'Adresse', icon: Icons.location_on,type:TextInputType.text),
                         SizedBox(height: 20),
-                        _buildTextField(controller: controllerNomDestinateur, label: 'Nom complet', icon: Icons.person),
+                        _buildTextField(controller: controllerNomDestinateur, label: 'Nom complet', icon: Icons.person,type:TextInputType.text),
                         SizedBox(height: 20),
-                        _buildTextField(controller: controllerNumeroDestinateur, label: 'Téléphone', icon: Icons.phone),
+                        _buildTextField(controller: controllerNumeroDestinateur, label: 'Numéro téléphone', icon: Icons.phone,type:TextInputType.phone),
                         SizedBox(height: 40),
                         Center(
                           child: ElevatedButton(
@@ -136,12 +137,14 @@ class _PageCommanderState extends State<PageCommander> {
     required TextEditingController controller,
     required String label,
     required IconData icon,
+    required TextInputType type
   }) {
     return Row(
       children: [
         Expanded(
           child: TextField(
             controller: controller,
+            keyboardType: type,
             decoration: InputDecoration(
               labelText: label,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
