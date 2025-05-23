@@ -141,7 +141,8 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  ClientController(context).InitClent();
+                  ClientController().getClient();
+                  ClientController().InitClient(context);
                 },
                 child: Text(
                   'Connexion',

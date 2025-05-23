@@ -7,12 +7,13 @@ import 'package:menji/utils/elpers/elperLivraisons.dart';
 class Apilivraison {
 
   final String token;
+  final adresse="https://gotrans.menjidrc.com/";
 
-  Apilivraison({this.token="39|5IjcfWeKj7SNyGXYg9GP2KsxJjfWoLqEWFNMmRqh3e56db33"});
+  Apilivraison({this.token="2|hdC3ANTq0eqeCi6YJbPXO65luu3HyjkkokQC56IFd0750353"});
 
   Future<void> fetLivraison(String id) async {
 
-    final url = Uri.parse('https://gotrans.menjidrc.com/api/livraison/getLivraisonDestinateur/$id');
+    final url = Uri.parse(adresse+'api/livraison/getLivraisonDestinateur/$id');
 
 
     final response = await http.get(
@@ -39,7 +40,7 @@ class Apilivraison {
 
     List<Map<String,String>> mesTypes=[];
 
-    final url = Uri.parse('https://gotrans.menjidrc.com/api/typeVehicule');
+    final url = Uri.parse(adresse+'api/typeVehicule');
 
 
     final response = await http.get(
@@ -77,7 +78,7 @@ class Apilivraison {
 
   Future<void>  Connection ()async {
 
-    final url = Uri.parse('https://gotrans.menjidrc.com/api/login');
+    final url = Uri.parse(adresse+'api/login');
 
     final response = await http.post(
       url,
@@ -93,11 +94,12 @@ class Apilivraison {
 
   }
 
-  Future<void>  SaveLivraison (String adresseExpedition,
+  Future<void>  SaveLivraison (String id,String nom,String adresseExpedition,
       String adresseDestination,
       String telephoneDestination,String telephoneExpedition ,String moyenTransport)async {
 
-    final url = Uri.parse('https://gotrans.menjidrc.com/api/livraison/store');
+
+    final url = Uri.parse(adresse+'api/livraison/store');
 
     final response = await http.post(
       url,
@@ -110,13 +112,14 @@ class Apilivraison {
         "tel_expedition": telephoneExpedition,
         "adresse_destination":adresseDestination,
         "tel_destination":telephoneDestination,
+      'nom_destination':nom,
         "date":dateDuJour(),
         "code":genererCodeLivraison(),
         "status":"en_attente",
         "montant":"",
         "Kilo_total":"",
-        "client_expediteur_id": "3",
-        "client_destinateur_id":"3",
+        "client_expediteur_id": "2",
+        "client_destinateur_id":id,
         "moyen_transport":moyenTransport
       }),
     );
@@ -129,7 +132,7 @@ class Apilivraison {
 
     List<Map<String,String>> livraisons=[];
 
-    final url = Uri.parse('https://gotrans.menjidrc.com/api/livraison/getLivraisonDestinateur/$id');
+    final url = Uri.parse(adresse+'api/livraison/getLivraisonExpediteur/$id');
 
     final response = await http.get(
       url,
@@ -159,7 +162,7 @@ class Apilivraison {
   }
   Future<String> annuler (String id) async {
 
-    final url = Uri.parse('https://gotrans.menjidrc.com/api/livraison/cancel/$id');
+    final url = Uri.parse(adresse+'api/livraison/cancel/$id');
 
     final response = await http.get(
         url,
@@ -173,6 +176,41 @@ class Apilivraison {
     print(data);
 
     return data;
+
+
+  }
+
+  Future<List<Map<String,String>>> getClient () async {
+
+    List<Map<String,String>> clients=[];
+
+    final url = Uri.parse(adresse+'api/user/clients');
+
+    final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        }
+    );
+
+    final data = jsonDecode(response.body);
+    print(data);
+
+    if (response.statusCode == 200) {
+
+      final data = jsonDecode(response.body);
+      data["data"].forEach((client) {
+
+        clients.add({"id":client["id"].toString(),
+          "nom":client["user"]["name"],
+        },
+        );
+
+      });}
+    return clients;
+
+
 
 
   }

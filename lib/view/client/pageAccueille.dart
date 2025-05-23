@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:menji/view/authentification/pageAuthentification.dart';
+import '../../controller/ClientController.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
 import '../../services/ApiLivraison.dart';
@@ -26,6 +27,7 @@ class PageAccueilState extends State<PageAccueil> {
   bool isLoadingLivraison = true;
 
   void _initialisationTypeVehicule() async {
+
     listes1 = await Typevehiculecontroller().AllTypeVehicule();
     setState(() {
       isLoadingTypeVehicule = false;
@@ -33,7 +35,7 @@ class PageAccueilState extends State<PageAccueil> {
   }
 
   void _initialisationLivraison() async {
-    listesLivraison1 = await LivraisonController().AllLivraison(3);
+    listesLivraison1 = await LivraisonController().AllLivraison(2);
     setState(() {
       isLoadingLivraison = false;
     });
@@ -199,6 +201,8 @@ class PageAccueilState extends State<PageAccueil> {
                   child: Text("Statut : $status",
                       style: TextStyle(color: Colors.white)),
                 ),
+
+                (status!="annulee")?
                 InkWell(
                   onTap: () {
                     LivraisonController().annulerLivraison(id );
@@ -209,9 +213,9 @@ class PageAccueilState extends State<PageAccueil> {
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    child: Text("Annulée", style: TextStyle(color: Colors.white)),
+                    child: Text("Annuler", style: TextStyle(color: Colors.white)),
                   ),
-                ),
+                ):Center(),
                 
                 Container(
                   padding: EdgeInsets.all(8.0),
@@ -219,7 +223,7 @@ class PageAccueilState extends State<PageAccueil> {
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Text("Edit", style: TextStyle(color: Colors.white)),
+                  child: Text("Mod", style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),

@@ -10,20 +10,19 @@ import 'package:menji/view/client/commander.dart';
 
 class ClientController {
 
-  BuildContext context;
-
-  ClientController(this.context);
 
 
-  void InitClent() async{
 
+  void InitClient(BuildContext context) async {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => MyApp()),
     );
   }
 
+  Future<List<Map<String,String>>>  getClient() async {
+    return Apilivraison().getClient();
   }
 
 
-
+}

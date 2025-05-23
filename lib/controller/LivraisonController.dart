@@ -28,17 +28,30 @@ class LivraisonController {
 
   }
 
-  void storeLivraison (String adresseExpedition,
+  void editLivraison(String id_livraison,BuildContext context){
+
+
+  }
+
+  void storeLivraison (String id,
+      String nom,
+      String adresseExpedition,
       String adresseDestination,
       String telephoneDestination,String telephoneExpediteur,String moyenTransport
       ,BuildContext context) async{
 
-      final donnees= await Apilivraison().SaveLivraison(adresseExpedition,
+      final donnees= await Apilivraison().SaveLivraison(id,nom,adresseExpedition,
           adresseDestination,telephoneDestination,telephoneExpediteur,moyenTransport);
+
+
 
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MyApp()),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("la livraison est ajouter avec succes !!!")),
       );
   }
 
