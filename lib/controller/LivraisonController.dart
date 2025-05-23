@@ -22,9 +22,12 @@ class LivraisonController {
     );
   }
 
-  void annulerLivraison(String id_livraison){
+  void annulerLivraison(String id_livraison,BuildContext context){
 
     Apilivraison().annuler(id_livraison);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("vous avez annulee une livraison")),
+    );
 
   }
 

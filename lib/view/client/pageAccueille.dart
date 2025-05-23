@@ -205,7 +205,10 @@ class PageAccueilState extends State<PageAccueil> {
                 (status!="annulee")?
                 InkWell(
                   onTap: () {
-                    LivraisonController().annulerLivraison(id );
+                    setState(() {
+                      LivraisonController().annulerLivraison(id,context);
+                      _initialisationLivraison();
+                    });
                   },
                   child: Container(
                     padding: EdgeInsets.all(8.0),
