@@ -67,7 +67,7 @@ class PageValidation extends StatelessWidget {
                 },
                 child: Text('Confirmer'),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.green, // Couleur verte
+                  backgroundColor: Colors.green, // Couleur verte
                   padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
