@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../controller/authController.dart';
+import '../client/pageAccueille.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,166 +21,210 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class CreationCompte extends StatelessWidget {
+class CreationCompte extends StatefulWidget {
+  @override
+  _CreationCompteState createState() => _CreationCompteState();
+}
+
+class _CreationCompteState extends State<CreationCompte> {
+  final _nomController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _authController = AuthController();
+
+  bool _isLoading = false;
+
+  Future<void> _handleRegister() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showToast('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final user = await _authController.register(
+        _nomController.text,
+        _emailController.text,
+        _passwordController.text,
+        _phoneController.text.isEmpty ? null : _phoneController.text,
+      ).timeout(const Duration(seconds: 10));
+
+      _showToast('Bienvenue ${user.name} !', isError: false);
+
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => PageAccueil()),
+        );
+      });
+
+    } catch (e) {
+      _showToast(e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showToast(String message, {bool isError = true}) {
+    debugPrint(message);
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: isError ? Colors.red : Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(''),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.orange),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Création Compte',
-                    style: TextStyle(
-                      fontFamily: 'Segoe UI',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+      body: Center( // Ajout du widget Center principal
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 400), // Largeur maximale pour les grands écrans
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Titre avec ligne orange
+                Column(
+                  children: [
+                    Text(
+                      'Création Compte',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center, // Centrage du texte
+                    ),
+                    const SizedBox(height: 5),
+                    Container(
+                      height: 2,
+                      width: 100,
+                      color: Colors.orange,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+
+                // Champs de formulaire
+                _buildTextField(
+                  controller: _nomController,
+                  hintText: 'Nom complet',
+                  icon: Icons.person_outline,
+                ),
+                const SizedBox(height: 20),
+
+                _buildTextField(
+                  controller: _emailController,
+                  hintText: 'Adresse email',
+                  icon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 20),
+
+                _buildTextField(
+                  controller: _phoneController,
+                  hintText: 'Numéro de téléphone (optionnel)',
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 20),
+
+                _buildTextField(
+                  controller: _passwordController,
+                  hintText: 'Mot de passe',
+                  icon: Icons.lock_outline,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+
+                _buildTextField(
+                  controller: _confirmPasswordController,
+                  hintText: 'Confirmer le mot de passe',
+                  icon: Icons.lock_outline,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 32),
+
+                // Bouton d'inscription
+                SizedBox(
+                  width: double.infinity, // Prend toute la largeur disponible
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _handleRegister,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
+                      ),
+                    )
+                        : const Text(
+                      'Créer mon compte',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
-                  SizedBox(height: 5),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 40),
-                    height: 1.5,
-                    width: 100,
-                    color: Colors.orange,
-                  ),
-                ],
-              ),
-              SizedBox(height: 40),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Nom complet',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide(color: Colors.orange, width: 0.7),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide(color: Colors.orange, width: 2.0),
-                  ),
                 ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Créer un mot de passe',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide(color: Colors.orange, width: 0.7),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide(color: Colors.orange, width: 2.0),
-                  ),
-                ),
-                obscureText: true,
-              ),
-              SizedBox(height: 20),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Confirmer le mot de passe',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide(color: Colors.orange, width: 0.7),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide(color: Colors.orange, width: 2.0),
-                  ),
-                ),
-                obscureText: true,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // Afficher l'alerte de succès
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        contentPadding: EdgeInsets.all(10), // Ajouter du padding
-                        content: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(Icons.check_circle, color: Colors.green, size: 48), // Icône au-dessus
-                              SizedBox(height: 10),
-                              Text('Succès', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: 10),
-                              Text("Votre compte a été créé."),
-                              SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // Fermer la boîte de dialogue
-                                },
-                                child: Text('OK'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange, // Couleur du bouton
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: Text(
-                  'Créer',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ), backgroundColor: Colors.orange,
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                ),
-              ),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      textAlign: TextAlign.start, // Alignement du texte à gauche dans le champ
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: Colors.grey),
+        prefixIcon: Icon(icon, color: Colors.grey),
+        filled: true,
+        fillColor: Colors.grey[200],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.orange, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       ),
     );
   }
