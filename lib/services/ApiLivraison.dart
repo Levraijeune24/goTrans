@@ -5,10 +5,8 @@ import 'package:menji/utils/elpers/elperLivraisons.dart';
 
 
 class Apilivraison {
+
   final String token;
-
-
-
 
   Apilivraison({this.token="39|5IjcfWeKj7SNyGXYg9GP2KsxJjfWoLqEWFNMmRqh3e56db33"});
 

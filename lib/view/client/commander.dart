@@ -3,37 +3,31 @@ import 'package:menji/controller/LivraisonController.dart';
 
 
 class MyApps extends StatelessWidget {
+  final List<String> recaPoid;
 
-  List<String> recaPoid;
   MyApps(this.recaPoid);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Commander',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
-      home: PageCommander(recaPoid),
-    );
+    return PageCommander(recaPoid);
   }
 }
 
 class PageCommander extends StatefulWidget {
-  List<String> recaPoid;
+  final List<String> recaPoid;
+
   PageCommander(this.recaPoid);
+
   @override
-  _PageCommanderState createState() => _PageCommanderState(this.recaPoid);
+  _PageCommanderState createState() => _PageCommanderState();
 }
 
 class _PageCommanderState extends State<PageCommander> {
-  List<String> recaPoid;
-  _PageCommanderState(this.recaPoid);
   final TextEditingController controllerAdresseExpediteur = TextEditingController();
   final TextEditingController controllerAdresseDestinateur = TextEditingController();
   final TextEditingController controllerNumeroDestinateur = TextEditingController();
   final TextEditingController controllerNomDestinateur = TextEditingController();
-  final TextEditingController controllerNumeroExpediteur=TextEditingController();
-
+  final TextEditingController controllerNumeroExpediteur = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +42,7 @@ class _PageCommanderState extends State<PageCommander> {
             Navigator.pop(context);
           },
         ),
-        title: Row(
-          children: [
-            Text(
-              'Commander',
-              style: TextStyle(color: Colors.orange),
-            ),
-          ],
-        ),
-        centerTitle: false,
+        title: Text('Commander', style: TextStyle(color: Colors.orange)),
       ),
       body: Column(
         children: [
@@ -79,10 +65,7 @@ class _PageCommanderState extends State<PageCommander> {
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.0),
-                      topRight: Radius.circular(10.0),
-                    ),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.5),
@@ -94,107 +77,50 @@ class _PageCommanderState extends State<PageCommander> {
                   ),
                   child: SingleChildScrollView(
                     controller: scrollController,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'recap :  '+recaPoid[0],
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Adresse de destination',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Expéditeur',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          _buildTextField(
-                            controller: controllerAdresseExpediteur,
-                            label: 'Entrez l\'adresse ou utilisez maps',
-                            hintText: 'Expéditeur',
-                            icon: Icons.person,
-                          ),
-                          SizedBox(height: 20),
-                          _buildTextField(
-                            controller: controllerNumeroExpediteur,
-                            label: 'Entrez le numero de expediteur',
-                            hintText: 'Expéditeur',
-                            icon: Icons.phone,
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Destinataire',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          _buildTextField(
-                            controller: controllerAdresseDestinateur,
-                            label: 'Entrez l\'adresse ou utilisez maps',
-                            hintText: 'Destinataire',
-                            icon: Icons.location_on,
-                          ),
-                          SizedBox(height: 20),
-                          _buildTextField(
-                            controller: controllerNomDestinateur,
-                            label: 'Entrez votre nom',
-                            hintText: 'Nom complet',
-                            icon: Icons.person,
-                          ),
-                          SizedBox(height: 20),
-                          _buildTextField(
-                            controller: controllerNumeroDestinateur,
-                            label: 'Entrez votre numéro de téléphone',
-                            hintText: 'Téléphone',
-                            icon: Icons.phone,
-                          ),
-                          SizedBox(height: 40),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // print([controllerAdresseExpediteur.text,
-                                // controllerAdresseDestinateur.text,
-                                //   controllerNomDestinateur.text,
-                                //   controllerNumeroDestinateur.text
-                                // ]
-                                // );
-                                 LivraisonController(context).storeLivraison(controllerAdresseExpediteur.text,
-                                     controllerAdresseDestinateur.text,
-                                     controllerNumeroDestinateur.text,
-                                     controllerNumeroExpediteur.text,
-                                     recaPoid[1]
-
-                                 );
-
-
-                              },
-                              child: Text('Commander'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Récap : ${widget.recaPoid[0]}',
+                          style: TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 20),
+                        _sectionTitle('Expéditeur'),
+                        _buildTextField(controller: controllerAdresseExpediteur, label: 'Adresse', icon: Icons.person),
+                        SizedBox(height: 20),
+                        _buildTextField(controller: controllerNumeroExpediteur, label: 'Numéro téléphone', icon: Icons.phone),
+                        SizedBox(height: 20),
+                        _sectionTitle('Destinataire'),
+                        _buildTextField(controller: controllerAdresseDestinateur, label: 'Adresse', icon: Icons.location_on),
+                        SizedBox(height: 20),
+                        _buildTextField(controller: controllerNomDestinateur, label: 'Nom complet', icon: Icons.person),
+                        SizedBox(height: 20),
+                        _buildTextField(controller: controllerNumeroDestinateur, label: 'Téléphone', icon: Icons.phone),
+                        SizedBox(height: 40),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              LivraisonController().storeLivraison(
+                                controllerAdresseExpediteur.text,
+                                controllerAdresseDestinateur.text,
+                                controllerNumeroDestinateur.text,
+                                controllerNumeroExpediteur.text,
+                                widget.recaPoid[1],
+                                context,
+                              );
+                            },
+                            child: Text('Commander'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -206,27 +132,28 @@ class _PageCommanderState extends State<PageCommander> {
     );
   }
 
-  Widget _buildTextField({required String label, required String hintText, required IconData icon,required controller}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+  }) {
     return Row(
       children: [
         Expanded(
           child: TextField(
-            controller:controller ,
+            controller: controller,
             decoration: InputDecoration(
               labelText: label,
-              hintText: hintText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
         ),
         SizedBox(width: 10),
         Container(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: Colors.orange,
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: Colors.white),
         ),
@@ -234,29 +161,10 @@ class _PageCommanderState extends State<PageCommander> {
     );
   }
 
-  void _showAlertDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Text("Votre demande est en attente..."),
-          actions: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-              child: TextButton(
-                child: Text("OK", style: TextStyle(color: Colors.white)), // Texte blanc pour le bouton
-                onPressed: () {
-                  Navigator.of(context).pop(); // Fermer la boîte de dialogue
-                },
-              ),
-            ),
-          ],
-        );
-      },
+  Widget _sectionTitle(String text) {
+    return Text(
+      text,
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     );
   }
 }

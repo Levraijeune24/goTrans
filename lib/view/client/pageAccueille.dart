@@ -1,53 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:menji/view/authentification/pageAuthentification.dart';
+import '../../controller/LivraisonController.dart';
+import '../../controller/TypeVehiculeController.dart';
+import '../../services/ApiLivraison.dart';
 import 'commander.dart';
 import 'package:menji/compenent/blockMoyenTransport.dart';
 import 'package:menji/compenent/ListeBlockTransport.dart';
 
-
-
 class MyApp extends StatelessWidget {
-
-  List<Map<String,String>> listes;
-  List<Map<String,String>> listesLivraison;
-  MyApp(this.listes,this.listesLivraison);
-
   @override
   Widget build(BuildContext context) {
-    print(this.listes);
-    return MaterialApp(
-      title: 'Service de Livraison',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
-      home: PageAccueil(this.listes,this.listesLivraison),
-    );
+    return PageAccueil();
   }
 }
 
 class PageAccueil extends StatefulWidget {
-  late List<Map<String,String>> listes;
-  List<Map<String,String>> listesLivraison;
-  PageAccueil(this.listes,this.listesLivraison);
-
   @override
-  PageAccueilstate createState() => PageAccueilstate(this.listes,this.listesLivraison);
+  State<PageAccueil> createState() => PageAccueilState();
 }
 
+class PageAccueilState extends State<PageAccueil> {
+  List<Map<String, String>> listes1 = [];
+  List<Map<String, String>> listesLivraison1 = [];
+  bool isLoadingTypeVehicule = true;
+  bool isLoadingLivraison = true;
 
-class PageAccueilstate extends State<PageAccueil> {
+  void _initialisationTypeVehicule() async {
+    listes1 = await Typevehiculecontroller().AllTypeVehicule();
+    setState(() {
+      isLoadingTypeVehicule = false;
+    });
+  }
 
-  late List<Map<String,String>> listes;
-  List<Map<String,String>> listesLivraison;
-
-  PageAccueilstate(this.listes,this.listesLivraison);
+  void _initialisationLivraison() async {
+    listesLivraison1 = await LivraisonController().AllLivraison(3);
+    setState(() {
+      isLoadingLivraison = false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    // Initialise les données ici
+    _initialisationTypeVehicule();
+    _initialisationLivraison();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +54,7 @@ class PageAccueilstate extends State<PageAccueil> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(''),
-        iconTheme: IconThemeData(color: Colors.orange), // Couleur de l'icône
+        iconTheme: IconThemeData(color: Colors.orange),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.orange),
@@ -68,10 +65,10 @@ class PageAccueilstate extends State<PageAccueil> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section "Mode de transport"
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   'Mode de transport',
@@ -82,17 +79,21 @@ class PageAccueilstate extends State<PageAccueil> {
               ],
             ),
             SizedBox(height: 20),
-            SingleChildScrollView(
+            isLoadingTypeVehicule
+                ? Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children:Listeblocktransport(context: context, typeVehicules: this.listes).Run(),
+                children: Listeblocktransport(
+                  context: context,
+                  typeVehicules: listes1,
+                ).Run(),
               ),
             ),
-            SizedBox(height: 20), // Espace entre les sections
+            SizedBox(height: 20),
 
             // Section "Mes livraisons"
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   'Mes livraisons',
@@ -103,98 +104,77 @@ class PageAccueilstate extends State<PageAccueil> {
                 SizedBox(width: 20),
                 IconButton(
                   icon: Icon(Icons.refresh, color: Colors.orange, size: 24),
-                  onPressed: () {
-                    setState(() {
-
-                    });
-                  },
-                )
+                  onPressed: _initialisationLivraison,
+                ),
               ],
             ),
-            SingleChildScrollView(
-
-              child:Container(
-
-                height:300 ,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children:  listesLivraison.map((livraison) {
-                      return _buildDeliveryCard('Bob', livraison["moyen_transport"]!, livraison["status"]!, livraison["date"]!);
-                    }).toList(),
-                  )  ,
-                )
-
-               ,
-              )
-
-             ,
-            )
-            ,
-
-
-
-            // Barre de navigation en bas
-            SizedBox(height: 5), // Espace pour éviter le débordement
-            BottomNavigationBar(
-              backgroundColor: Colors.grey[200],
-              elevation: 0,
-              items: [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Accueil',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.history),
-                  label: 'Historique',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Profil',
-                ),
-              ],
-              currentIndex: 0, // Index de l'onglet actuel
-              onTap: (index) {
-                // Gérer la navigation ici
-              },
+            SizedBox(height: 10),
+            isLoadingLivraison
+                ? Center(child: CircularProgressIndicator())
+                : Container(
+              height: 300,
+              child: ListView(
+                children: listesLivraison1.map((livraison) {
+                  return _buildDeliveryCard(
+                    'Bob',
+                    livraison["moyen_transport"]!,
+                    livraison["status"]!,
+                    livraison["date"]!,
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.grey[200],
+        elevation: 0,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Accueil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Historique',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
+        currentIndex: 0,
+        onTap: (index) {
+          // Gérer la navigation ici
+        },
+      ),
     );
   }
 
-
-  Widget _buildDeliveryCard(String name, String transportMode, String status, String time) {
-    Color statusColor;
-
-    // Définir la couleur en fonction du statut
-    if (status == 'en_cours') {
-      statusColor = Colors.blue; // Couleur bleue pour "En cours"
-    } else {
-      statusColor = Colors.orange; // Couleur par défaut pour "En attente"
-    }
+  Widget _buildDeliveryCard(
+      String name, String transportMode, String status, String time) {
+    Color statusColor =
+    status == 'en_cours' ? Colors.blue : Colors.orange;
 
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
           children: [
-            // Ligne avec les titres
+            // Titres
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Nom', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('transport', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Transport', style: TextStyle(fontWeight: FontWeight.bold)),
                 Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
-
               ],
             ),
-            Divider(), // Ligne de séparation
-            // Ligne avec les données
+            Divider(),
+            // Données
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -203,40 +183,39 @@ class PageAccueilstate extends State<PageAccueil> {
                 Text(time),
               ],
             ),
-            Divider(), // Ligne de séparation
-            // Statut avec conteneur coloré
+            Divider(),
+            // Boutons d'action
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
                   padding: EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
-                    color: statusColor, // Utiliser la couleur définie ci-dessus
+                    color: statusColor,
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Text("statut : "+status, style: TextStyle(color: Colors.white)),
-                ),
-
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.red, // Utiliser la couleur définie ci-dessus
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text("Annulee", style: TextStyle(color: Colors.white)),
+                  child: Text("Statut : $status",
+                      style: TextStyle(color: Colors.white)),
                 ),
                 Container(
                   padding: EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
-                    color: Colors.blue, // Utiliser la couleur définie ci-dessus
+                    color: Colors.red,
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Text("edit", style: TextStyle(color: Colors.white)),
-                )
-
+                  child:
+                  Text("Annulée", style: TextStyle(color: Colors.white)),
+                ),
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text("Edit", style: TextStyle(color: Colors.white)),
+                ),
               ],
-            )
-            ,
+            ),
           ],
         ),
       ),

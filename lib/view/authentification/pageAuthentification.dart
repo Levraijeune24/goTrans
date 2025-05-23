@@ -3,6 +3,7 @@ import 'package:menji/view/authentification/recupererMotPass.dart';
 import 'package:menji/controller/LivraisonController.dart';
 import 'package:menji/compenent/blockMoyenTransport.dart';
 
+import '../../controller/ClientController.dart';
 import 'creerCompte.dart';
 
 void main() {
@@ -140,8 +141,7 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-
-                  LivraisonController(context).createLivraison();
+                  ClientController(context).InitClent();
                 },
                 child: Text(
                   'Connexion',
