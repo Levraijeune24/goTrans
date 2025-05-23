@@ -22,6 +22,12 @@ class LivraisonController {
     );
   }
 
+  void annulerLivraison(String id_livraison){
+
+    Apilivraison().annuler(id_livraison);
+
+  }
+
   void storeLivraison (String adresseExpedition,
       String adresseDestination,
       String telephoneDestination,String telephoneExpediteur,String moyenTransport

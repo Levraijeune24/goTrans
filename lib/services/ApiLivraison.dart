@@ -152,10 +152,28 @@ class Apilivraison {
         },
         );
 
-
       });}
-    print(livraisons);
+
     return livraisons;
+
+  }
+  Future<String> annuler (String id) async {
+
+    final url = Uri.parse('https://gotrans.menjidrc.com/api/livraison/cancel/$id');
+
+    final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json'
+          // On envoie le token ici
+        }
+    );
+
+    final data = jsonDecode(response.body);
+    print(data);
+
+    return data;
+
 
   }
 

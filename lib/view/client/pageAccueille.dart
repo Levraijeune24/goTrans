@@ -120,6 +120,8 @@ class PageAccueilState extends State<PageAccueil> {
                     livraison["moyen_transport"]!,
                     livraison["status"]!,
                     livraison["date"]!,
+                      livraison["id"]!
+
                   );
                 }).toList(),
               ),
@@ -153,7 +155,7 @@ class PageAccueilState extends State<PageAccueil> {
   }
 
   Widget _buildDeliveryCard(
-      String name, String transportMode, String status, String time) {
+      String name, String transportMode, String status, String time,String id) {
     Color statusColor =
     status == 'en_cours' ? Colors.blue : Colors.orange;
 
@@ -197,15 +199,20 @@ class PageAccueilState extends State<PageAccueil> {
                   child: Text("Statut : $status",
                       style: TextStyle(color: Colors.white)),
                 ),
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(8.0),
+                InkWell(
+                  onTap: () {
+                    LivraisonController().annulerLivraison(id );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text("Annulée", style: TextStyle(color: Colors.white)),
                   ),
-                  child:
-                  Text("Annulée", style: TextStyle(color: Colors.white)),
                 ),
+                
                 Container(
                   padding: EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
