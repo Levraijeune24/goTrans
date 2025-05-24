@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:menji/view/authentification/recupererMotPass.dart';
-import 'package:menji/controller/LivraisonController.dart';
-import 'package:menji/compenent/blockMoyenTransport.dart';
+import 'package:menji/view/livreur/pageAccueilleLivreur.dart';
 
-import '../../controller/ClientController.dart';
 import 'creerCompte.dart';
-
-void main() {
-  runApp(MyApp());
-}
 
 class MyApp extends StatelessWidget {
   @override
@@ -141,8 +135,12 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  ClientController().getClient();
-                  ClientController().InitClient(context);
+
+                  //ClientController().InitClient(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyAppss()),
+                  );
                 },
                 child: Text(
                   'Connexion',

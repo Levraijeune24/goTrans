@@ -6,8 +6,6 @@ import 'package:menji/services/ApiLivraison.dart';
 import 'package:menji/view/client/commander.dart';
 
 
-
-
 class LivraisonController {
 
   Future<List<Map<String,String>>> AllLivraison(int id) async{
@@ -23,16 +21,13 @@ class LivraisonController {
   }
 
   void annulerLivraison(String id_livraison,BuildContext context){
-
     Apilivraison().annuler(id_livraison);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("vous avez annulee une livraison")),
     );
-
   }
 
   void editLivraison(String id_livraison,BuildContext context){
-
 
   }
 
@@ -46,8 +41,6 @@ class LivraisonController {
       final donnees= await Apilivraison().SaveLivraison(id,nom,adresseExpedition,
           adresseDestination,telephoneDestination,telephoneExpediteur,moyenTransport);
 
-
-
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MyApp()),
@@ -57,8 +50,6 @@ class LivraisonController {
         SnackBar(content: Text("la livraison est ajouter avec succes !!!")),
       );
   }
-
-
 
 }
 
