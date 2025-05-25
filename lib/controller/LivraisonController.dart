@@ -39,8 +39,13 @@ class LivraisonController {
     );
   }
 
-  void editLivraison(String id_livraison,BuildContext context){
+  void editLivraisonLivreur(BuildContext context,String id_livraison,String montant, String kilo){
 
+    Apilivraison().editLivraisonLivreur(id_livraison, montant, kilo);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Status changer  !')),
+    );
   }
 
   void storeLivraison (String id_expediteur,String id_destinateur,
@@ -62,6 +67,25 @@ class LivraisonController {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("la livraison est ajouter avec succes !!!")),
       );
+  }
+
+
+
+  Future<List<Map<String,String>>> AllLivraisonLivreur(int id_livreur) async{
+
+    final donneesLivraison= await Apilivraison().getLivraisonLivreur(id_livreur);
+    return donneesLivraison;
+  }
+
+
+  Future<List<Map<String,String>>> ShowLivraisonLivreur(String id_livreur, String id_livraison) async{
+    print("hhhhh");
+
+    print([id_livreur,id_livraison]);
+
+    final donneesLivraison= await Apilivraison().showLivraisonLivreur(id_livreur,id_livraison);
+    print(donneesLivraison);
+    return donneesLivraison;
   }
 
 }

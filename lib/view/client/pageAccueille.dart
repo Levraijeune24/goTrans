@@ -34,8 +34,6 @@ class PageAccueilState extends State<PageAccueil> {
 
   void _initialisationTypeVehicule() async {
 
-
-
    await _typevehiculecontroller.setToken();
     listes1 = await _typevehiculecontroller.AllTypeVehicule();
     setState(() {
@@ -249,7 +247,7 @@ class PageAccueilState extends State<PageAccueil> {
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Text("Mod", style: TextStyle(color: Colors.white)),
+                  child: Text("Confirmer", style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),

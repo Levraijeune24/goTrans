@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-
+import '../../controller/LivraisonController.dart';
+import '../../controller/LivreurController.dart';
 
 class MyAppss extends StatelessWidget {
   @override
@@ -15,7 +15,21 @@ class MyAppss extends StatelessWidget {
   }
 }
 
-class PageLivreur extends StatelessWidget {
+class PageLivreur extends StatefulWidget {
+  @override
+  _PageLivreurState createState() => _PageLivreurState();
+}
+
+class _PageLivreurState extends State<PageLivreur> {
+  late Future<List<Map<String, String>>> livraisonsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    livraisonsFuture = LivraisonController().AllLivraisonLivreur(1)
+    as Future<List<Map<String, String>>>;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,108 +39,54 @@ class PageLivreur extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.orange),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.orange),
-            onPressed: () {
-              // Action pour les notifications
-            },
+            onPressed: () {},
           ),
-          SizedBox(width: 20), // Espacement pour l'icône de notification
+          SizedBox(width: 20),
         ],
       ),
       body: Column(
         children: [
           Container(
-            height: 200, // Ajustez la hauteur selon vos besoins
+            height: 200,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('images/map_image.png'), // Remplacez par votre image
+                image: AssetImage('images/map_image.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           SizedBox(height: 20),
           Expanded(
-            child: DraggableScrollableSheet(
-              initialChildSize: 0.5,
-              minChildSize: 0.3,
-              maxChildSize: 1.0,
-              builder: (BuildContext context, ScrollController scrollController) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.0),
-                      topRight: Radius.circular(10.0),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(0, -3),
-                      ),
-                    ],
-                  ),
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Arrivée estimée 10 min',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          Divider(thickness: 1, color: Colors.grey),
-                          SizedBox(height: 10),
-                          Text('Expéditeur', style: TextStyle(fontWeight: FontWeight.bold)),
-                          _buildInfoRow('Marien Manima', Icons.person),
-                          _buildInfoRow('Av: Yolo, nord-sud', Icons.location_on),
-                          Text('Destinataire', style: TextStyle(fontWeight: FontWeight.bold)),
-                          _buildInfoRow('Bob Kayemba', Icons.person),
-                          _buildInfoRow('Av: Bukanga, n°12, A/Lemba', Icons.location_on),
-                          _buildInfoRow('0815396419', Icons.phone),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Poids estimé', style: TextStyle(fontWeight: FontWeight.bold)),
-                              Container(
-                                padding: EdgeInsets.all(10.0),
-                                margin: EdgeInsets.only(top: 5.0),
-                                color: Colors.grey[200],
-                                child: Text('0 à 20kg'),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 20),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Action pour accepter la livraison
-                              },
-                              child: Text('Accepter'),
-                              style: ElevatedButton.styleFrom(
-                               backgroundColor: Colors.orange,
-                                padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
+            child: FutureBuilder<List<Map<String, String>>>(
+              future: livraisonsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Erreur : ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('Aucune livraison trouvée.'));
+                } else {
+                  return ListView(
+                    children: snapshot.data!.map((livraison) {
+                      return _buildDeliveryCard(
+                        livraison["nom_expediteur"] ?? '',
+                        livraison["nom_destinateur"] ?? '',
+                        livraison["status"] ?? '',
+                        livraison["date"] ?? '',
+                        livraison["id_livraison"] ?? '',
+                          livraison["id_livreur"] ?? ''
+
+
+                      );
+                    }).toList(),
+                  );
+                }
               },
             ),
           ),
@@ -135,20 +95,71 @@ class PageLivreur extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String text, IconData icon) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Container(
-            padding: EdgeInsets.all(10.0),
-            margin: EdgeInsets.only(top: 5.0, bottom: 10.0),
-            color: Colors.grey[200],
-            child: Text(text),
-          ),
+  Widget _buildDeliveryCard(String expediteur, String destinateur, String status,
+      String date, String id_livraison, String id_livreur) {
+    Color statusColor =
+    status == 'en_cours' ? Colors.blue : Colors.orange;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+      elevation: 1,
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Expediteur', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Destinateur', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(expediteur),
+                Text(destinateur),
+                Text(date),
+              ],
+            ),
+            Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text("Statut : $status",
+                      style: TextStyle(color: Colors.white)),
+                ),
+                InkWell(
+                  onTap: (){
+                    Livreurcontroller().getDetailleLivraison(context,id_livreur , id_livraison);
+
+
+                  },
+                  child:Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text("Plus des detailles",
+                        style: TextStyle(color: Colors.white)),
+                  ) ,
+                )
+                ,
+              ],
+            ),
+          ],
         ),
-        Icon(icon),
-      ],
+      ),
     );
   }
 }

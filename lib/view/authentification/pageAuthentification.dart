@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../controller/authController.dart';
+import '../../services/ApiLivraison.dart';
+import '../livreur/pageAccueilleLivreur.darT';
 import 'creerCompte.dart';
 import 'recupererMotPass.dart';
 import '../client/pageAccueille.dart';
@@ -69,6 +71,8 @@ class _LoginPageState extends State<LoginPage> {
       _showToast('Bienvenue, ${user.name}', isError: false);
 
       Future.delayed(const Duration(milliseconds: 1500), () {
+
+        Apilivraison().getLivraisonLivreur(1);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) =>  PageAccueil()),
