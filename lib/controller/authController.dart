@@ -12,10 +12,11 @@ class AuthController {
     final result = await _apiService.login(email, password);
     final token = result['token'];
     final user = result['user'] as User;
+    final roleInfo = result['roleInfo'] as RoleInfo;
 
     await _localStorage.saveToken(token);
     await _localStorage.saveUser(user);
-    print(result['user']);
+    await _localStorage.saveRoleInfo(roleInfo);
     return user;
   }
 
@@ -25,6 +26,11 @@ class AuthController {
   Future<User?> getUser() async {
     return await _localStorage.getUser();
   }
+
+  Future<RoleInfo?> getRole() async {
+    return await _localStorage.getRoleInfo();
+  }
+
   Future<void> logout() async {
     await _localStorage.clearToken();
   }

@@ -1,0 +1,2 @@
+C:/Users/manim/AndroidStudioProjects/goTrans/android/app/.cxx/Debug/4k5n6d67/x86/CMakeFiles/edit_cache.dir
+C:/Users/manim/AndroidStudioProjects/goTrans/android/app/.cxx/Debug/4k5n6d67/x86/CMakeFiles/rebuild_cache.dir

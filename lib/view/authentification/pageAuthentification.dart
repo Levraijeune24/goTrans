@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
       Future.delayed(const Duration(milliseconds: 1500), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) =>  ProfilePage()),
+          MaterialPageRoute(builder: (context) =>  PageAccueil()),
         );
       });
     } catch (e) {
@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
       _showToast('Bienvenue, ${user.name}', isError: false);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>  ProfilePage()),
+        MaterialPageRoute(builder: (context) =>  PageAccueil()),
       );
     } catch (e) {
       _showToast('Erreur de connexion Google: ${e.toString()}');
@@ -109,150 +109,152 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'images/logo2.png',
-                height: 100,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Connexion',
-                style: TextStyle(
-                  fontFamily: 'Segoe UI',
-                  fontSize: 37,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+      body:SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'images/logo2.png',
+                  height: 100,
                 ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  hintText: 'E-mail ou téléphone',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.orange, width: 1.0),
-                  ),
-                  focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.orange, width: 2.0),
-                  ),
-                  contentPadding: const EdgeInsets.only(bottom: 8),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Mot de passe',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.orange, width: 1.0),
-                  ),
-                  focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.orange, width: 2.0),
-                  ),
-                  contentPadding: const EdgeInsets.only(bottom: 8),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  CreationCompte()),
-                    ),
-                    child:  RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Créer ',
-                            style: TextStyle(color: Colors.orange),
-                          ),
-                          TextSpan(
-                            text: 'un compte',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  MotDePasseOublie()),
-                    ),
-                    child:  RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Mot de passe ',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          TextSpan(
-                            text: 'oublié ?',
-                            style: TextStyle(color: Colors.orange),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 115, vertical: 15),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-                    : const Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Connexion',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(
+                    fontFamily: 'Segoe UI',
+                    fontSize: 37,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: Divider(color: Colors.orange, thickness: 0.7)),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      "Ou continuer avec",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 11,
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    hintText: 'E-mail ou téléphone',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: InputBorder.none,
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 1.0),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                    ),
+                    contentPadding: const EdgeInsets.only(bottom: 8),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: 'Mot de passe',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: InputBorder.none,
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 1.0),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                    ),
+                    contentPadding: const EdgeInsets.only(bottom: 8),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  CreationCompte()),
+                      ),
+                      child:  RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Créer ',
+                              style: TextStyle(color: Colors.orange),
+                            ),
+                            TextSpan(
+                              text: 'un compte',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  MotDePasseOublie()),
+                      ),
+                      child:  RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Mot de passe ',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            TextSpan(
+                              text: 'oublié ?',
+                              style: TextStyle(color: Colors.orange),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 115, vertical: 15),
                   ),
-                  Expanded(child: Divider(color: Colors.orange, thickness: 0.7)),
-                ],
-              ),
-              const SizedBox(height: 20),
-              _buildGoogleSignInButton(),
-            ],
+                  child: _isLoading
+                      ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                      : const Text(
+                    'Connexion',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: Divider(color: Colors.orange, thickness: 0.7)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        "Ou continuer avec",
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.orange, thickness: 0.7)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildGoogleSignInButton(),
+              ],
+            ),
           ),
         ),
       ),
