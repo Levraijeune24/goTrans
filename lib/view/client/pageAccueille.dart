@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:menji/view/authentification/ProfilePage.dart';
 import 'package:menji/view/authentification/pageAuthentification.dart';
 import '../../controller/ClientController.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
+import '../../controller/authController.dart';
 import '../../services/ApiLivraison.dart';
 import 'commander.dart';
 import 'package:menji/compenent/blockMoyenTransport.dart';
@@ -22,6 +24,9 @@ class PageAccueil extends StatefulWidget {
 }
 
 class PageAccueilState extends State<PageAccueil> {
+  Typevehiculecontroller _typevehiculecontroller=Typevehiculecontroller();
+  LivraisonController _livraisonController=LivraisonController();
+
   List<Map<String, String>> listes1 = [];
   List<Map<String, String>> listesLivraison1 = [];
   bool isLoadingTypeVehicule = true;
@@ -29,14 +34,21 @@ class PageAccueilState extends State<PageAccueil> {
 
   void _initialisationTypeVehicule() async {
 
-    listes1 = await Typevehiculecontroller().AllTypeVehicule();
+
+
+   await _typevehiculecontroller.setToken();
+    listes1 = await _typevehiculecontroller.AllTypeVehicule();
     setState(() {
       isLoadingTypeVehicule = false;
     });
   }
 
   void _initialisationLivraison() async {
-    listesLivraison1 = await LivraisonController().AllLivraison(2);
+    final roleUser= await AuthController().getRole();
+
+    print(roleUser?.id);
+    listesLivraison1 = await _livraisonController.AllLivraison(roleUser!.id
+    );
     setState(() {
       isLoadingLivraison = false;
     });
@@ -144,13 +156,23 @@ class PageAccueilState extends State<PageAccueil> {
             icon: Icon(Icons.history),
             label: 'Historique',
           ),
+
           BottomNavigationBarItem(
+
             icon: Icon(Icons.person),
             label: 'Profil',
           ),
         ],
         currentIndex: 0,
         onTap: (index) {
+          print(index);
+          if(index==2){
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) =>  ProfilePage()),
+            );
+
+          }
           // Gérer la navigation ici
         },
       ),
@@ -207,7 +229,7 @@ class PageAccueilState extends State<PageAccueil> {
                 InkWell(
                   onTap: () {
                     setState(() {
-                      LivraisonController().annulerLivraison(id,context);
+                      _livraisonController.annulerLivraison(id,context);
                       _initialisationLivraison();
                     });
                   },

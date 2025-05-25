@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:menji/controller/LivraisonController.dart';
 
 import '../../controller/ClientController.dart';
+import '../../controller/authController.dart';
 
 
 class MyApps extends StatelessWidget {
@@ -26,6 +27,8 @@ class PageCommander extends StatefulWidget {
 
 class _PageCommanderState extends State<PageCommander> {
   final _formKey = GlobalKey<FormState>();
+  LivraisonController _livraisonController  =LivraisonController();
+  ClientController _clientController= ClientController();
 
   List<Map<String,String>> clients=[];
   late bool isLoadingClient=true;
@@ -33,6 +36,7 @@ class _PageCommanderState extends State<PageCommander> {
 
   late String selectedValueName;
   late String id_client;
+  late final roleUser;
 
 
 
@@ -45,9 +49,16 @@ class _PageCommanderState extends State<PageCommander> {
 
 
   void _initialisationClients() async {
-    clients = await ClientController().getClient();
+
+    roleUser= await AuthController().getRole();
+    await _clientController.setToken();
+    await _livraisonController.setToken();
+    print('roleUser.id');
+    print(roleUser.id);
+    clients = await _clientController.getClient();
     selectedValueName=clients[0]["nom"]??"";
     id_client=clients[0]["id"]??"0";
+    _livraisonController.setToken();
 
     setState(() {
       isLoadingClient = false;
@@ -168,11 +179,12 @@ class _PageCommanderState extends State<PageCommander> {
                         Center(
                           child: ElevatedButton(
                             onPressed: () {
-                              print("$isClientExiste  FDFDFDFDFDFDFDFDFDFDF");
-                              print(selectedValueName);
-                              print(controllerNomDestinateur.text);
+
+                              print("ICICICI");
+
                               if (_formKey.currentState!.validate()) {
-                                LivraisonController().storeLivraison(
+                                _livraisonController.storeLivraison(
+                                  roleUser.id.toString(),
                                   id_client,
                                   isClientExiste ? selectedValueName : controllerNomDestinateur.text,
                                   controllerAdresseExpediteur.text,

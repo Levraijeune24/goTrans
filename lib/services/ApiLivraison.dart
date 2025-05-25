@@ -3,13 +3,23 @@ import 'package:http/http.dart' as http;
 import 'package:menji/utils/elpers/elperDate.dart';
 import 'package:menji/utils/elpers/elperLivraisons.dart';
 
+import '../controller/authController.dart';
+import '../serviceAu/local_storage_service.dart';
+
 
 class Apilivraison {
 
-  final String token;
+
+
+
+   String? token;
   final adresse="https://gotrans.menjidrc.com/";
 
-  Apilivraison({this.token="2|hdC3ANTq0eqeCi6YJbPXO65luu3HyjkkokQC56IFd0750353"});
+  void setToken(String token) {
+    this.token = token;
+  }
+
+
 
   Future<void> fetLivraison(String id) async {
 
@@ -37,6 +47,8 @@ class Apilivraison {
   }
 
   Future<List<Map<String,String>>> typeVehicule() async {
+  print("tttttttttttttt");
+    print(token);
 
     List<Map<String,String>> mesTypes=[];
 
@@ -94,7 +106,7 @@ class Apilivraison {
 
   }
 
-  Future<void>  SaveLivraison (String id,String nom,String adresseExpedition,
+  Future<void>  SaveLivraison (String id_expediteur, String id_destinateur,String nom,String adresseExpedition,
       String adresseDestination,
       String telephoneDestination,String telephoneExpedition ,String moyenTransport)async {
 
@@ -104,8 +116,8 @@ class Apilivraison {
     final response = await http.post(
       url,
       headers: {
-        'Content-Type': 'application/json'
-        // On envoie le token ici
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
       },
       body: jsonEncode({
         "adresse_expedition":adresseExpedition,
@@ -118,12 +130,13 @@ class Apilivraison {
         "status":"en_attente",
         "montant":"",
         "Kilo_total":"",
-        "client_expediteur_id": "2",
-        "client_destinateur_id":id,
+        "client_expediteur_id": id_expediteur,
+        "client_destinateur_id":id_destinateur,
         "moyen_transport":moyenTransport
       }),
     );
     final data = jsonDecode(response.body);
+    print('beniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii');
     print(data);
 
   }
@@ -137,8 +150,8 @@ class Apilivraison {
     final response = await http.get(
       url,
       headers: {
-        'Content-Type': 'application/json'
-        // On envoie le token ici
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
       }
     );
     final data = jsonDecode(response.body);
