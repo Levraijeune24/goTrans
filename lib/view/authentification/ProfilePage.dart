@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageAccueille.dart';
 import '../../controller/authController.dart';
 import '../../model/userModel.dart';
@@ -181,7 +182,9 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Text('Mon Profil', style: TextStyle(color: Colors.black)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            context.go('/home');
+          },
         ),
         actions: [
           if (!_showPasswordFields)
@@ -340,11 +343,10 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.red,
               onPressed: () =>  // redirection
                   _authController.logout().then((_) {
-                Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/login',
-                        (route) => false
-                );
+
+                    context.go('/login');
+
+
               }),
             ),
             ],

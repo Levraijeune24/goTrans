@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:menji/view/authentification/ProfilePage.dart';
 import 'package:menji/view/authentification/pageAuthentification.dart';
 import '../../controller/ClientController.dart';
@@ -167,11 +168,7 @@ class PageAccueilState extends State<PageAccueil> {
         onTap: (index) {
           print(index);
           if(index==2){
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) =>  ProfilePage()),
-            );
-
+            context.go('/profil');
           }
           // Gérer la navigation ici
         },

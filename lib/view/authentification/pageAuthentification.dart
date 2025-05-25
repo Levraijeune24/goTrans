@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../controller/authController.dart';
 import 'creerCompte.dart';
@@ -68,12 +69,10 @@ class _LoginPageState extends State<LoginPage> {
 
       _showToast('Bienvenue, ${user.name}', isError: false);
 
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  PageAccueil()),
-        );
-      });
+      Future.delayed(const Duration(milliseconds: 1500), ()  async {
+
+        context.go('/login');
+      },);
     } catch (e) {
       _showToast(e.toString());
     } finally {
