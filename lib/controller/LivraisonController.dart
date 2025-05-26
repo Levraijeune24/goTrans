@@ -6,6 +6,7 @@ import 'package:menji/services/ApiLivraison.dart';
 import 'package:menji/view/client/commander.dart';
 
 import '../serviceAu/local_storage_service.dart';
+import '../view/livreur/pageAccueilleLivreur.darT';
 
 
 class LivraisonController {
@@ -17,12 +18,16 @@ class LivraisonController {
   }
 
 
-
-
   Future<List<Map<String,String>>> AllLivraison(int id) async{
 
      final donneesLivraison= await v.getLivraison(id);
      return donneesLivraison;
+  }
+
+  Future<List<Map<String,String>>> AllLivraisonDestinateur(int id) async{
+
+    final donneesLivraison= await v.getLivraison(id);
+    return donneesLivraison;
   }
 
   void creationLivraison(List<String> nom_type,BuildContext context){
@@ -43,16 +48,28 @@ class LivraisonController {
 
     Apilivraison().editLivraisonLivreur(id_livraison, montant, kilo);
 
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PageLivreur()),
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Status changer  !')),
+      SnackBar(content: Text('Livraison confirme  !')),
     );
   }
-  void confirmerLivraison(String id_livraison,String code_livraison){
 
-    print("fdfdfdfdfdfdf");
-    print([id_livraison, code_livraison]);
+  void confirmerLivraison(BuildContext context,String id_livraison,String code_livraison)async{
 
-    Apilivraison().confirmerLivraison(id_livraison, code_livraison);
+     v.confirmerLivraison(id_livraison, code_livraison);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PageAccueil()),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Livraison termine')),
+    );
 
 
   }
@@ -88,12 +105,10 @@ class LivraisonController {
 
 
   Future<List<Map<String,String>>> ShowLivraisonLivreur(String id_livreur, String id_livraison) async{
-    print("hhhhh");
 
-    print([id_livreur,id_livraison]);
 
     final donneesLivraison= await Apilivraison().showLivraisonLivreur(id_livreur,id_livraison);
-    print(donneesLivraison);
+
     return donneesLivraison;
   }
 

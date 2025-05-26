@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/LivreurController.dart';
+import '../../controller/authController.dart';
+import '../authentification/ProfilePage.dart';
 
 class MyAppss extends StatelessWidget {
   @override
@@ -22,12 +24,23 @@ class PageLivreur extends StatefulWidget {
 
 class _PageLivreurState extends State<PageLivreur> {
   late Future<List<Map<String, String>>> livraisonsFuture;
+  late final roleUser;
+
+  void _initialisationLivraison() async {
+    roleUser = await AuthController().getRole();
+
+    // Une fois roleUser obtenu, on met à jour livraisonsFuture
+    setState(() {
+      livraisonsFuture = LivraisonController()
+          .AllLivraisonLivreur(roleUser.id) as Future<List<Map<String, String>>>;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    livraisonsFuture = LivraisonController().AllLivraisonLivreur(1)
-    as Future<List<Map<String, String>>>;
+    _initialisationLivraison();
+
   }
 
   @override
@@ -92,6 +105,40 @@ class _PageLivreurState extends State<PageLivreur> {
           ),
         ],
       ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.grey[200],
+          elevation: 0,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Accueil',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: 'Historique',
+            ),
+
+            BottomNavigationBarItem(
+
+              icon: Icon(Icons.person),
+              label: 'Profil',
+            ),
+          ],
+          currentIndex: 0,
+          onTap: (index) {
+            print(index);
+            if(index==2){
+
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+
+            }
+            // Gérer la navigation ici
+          },
+        )
     );
   }
 

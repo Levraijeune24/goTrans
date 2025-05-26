@@ -68,16 +68,35 @@ class _LoginPageState extends State<LoginPage> {
         _passwordController.text,
       ).timeout(const Duration(seconds: 10));
 
-      _showToast('Bienvenue, ${user.name}', isError: false);
+      print('rererererer');
+      print(user["roleInfo"].role);
 
-      Future.delayed(const Duration(milliseconds: 1500), () {
+      if(user["roleInfo"].role=="livreur"){
+        _showToast('Bienvenue, ${user["user"].name}', isError: false);
 
-        Apilivraison().getLivraisonLivreur(1);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  PageAccueil()),
-        );
-      });
+        Future.delayed(const Duration(milliseconds: 1500), () {
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) =>  PageLivreur()),
+          );
+        });
+
+      }else{
+
+        _showToast('Bienvenue, ${user["user"].name}', isError: false);
+
+        Future.delayed(const Duration(milliseconds: 1500), () {
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) =>  PageAccueil()),
+          );
+        });
+
+      }
+
+
     } catch (e) {
       _showToast(e.toString());
     } finally {

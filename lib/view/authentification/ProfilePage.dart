@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:menji/view/authentification/pageAuthentification.dart';
 import '../../controller/authController.dart';
 import '../../model/userModel.dart';
 import '../../serviceAu/apiServiceUser.dart';
@@ -338,10 +339,9 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: Icons.logout,
               color: Colors.red,
               onPressed: () => _authController.logout().then((_) {
-                Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/login',
-                        (route) => false
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  LoginPage()),
                 );
               }),
             ),

@@ -172,6 +172,7 @@ class _PageValidationState extends State<PageValidation> {
             width: 200,
             height: 40,
             child: TextField(
+              keyboardType: TextInputType.number,
               controller: controller,
               decoration: InputDecoration(
                 hintText: 'Entrez $label',

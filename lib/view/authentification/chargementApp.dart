@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     Future.delayed(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PageLivreur()), // Remplacez par votre page principale
+        MaterialPageRoute(builder: (context) => LoginPage()), // Remplacez par votre page principale
       );
     });
   }

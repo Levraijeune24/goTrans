@@ -175,6 +175,39 @@ class Apilivraison {
 
   }
 
+   Future<List<Map<String,String>>> getLivraisonDestinateur (int id) async {
+
+     List<Map<String,String>> livraisons=[];
+
+     final url = Uri.parse(adresse+'api/livraison/getLivraisonDestinateur/$id');
+
+     final response = await http.get(
+         url,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer $token'
+         }
+     );
+     final data = jsonDecode(response.body);
+     if (response.statusCode == 200) {
+
+       final data = jsonDecode(response.body);
+       data["data"].forEach((livraison) {
+
+         livraisons.add({"id":livraison["id"].toString(),
+           "status":livraison["status"],
+           "date":livraison["date"],
+           "moyen_transport":livraison["moyen_transport"],
+
+         },
+         );
+
+       });}
+
+     return livraisons;
+
+   }
+
    Future<List<Map<String,String>>> getLivraisonLivreur (int id) async {
 
      List<Map<String,String>> livraisons=[];

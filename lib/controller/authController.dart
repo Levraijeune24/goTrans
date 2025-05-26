@@ -8,7 +8,7 @@ class AuthController {
   final ApiService _apiService = ApiService();
   final LocalStorageService _localStorage = LocalStorageService();
 
-  Future<User> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     final result = await _apiService.login(email, password);
     final token = result['token'];
     final user = result['user'] as User;
@@ -17,7 +17,7 @@ class AuthController {
     await _localStorage.saveToken(token);
     await _localStorage.saveUser(user);
     await _localStorage.saveRoleInfo(roleInfo);
-    return user;
+    return result;
   }
 
    Future<String?> getToken() async {
