@@ -47,6 +47,15 @@ class LivraisonController {
       SnackBar(content: Text('Status changer  !')),
     );
   }
+  void confirmerLivraison(String id_livraison,String code_livraison){
+
+    print("fdfdfdfdfdfdf");
+    print([id_livraison, code_livraison]);
+
+    Apilivraison().confirmerLivraison(id_livraison, code_livraison);
+
+
+  }
 
   void storeLivraison (String id_expediteur,String id_destinateur,
       String nom,

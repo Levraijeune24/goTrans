@@ -342,5 +342,29 @@ class Apilivraison {
 
   }
 
+   Future<String> confirmerLivraison(String id_livraison, String codeLivraison)async{
+
+    final url = Uri.parse(adresse+'api/livraison/terminer');
+
+    final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+          // On envoie le token ici
+        },
+        body: jsonEncode({
+          "id":id_livraison,
+          "codeLivraison":codeLivraison
+        })
+    );
+
+    final data = jsonDecode(response.body);
+    print(data);
+
+    return data;
+
+  }
+
 
 }

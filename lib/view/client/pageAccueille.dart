@@ -26,6 +26,7 @@ class PageAccueil extends StatefulWidget {
 class PageAccueilState extends State<PageAccueil> {
   Typevehiculecontroller _typevehiculecontroller=Typevehiculecontroller();
   LivraisonController _livraisonController=LivraisonController();
+  final TextEditingController codeController = TextEditingController();
 
   List<Map<String, String>> listes1 = [];
   List<Map<String, String>> listesLivraison1 = [];
@@ -44,9 +45,11 @@ class PageAccueilState extends State<PageAccueil> {
   void _initialisationLivraison() async {
     final roleUser= await AuthController().getRole();
 
-    print(roleUser?.id);
+
     listesLivraison1 = await _livraisonController.AllLivraison(roleUser!.id
     );
+    print("00000000000");
+    print(listesLivraison1);
     setState(() {
       isLoadingLivraison = false;
     });
@@ -223,7 +226,7 @@ class PageAccueilState extends State<PageAccueil> {
                       style: TextStyle(color: Colors.white)),
                 ),
 
-                (status!="annulee")?
+                (status=="en_attente")?
                 InkWell(
                   onTap: () {
                     setState(() {
@@ -240,15 +243,21 @@ class PageAccueilState extends State<PageAccueil> {
                     child: Text("Annuler", style: TextStyle(color: Colors.white)),
                   ),
                 ):Center(),
-                
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text("Confirmer", style: TextStyle(color: Colors.white)),
-                ),
+                (status=="en_cours")?
+                InkWell(
+                  onTap: (){
+                    _showCodeConfirmationDialog(context,codeController,id);
+                  },
+                  child:Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text("Confirmer", style: TextStyle(color: Colors.white)),
+                  ) ,
+                ):Center()
+                ,
               ],
             ),
           ],
@@ -256,4 +265,48 @@ class PageAccueilState extends State<PageAccueil> {
       ),
     );
   }
+}
+
+void _showCodeConfirmationDialog(
+    BuildContext context,
+    TextEditingController controller,
+    String idLivraison,
+    ) {
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("Confirmation"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("Entrez le code de validation :"),
+          SizedBox(height: 10),
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: "Code de validation",
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: Text("Annuler"),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        ElevatedButton(
+          child: Text("Valider"),
+          onPressed: () async {
+            String code = controller.text;
+            print(code);
+            LivraisonController().confirmerLivraison(idLivraison, controller.text);
+
+
+          },
+        ),
+      ],
+    ),
+  );
 }
