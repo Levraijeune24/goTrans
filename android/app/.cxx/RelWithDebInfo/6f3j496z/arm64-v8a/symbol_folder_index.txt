@@ -1,0 +1,1 @@
+C:\Users\manim\AndroidStudioProjects\goTrans\build\app\intermediates\cxx\RelWithDebInfo\6f3j496z\obj\arm64-v8a
