@@ -19,6 +19,7 @@ class _PageValidationState extends State<PageValidation> {
   TextEditingController prixUnitaireController = TextEditingController();
   TextEditingController poidsController = TextEditingController();
   TextEditingController prixTotalController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
 
   late String id_livraison;
@@ -67,74 +68,85 @@ class _PageValidationState extends State<PageValidation> {
           style: TextStyle(color: Colors.orange),
         ),
       ),
-      body:SingleChildScrollView(
-        child:
-       Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Informations clients',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            isLoadingTypeVehicule==false?CircularProgressIndicator():
-            _buildInfoRow('Nom de l\'xpéditeur', livraisons[0]["nom_expediteur"]!, Icons.person),
+      body:Form(
+        child:SingleChildScrollView(
+          child:
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Informations clients',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 20),
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Nom de l\'xpéditeur', livraisons[0]["nom_expediteur"]!, Icons.person),
 
-            isLoadingTypeVehicule==false?CircularProgressIndicator():
-            _buildInfoRow('Adresse de l\'expediteur', livraisons[0]["adresse_expedition"]!, Icons.location_on),
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Adresse de l\'expediteur', livraisons[0]["adresse_expedition"]!, Icons.location_on),
 
-            isLoadingTypeVehicule==false?CircularProgressIndicator():
-            _buildInfoRow('Téléphone de l\'expediteur ', livraisons[0]["tel_expedition"]!, Icons.phone),
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Téléphone de l\'expediteur ', livraisons[0]["tel_expedition"]!, Icons.phone),
 
-            Divider(
-              color: Colors.grey, // couleur de la ligne
-              thickness: 1,       // épaisseur
-              indent: 20,         // espace à gauche
-              endIndent: 20,      // espace à droite
-            ),
+                Divider(
+                  color: Colors.grey, // couleur de la ligne
+                  thickness: 1,       // épaisseur
+                  indent: 20,         // espace à gauche
+                  endIndent: 20,      // espace à droite
+                ),
 
-            isLoadingTypeVehicule==false?CircularProgressIndicator():
-            _buildInfoRow('Nom du destinataire', livraisons[0]["nom_destinateur"]!, Icons.person),
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Nom du destinataire', livraisons[0]["nom_destinateur"]!, Icons.person),
 
-            isLoadingTypeVehicule==false?CircularProgressIndicator():
-            _buildInfoRow('Adresse du destinateur ', livraisons[0]["adresse_destination"]!, Icons.location_on),
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Adresse du destinateur ', livraisons[0]["adresse_destination"]!, Icons.location_on),
 
-            isLoadingTypeVehicule==false?CircularProgressIndicator():
-            _buildInfoRow('Téléphone du destinateur', livraisons[0]["tel_destination"]!, Icons.phone),
-            SizedBox(height: 20),
-            Text(
-              'Tarification',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            _buildPricingRow('Prix unitaire', prixUnitaireController),
-            _buildPricingRow('Poids', poidsController),
-            _buildPricingRow('Prix total', prixTotalController),
-            SizedBox(height: 40),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Téléphone du destinateur', livraisons[0]["tel_destination"]!, Icons.phone),
+                SizedBox(height: 20),
+                Text(
+                  'Tarification',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                _buildPricingRow('Prix unitaire', prixUnitaireController),
+                _buildPricingRow('Poids', poidsController),
+                _buildPricingRow('Prix total', prixTotalController),
+                SizedBox(height: 40),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
 
-                  LivraisonController().editLivraisonLivreur(context,livraisons[0]["id_livraison"]!, prixTotalController.text, prixTotalController.text);
-                  // Vous pouvez ajouter ici une logique pour traiter la confirmation
+                      if (_formKey.currentState!.validate()) {
+                        LivraisonController().editLivraisonLivreur(context,livraisons[0]["id_livraison"]!,
+                            prixTotalController.text, prixTotalController.text);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
+                        );
+                      }
 
-                },
-                child: Text('Confirmer'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+
+                      // Vous pouvez ajouter ici une logique pour traiter la confirmation
+
+                    },
+                    child: Text('Confirmer'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ) ,
+      )  );
   }
 
   Widget _buildInfoRow(String label, String value, IconData icon) {
@@ -171,9 +183,15 @@ class _PageValidationState extends State<PageValidation> {
           Container(
             width: 200,
             height: 40,
-            child: TextField(
+            child: TextFormField(
               keyboardType: TextInputType.number,
               controller: controller,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Le champ "$label" est requis';
+                }
+                return null;
+              },
               decoration: InputDecoration(
                 hintText: 'Entrez $label',
                 border: OutlineInputBorder(),
