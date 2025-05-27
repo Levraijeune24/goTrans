@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
+import 'package:menji/routeGenerale/router.dart';
 
 import '../../controller/authController.dart';
 import '../client/pageAccueille.dart';
@@ -41,6 +43,20 @@ class _CreationCompteState extends State<CreationCompte> {
       _showToast('Les mots de passe ne correspondent pas');
       return;
     }
+    if (_nomController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      _showToast('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    final emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+    if (!emailRegex.hasMatch(_emailController.text)) {
+      _showToast('Adresse email invalide.');
+      return;
+    }
+
 
     setState(() => _isLoading = true);
 
@@ -55,15 +71,25 @@ class _CreationCompteState extends State<CreationCompte> {
       _showToast('Bienvenue ${user.name} !', isError: false);
 
       Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => PageAccueil()),
-        );
+        context.go("/home");
       });
 
     } catch (e) {
-      _showToast(e.toString());
-    } finally {
+      String errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+
+      if (e.toString().contains('email')) {
+        errorMessage = 'Le champ e-mail est requis.';
+      } else if (e.toString().contains('password')) {
+        errorMessage = 'Le champ mot de passe est requis.';
+      } else if (e.toString().contains('credentials')) {
+        errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage = 'Vérifiez votre connexion internet.';
+      }
+
+      _showToast(errorMessage);
+    }
+    finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }

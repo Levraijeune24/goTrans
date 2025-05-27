@@ -38,6 +38,8 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authController = AuthController();
+  bool _obscurePassword = true;
+
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool _isLoading = false;
   bool _isGoogleLoading = false;
@@ -62,19 +64,35 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final user = await _authController.login(
-        _emailController.text,
-        _passwordController.text,
-      ).timeout(const Duration(seconds: 10));
+      final user = await _authController
+          .login(
+            _emailController.text,
+            _passwordController.text,
+          )
+          .timeout(const Duration(seconds: 10));
 
       _showToast('Bienvenue, ${user.name}', isError: false);
 
-      Future.delayed(const Duration(milliseconds: 1500), ()  async {
-
-        context.go('/login');
-      },);
+      Future.delayed(
+        const Duration(milliseconds: 1500),
+        () async {
+          context.go('/login');
+        },
+      );
     } catch (e) {
-      _showToast(e.toString());
+      String errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+
+      if (e.toString().contains('email')) {
+        errorMessage = 'Le champ e-mail est requis.';
+      } else if (e.toString().contains('password')) {
+        errorMessage = 'Le champ mot de passe est requis.';
+      } else if (e.toString().contains('credentials')) {
+        errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage = 'Vérifiez votre connexion internet.';
+      }
+
+      _showToast(errorMessage);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -87,20 +105,34 @@ class _LoginPageState extends State<LoginPage> {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       // Envoie le token à votre backend Laravel
-      final user = await _authController.googleSignIn(googleAuth.idToken );
+      final user = await _authController.googleSignIn(googleAuth.idToken);
 
       _showToast('Bienvenue, ${user.name}', isError: false);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>  PageAccueil()),
+        MaterialPageRoute(builder: (context) => PageAccueil()),
       );
     } catch (e) {
-      _showToast('Erreur de connexion Google: ${e.toString()}');
-    } finally {
-      if (mounted) setState(() => _isGoogleLoading = false);
+      String errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+
+      if (e.toString().contains('email')) {
+        errorMessage = 'Le champ e-mail est requis.';
+      } else if (e.toString().contains('password')) {
+        errorMessage = 'Le champ mot de passe est requis.';
+      } else if (e.toString().contains('credentials')) {
+        errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage = 'Vérifiez votre connexion internet.';
+      }
+
+      _showToast(errorMessage);
+    }
+       finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -108,8 +140,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body:SingleChildScrollView(
-        child: Center(
+      body: Center(
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
@@ -133,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    hintText: 'E-mail ou téléphone',
+                    hintText: 'E-mail ',
                     hintStyle: const TextStyle(color: Colors.grey),
                     border: InputBorder.none,
                     enabledBorder: const UnderlineInputBorder(
@@ -148,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 20),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     hintText: 'Mot de passe',
                     hintStyle: const TextStyle(color: Colors.grey),
@@ -160,8 +192,20 @@ class _LoginPageState extends State<LoginPage> {
                       borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     ),
                     contentPadding: const EdgeInsets.only(bottom: 8),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.orange,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -169,9 +213,10 @@ class _LoginPageState extends State<LoginPage> {
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) =>  CreationCompte()),
+                        MaterialPageRoute(
+                            builder: (context) => CreationCompte()),
                       ),
-                      child:  RichText(
+                      child: RichText(
                         text: TextSpan(
                           children: [
                             TextSpan(
@@ -189,9 +234,10 @@ class _LoginPageState extends State<LoginPage> {
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) =>  MotDePasseOublie()),
+                        MaterialPageRoute(
+                            builder: (context) => MotDePasseOublie()),
                       ),
-                      child:  RichText(
+                      child: RichText(
                         text: TextSpan(
                           children: [
                             TextSpan(
@@ -216,27 +262,29 @@ class _LoginPageState extends State<LoginPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 115, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 115, vertical: 15),
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  )
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
                       : const Text(
-                    'Connexion',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
+                          'Connexion',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                 ),
                 const SizedBox(height: 20),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(child: Divider(color: Colors.orange, thickness: 0.7)),
+                    Expanded(
+                        child: Divider(color: Colors.orange, thickness: 0.7)),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
@@ -247,7 +295,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    Expanded(child: Divider(color: Colors.orange, thickness: 0.7)),
+                    Expanded(
+                        child: Divider(color: Colors.orange, thickness: 0.7)),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -274,26 +323,26 @@ class _LoginPageState extends State<LoginPage> {
         padding: const EdgeInsets.all(10),
         child: _isGoogleLoading
             ? const Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        )
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'images/google.png',
-              height: 24,
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'Continuer avec Google',
-              style: TextStyle(fontSize: 14),
-            ),
-          ],
-        ),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'images/google.png',
+                    height: 24,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Continuer avec Google',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
       ),
     );
   }

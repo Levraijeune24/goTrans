@@ -77,13 +77,27 @@ class _ProfilePageState extends State<ProfilePage> {
           name: _nameController.text,
           phone: _phoneController.text,
         );
+        _authController.setUser(updatedUser); // Ajoute cette ligne si disponible
+
         _showToast("Profil mis à jour");
         setState(() {
           _userFuture = Future.value(updatedUser);
           _isEditing = false;
         });
       } catch (e) {
-        _showToast(e.toString(), isError: true);
+        String errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+
+        if (e.toString().contains('email')) {
+          errorMessage = 'Le champ e-mail est requis.';
+        } else if (e.toString().contains('password')) {
+          errorMessage = 'Le champ mot de passe est requis.';
+        } else if (e.toString().contains('credentials')) {
+          errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+        } else if (e.toString().contains('SocketException')) {
+          errorMessage = 'Vérifiez votre connexion internet.';
+        }
+
+        _showToast(errorMessage);
       } finally {
         setState(() => _isLoading = false);
       }
@@ -119,11 +133,13 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileField({
+
     required String label,
     required TextEditingController controller,
     required bool isEditing,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
+
     bool obscureText = false,
   }) {
     return TextFormField(
@@ -174,6 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -183,7 +200,10 @@ class _ProfilePageState extends State<ProfilePage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            context.go('/home');
+            if (mounted) {
+              context.go('/home');
+            }
+
           },
         ),
         actions: [
@@ -230,6 +250,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: 400),
                 child: Form(
+
                     key: _formKey,
                     child: Column(
                       children: [
@@ -239,9 +260,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         CircleAvatar(
                           radius: 60,
-                         // backgroundImage: AssetImage('assets/default_profile.png') as ImageProvider,
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: Colors.orange,
+                          child: Text(
+                            user.name.split(' ').map((e) => e[0]).take(2).join(),
+                            style: TextStyle(fontSize: 32, color: Colors.white),
+                          ),
                         ),
+
                         if (_isEditing && !_showPasswordFields)
                           FloatingActionButton(
                             mini: true,
@@ -269,17 +294,27 @@ class _ProfilePageState extends State<ProfilePage> {
                       keyboardType: TextInputType.phone,
                     ),
                     SizedBox(height: 16),
-                    _buildProfileField(
-                      label: 'Email',
-                      controller: TextEditingController(text: user.email),
-                      isEditing: false,
-                      icon: Icons.email_outlined,
-                    ),
-                    SizedBox(height: 24),
+                        TextFormField(
+                          initialValue: user.email,
+                          enabled: false,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: Icon(Icons.email_outlined),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 24),
 
                     // Section mot de passe
                     if (_showPasswordFields) ...[
                 _buildProfileField(
+
                 label: 'Mot de passe actuel',
                 controller: _currentPasswordController,
                 isEditing: true,

@@ -1,3 +1,6 @@
+
+
+import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../serviceAu/apiServiceUser.dart';
@@ -25,6 +28,10 @@ class AuthController {
   }
   Future<User?> getUser() async {
     return await _localStorage.getUser();
+  }
+
+  Future setUser(User user) async {
+    await _localStorage.saveUser(user);
   }
 
   Future<RoleInfo?> getRole() async {
