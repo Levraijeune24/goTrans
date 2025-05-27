@@ -19,7 +19,6 @@ class LivraisonController {
 
 
   Future<List<Map<String,String>>> AllLivraison(int id) async{
-
      final donneesLivraison= await v.getLivraison(id);
      return donneesLivraison;
   }

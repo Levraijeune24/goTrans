@@ -9,18 +9,13 @@ import '../serviceAu/local_storage_service.dart';
 
 class Apilivraison {
 
-
-
-
    String? token;
   final adresse="https://gotrans.menjidrc.com/";
 
   void setToken(String token) {
     this.token = token;
   }
-
-
-
+  
   Future<void> fetLivraison(String id) async {
 
 
@@ -48,7 +43,7 @@ class Apilivraison {
   }
 
   Future<List<Map<String,String>>> typeVehicule() async {
-  print("tttttttttttttt");
+
     print(token);
 
     List<Map<String,String>> mesTypes=[];
@@ -355,7 +350,7 @@ class Apilivraison {
     );
 
     final data = jsonDecode(response.body);
-    print("sssssss");
+
 
     if (response.statusCode == 200) {
 
