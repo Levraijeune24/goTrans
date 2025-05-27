@@ -27,15 +27,17 @@ class PageAccueil extends StatefulWidget {
 class PageAccueilState extends State<PageAccueil> {
   Typevehiculecontroller _typevehiculecontroller=Typevehiculecontroller();
   LivraisonController _livraisonController=LivraisonController();
+  final TextEditingController codeController = TextEditingController();
 
   List<Map<String, String>> listes1 = [];
   List<Map<String, String>> listesLivraison1 = [];
+  List<Map<String, String>> listesLivraisonDestinateur = [];
+
   bool isLoadingTypeVehicule = true;
   bool isLoadingLivraison = true;
+  bool isLoadingLivraisonDestinateur = true;
 
   void _initialisationTypeVehicule() async {
-
-
 
    await _typevehiculecontroller.setToken();
     listes1 = await _typevehiculecontroller.AllTypeVehicule();
@@ -47,11 +49,24 @@ class PageAccueilState extends State<PageAccueil> {
   void _initialisationLivraison() async {
     final roleUser= await AuthController().getRole();
 
-    print(roleUser?.id);
     listesLivraison1 = await _livraisonController.AllLivraison(roleUser!.id
     );
+
     setState(() {
       isLoadingLivraison = false;
+    });
+  }
+
+  void _initialisationLivraisonDestinateur() async {
+    final roleUser= await AuthController().getRole();
+
+
+    listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id
+    );
+    print("00000000000");
+
+    setState(() {
+      isLoadingLivraisonDestinateur = false;
     });
   }
 
@@ -60,6 +75,7 @@ class PageAccueilState extends State<PageAccueil> {
     super.initState();
     _initialisationTypeVehicule();
     _initialisationLivraison();
+    _initialisationLivraisonDestinateur();
   }
 
   @override
@@ -125,23 +141,45 @@ class PageAccueilState extends State<PageAccueil> {
               ],
             ),
             SizedBox(height: 10),
-            isLoadingLivraison
-                ? Center(child: CircularProgressIndicator())
-                : Container(
+             Container(
               height: 300,
-              child: ListView(
-                children: listesLivraison1.map((livraison) {
-                  return _buildDeliveryCard(
-                    'Bob',
-                    livraison["moyen_transport"]!,
-                    livraison["status"]!,
-                    livraison["date"]!,
-                      livraison["id"]!
 
-                  );
-                }).toList(),
-              ),
-            ),
+              child: SingleChildScrollView(
+                child: Column(
+                    children: [
+                      isLoadingLivraison
+                          ? Center(child: CircularProgressIndicator())
+                          :
+                      Column(
+                        children: listesLivraison1.map((livraison) {
+                          return _buildDeliveryCard(
+                              'Bob',
+                              livraison["moyen_transport"]!,
+                              livraison["status"]!,
+                              livraison["date"]!,
+                              livraison["id"]!
+
+                          );
+                        }).toList(),
+                      ),
+                      isLoadingLivraisonDestinateur?
+                      Center(child: CircularProgressIndicator()):
+                      Column(
+                          children: listesLivraisonDestinateur.map((livraison) {
+                            return _buildDeliveryCard(
+                                'Bob',
+                                livraison["moyen_transport"]!,
+                                livraison["status"]!,
+                                livraison["date"]!,
+                                livraison["id"]!
+
+                            );
+                          }).toList())
+
+                    ]
+                ),
+
+              ) ),
           ],
         ),
       ),
@@ -180,6 +218,7 @@ class PageAccueilState extends State<PageAccueil> {
       String name, String transportMode, String status, String time,String id) {
     Color statusColor =
     status == 'en_cours' ? Colors.blue : Colors.orange;
+    statusColor = status == 'terminee' ? Colors.green : Colors.orange;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
@@ -222,7 +261,7 @@ class PageAccueilState extends State<PageAccueil> {
                       style: TextStyle(color: Colors.white)),
                 ),
 
-                (status!="annulee")?
+                (status=="en_attente")?
                 InkWell(
                   onTap: () {
                     setState(() {
@@ -239,15 +278,21 @@ class PageAccueilState extends State<PageAccueil> {
                     child: Text("Annuler", style: TextStyle(color: Colors.white)),
                   ),
                 ):Center(),
-                
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text("Mod", style: TextStyle(color: Colors.white)),
-                ),
+                (status=="en_cours")?
+                InkWell(
+                  onTap: (){
+                    _showCodeConfirmationDialog(context,codeController,id,_livraisonController);
+                  },
+                  child:Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text("Confirmer", style: TextStyle(color: Colors.white)),
+                  ) ,
+                ):Center()
+                ,
               ],
             ),
           ],
@@ -255,4 +300,48 @@ class PageAccueilState extends State<PageAccueil> {
       ),
     );
   }
+}
+
+void _showCodeConfirmationDialog(
+    BuildContext context,
+    TextEditingController controller,
+    String idLivraison,
+    LivraisonController liv
+    ) {
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("Confirmation"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("Entrez le code de validation :"),
+          SizedBox(height: 10),
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: "Code de validation",
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: Text("Annuler"),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        ElevatedButton(
+          child: Text("Valider"),
+          onPressed: () async {
+            String code = controller.text;
+
+            liv.confirmerLivraison(context,idLivraison, controller.text);
+
+          },
+        ),
+      ],
+    ),
+  );
 }

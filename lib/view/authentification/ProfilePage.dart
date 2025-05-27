@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:menji/view/client/pageAccueille.dart';
 import '../../controller/authController.dart';
 import '../../model/userModel.dart';
 import '../../serviceAu/apiServiceUser.dart';
@@ -341,12 +340,9 @@ class _ProfilePageState extends State<ProfilePage> {
               text: 'Déconnexion',
               icon: Icons.logout,
               color: Colors.red,
-              onPressed: () =>  // redirection
-                  _authController.logout().then((_) {
+              onPressed: () => _authController.logout().then((_) {
 
-                    context.go('/login');
-
-
+                context.go('/login');
               }),
             ),
             ],

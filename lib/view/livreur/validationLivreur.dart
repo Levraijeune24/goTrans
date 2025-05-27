@@ -1,21 +1,55 @@
 import 'package:flutter/material.dart';
 
+import '../../controller/LivraisonController.dart';
+
+class PageValidation extends StatefulWidget {
+
+  late String id_livraison;
+ late  String id_livreur;
 
 
-class MyAppliv extends StatelessWidget {
+  PageValidation(this.id_livreur,this.id_livraison);
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Validation',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
-      home: PageValidation(),
-    );
-  }
+  _PageValidationState createState() => _PageValidationState(this.id_livreur,this.id_livraison);
 }
 
-class PageValidation extends StatelessWidget {
+class _PageValidationState extends State<PageValidation> {
+
+  TextEditingController prixUnitaireController = TextEditingController();
+  TextEditingController poidsController = TextEditingController();
+  TextEditingController prixTotalController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+
+  late String id_livraison;
+  late  String id_livreur;
+  late List<Map<String, String>> livraisons;
+  bool isLoadingTypeVehicule=false;
+
+  void initInfoLivraison() async{
+
+    livraisons=await LivraisonController().ShowLivraisonLivreur(id_livreur , id_livraison);
+
+    print(livraisons);
+
+    setState(() {
+      isLoadingTypeVehicule = true;
+    });
+
+  }
+
+  _PageValidationState(this.id_livreur,this.id_livraison);
+
+
+  @override
+  void initState() {
+    initInfoLivraison();
+    // TODO: implement initState
+    super.initState();
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,49 +68,85 @@ class PageValidation extends StatelessWidget {
           style: TextStyle(color: Colors.orange),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Informations clients',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            _buildInfoRow('Expéditeur', 'Marien Manima', Icons.person),
-            _buildInfoRow('Destinataire', 'Bob kayemba', Icons.person),
-            _buildInfoRow('Adresse', 'Av: Bukenga, n°12 Q/ Lemba', Icons.location_on),
-            _buildInfoRow('Téléphone', '+243 856 841 787', Icons.phone),
-            SizedBox(height: 20),
-            Text(
-              'Tarification',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            _buildPricingRow('Prix unitaire', '3000 Fc/Kg'),
-            _buildPricingRow('Poids', '70 KG'),
-            _buildPricingRow('Prix total', '12.000 Fc'),
-            SizedBox(height: 40),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Action pour confirmer
-                },
-                child: Text('Confirmer'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Couleur verte
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+      body:Form(
+        child:SingleChildScrollView(
+          child:
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Informations clients',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 20),
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Nom de l\'xpéditeur', livraisons[0]["nom_expediteur"]!, Icons.person),
+
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Adresse de l\'expediteur', livraisons[0]["adresse_expedition"]!, Icons.location_on),
+
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Téléphone de l\'expediteur ', livraisons[0]["tel_expedition"]!, Icons.phone),
+
+                Divider(
+                  color: Colors.grey, // couleur de la ligne
+                  thickness: 1,       // épaisseur
+                  indent: 20,         // espace à gauche
+                  endIndent: 20,      // espace à droite
+                ),
+
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Nom du destinataire', livraisons[0]["nom_destinateur"]!, Icons.person),
+
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Adresse du destinateur ', livraisons[0]["adresse_destination"]!, Icons.location_on),
+
+                isLoadingTypeVehicule==false?CircularProgressIndicator():
+                _buildInfoRow('Téléphone du destinateur', livraisons[0]["tel_destination"]!, Icons.phone),
+                SizedBox(height: 20),
+                Text(
+                  'Tarification',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                _buildPricingRow('Prix unitaire', prixUnitaireController),
+                _buildPricingRow('Poids', poidsController),
+                _buildPricingRow('Prix total', prixTotalController),
+                SizedBox(height: 40),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+
+                      if (_formKey.currentState!.validate()) {
+                        LivraisonController().editLivraisonLivreur(context,livraisons[0]["id_livraison"]!,
+                            prixTotalController.text, prixTotalController.text);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
+                        );
+                      }
+
+
+                      // Vous pouvez ajouter ici une logique pour traiter la confirmation
+
+                    },
+                    child: Text('Confirmer'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ) ,
+      )  );
   }
 
   Widget _buildInfoRow(String label, String value, IconData icon) {
@@ -90,7 +160,7 @@ class PageValidation extends StatelessWidget {
             SizedBox(height: 5),
             Container(
               padding: EdgeInsets.all(10.0),
-              width: 200, // Largeur fixe pour les conteneurs
+              width: 300,
               color: Colors.white,
               child: Text(value),
             ),
@@ -101,7 +171,7 @@ class PageValidation extends StatelessWidget {
     );
   }
 
-  Widget _buildPricingRow(String label, String value) {
+  Widget _buildPricingRow(String label, TextEditingController controller) {
     return Container(
       padding: EdgeInsets.all(10.0),
       margin: EdgeInsets.only(top: 5.0, bottom: 10.0),
@@ -110,9 +180,29 @@ class PageValidation extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-          Text(value),
+          Container(
+            width: 200,
+            height: 40,
+            child: TextFormField(
+              keyboardType: TextInputType.number,
+              controller: controller,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Le champ "$label" est requis';
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                hintText: 'Entrez $label',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              ),
+            ),
+          ),
         ],
       ),
     );
-  }
-}
+  }}
+
+
+

@@ -32,7 +32,7 @@ class _PageCommanderState extends State<PageCommander> {
 
   List<Map<String,String>> clients=[];
   late bool isLoadingClient=true;
-  late bool isClientExiste=true;
+
 
   late String selectedValueName;
   late String id_client;
@@ -56,9 +56,10 @@ class _PageCommanderState extends State<PageCommander> {
     print('roleUser.id');
     print(roleUser.id);
     clients = await _clientController.getClient();
+
     selectedValueName=clients[0]["nom"]??"";
     id_client=clients[0]["id"]??"0";
-    _livraisonController.setToken();
+
 
     setState(() {
       isLoadingClient = false;
@@ -139,30 +140,11 @@ class _PageCommanderState extends State<PageCommander> {
                         _sectionTitle('Destinataire'),
                         _buildValidatedTextField(controller: controllerAdresseDestinateur, label: 'Adresse', icon: Icons.location_on,type:TextInputType.text),
                         SizedBox(height: 20),
-                        (!isClientExiste)?
-                        Column(
-                          children: [_buildValidatedTextField(controller: controllerNomDestinateur, label: 'Nom complet', icon: Icons.person,type:TextInputType.text),
 
-                          ],
-                        ):Center(),
-                        Switch(
-                          value: isClientExiste,
-                          onChanged: (value) {
-                            setState(() {
-                              isClientExiste=value;
-                              if(value==false){
-                                id_client="0";
-                              }
-
-                            });
-                          },
-                        ),
-                      (isClientExiste && clients.isNotEmpty)
-                          ? buildComboBox(
+                      buildSearchableComboBox(
+                        controller: controllerNomDestinateur,
                         label: "Clients",
                         options: clients.map((client) =>client).toList(),
-                        selectedValue: clients.isNotEmpty ? clients[0]["id"] : null,
-                           // stocké dans un String? dans ton State
                         onChanged: (String? id, String? nom) {
                           print("ID: $id, Nom: $nom");
                           setState(() {
@@ -171,7 +153,7 @@ class _PageCommanderState extends State<PageCommander> {
                           });
                         },
                       )
-                          : Center(child: Text("")),
+                        ,
 
                         SizedBox(height: 20),
                         _buildValidatedTextField(controller: controllerNumeroDestinateur, label: 'Numéro téléphone', icon: Icons.phone,type:TextInputType.phone),
@@ -186,7 +168,7 @@ class _PageCommanderState extends State<PageCommander> {
                                 _livraisonController.storeLivraison(
                                   roleUser.id.toString(),
                                   id_client,
-                                  isClientExiste ? selectedValueName : controllerNomDestinateur.text,
+                                   controllerNomDestinateur.text,
                                   controllerAdresseExpediteur.text,
                                   controllerAdresseDestinateur.text,
                                   controllerNumeroDestinateur.text,
@@ -245,16 +227,7 @@ class _PageCommanderState extends State<PageCommander> {
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.orange,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: Colors.white),
-        ),
+        )
       ],
     );
   }
@@ -267,30 +240,49 @@ class _PageCommanderState extends State<PageCommander> {
     );
   }
 }
-Widget buildComboBox({
+Widget buildSearchableComboBox({
   required String label,
-  required List<Map<String,String>> options,
-  required String? selectedValue,
-  required Function(String?,String?) onChanged,
+  required List<Map<String, String>> options,
+  required TextEditingController controller,
+  required Function(String?, String?) onChanged,
 }) {
-  return DropdownButtonFormField<String>(
-    value: selectedValue,
-    onChanged: (String? newId) {
-      final selectedClient =
-      options.firstWhere((client) => client["id"] == newId, orElse: () => {});
-      onChanged(newId, selectedClient["nom"]);
-    },
-    items: options.map((client) {
-      return DropdownMenuItem<String>(
-        value: client["id"],
-        child: Text(client["nom"]!),
-      );
-    }).toList(),
-    decoration: InputDecoration(
-      labelText: label,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label),
+      const SizedBox(height: 5),
+      Autocomplete<Map<String, String>>(
+        optionsBuilder: (TextEditingValue textEditingValue) {
+          if (textEditingValue.text == '') {
+            return const Iterable<Map<String, String>>.empty();
+          }
+          return options.where((client) =>
+              client["nom"]!
+                  .toLowerCase()
+                  .contains(textEditingValue.text.toLowerCase()));
+        },
+        displayStringForOption: (option) => option["nom"]!,
+        fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+          controller.text = textEditingController.text;
+          return TextFormField(
+            controller: textEditingController,
+            focusNode: focusNode,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              labelText: label,
+            ),
+            onChanged: (text) {
+              onChanged(null, text); // saisie libre
+            },
+          );
+        },
+        onSelected: (Map<String, String> selection) {
+          controller.text = selection["nom"]!;
+          onChanged(selection["id"], selection["nom"]);
+        },
       ),
-    ),
+    ],
   );
 }

@@ -23,6 +23,7 @@ class Apilivraison {
 
   Future<void> fetLivraison(String id) async {
 
+
     final url = Uri.parse(adresse+'api/livraison/getLivraisonDestinateur/$id');
 
 
@@ -173,6 +174,123 @@ class Apilivraison {
     return livraisons;
 
   }
+
+   Future<List<Map<String,String>>> getLivraisonDestinateur (int id) async {
+
+     List<Map<String,String>> livraisons=[];
+
+     final url = Uri.parse(adresse+'api/livraison/getLivraisonDestinateur/$id');
+
+     final response = await http.get(
+         url,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer $token'
+         }
+     );
+     final data = jsonDecode(response.body);
+     if (response.statusCode == 200) {
+
+       final data = jsonDecode(response.body);
+       data["data"].forEach((livraison) {
+
+         livraisons.add({"id":livraison["id"].toString(),
+           "status":livraison["status"],
+           "date":livraison["date"],
+           "moyen_transport":livraison["moyen_transport"],
+
+         },
+         );
+
+       });}
+
+     return livraisons;
+
+   }
+
+   Future<List<Map<String,String>>> getLivraisonLivreur (int id) async {
+
+     List<Map<String,String>> livraisons=[];
+
+     final url = Uri.parse(adresse+'api/livraison/getLivraisonLivreur/$id');
+
+     final response = await http.get(
+         url,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+         }
+     );
+     final data = jsonDecode(response.body);
+     if (response.statusCode == 200) {
+
+       final data = jsonDecode(response.body);
+
+       data["data"].forEach((livraison) {
+
+         livraisons.add({"id_livraison":livraison["id_livraison"].toString(),
+           "immatriculation":livraison["immatriculation"],
+           "nom_expediteur":livraison["nom_expediteur"],
+           "nom_destinateur":livraison["nom_destinateur"],
+           "date":livraison["date"],
+           "status":livraison["status"],
+           "id_livreur":livraison["livreur_id"].toString()
+
+         },);
+
+        }
+       );
+
+
+     }
+     return livraisons;
+       }
+
+
+   Future<List<Map<String,String>>> showLivraisonLivreur (String id_livreur, String id_livraison) async {
+
+     List<Map<String,String>> livraisons=[];
+
+     final url = Uri.parse(adresse+'api/livraison/showLivraisonLivreur/$id_livreur/$id_livraison');
+
+     print(url);
+
+     final response = await http.get(
+         url,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+         }
+     );
+     final data = jsonDecode(response.body);
+     if (response.statusCode == 200) {
+
+       final data = jsonDecode(response.body);
+       print("HHHHHHHHH");
+       print(data);
+       data["data"].forEach((livraison) {
+
+         livraisons.add({"id_livraison":livraison["id_livraison"].toString(),
+           "immatriculation":livraison["immatriculation"],
+           "nom_expediteur":livraison["nom_expediteur"],
+           "nom_destinateur":livraison["nom_destinateur"],
+           "adresse_expedition":livraison["adresse_expedition"],
+           "tel_expedition":livraison["tel_expedition"],
+           "adresse_destination":livraison["adresse_destination"],
+           "tel_destination":livraison["tel_destination"]?? "",
+         },);
+
+
+
+       }
+       );
+
+
+     }
+     return livraisons;
+   }
+
+
   Future<String> annuler (String id) async {
 
     final url = Uri.parse(adresse+'api/livraison/cancel/$id');
@@ -180,7 +298,8 @@ class Apilivraison {
     final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
           // On envoie le token ici
         }
     );
@@ -193,7 +312,35 @@ class Apilivraison {
 
   }
 
+
+   Future<String> editLivraisonLivreur (String id_livraison,String montant, String kilo) async {
+
+     final url = Uri.parse(adresse+'api/livraison/en_cours');
+
+     final response = await http.post(
+         url,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+           // On envoie le token ici
+         },
+         body: jsonEncode({
+           "id":id_livraison,
+           "montant":montant,
+           "poid": kilo // ou d'autres données nécessaires à l'API
+         })
+     );
+
+     final data = jsonDecode(response.body);
+     print(data);
+
+     return data;
+
+
+   }
+
   Future<List<Map<String,String>>> getClient () async {
+    print("iciiciicicicicicicic");
 
     List<Map<String,String>> clients=[];
 
@@ -208,7 +355,7 @@ class Apilivraison {
     );
 
     final data = jsonDecode(response.body);
-    print(data);
+    print("sssssss");
 
     if (response.statusCode == 200) {
 
@@ -225,6 +372,30 @@ class Apilivraison {
 
 
 
+
+  }
+
+   Future<String> confirmerLivraison(String id_livraison, String codeLivraison)async{
+
+    final url = Uri.parse(adresse+'api/livraison/terminer');
+
+    final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+          // On envoie le token ici
+        },
+        body: jsonEncode({
+          "id":id_livraison,
+          "codeLivraison":codeLivraison
+        })
+    );
+
+    final data = jsonDecode(response.body);
+    print(data);
+
+    return data;
 
   }
 

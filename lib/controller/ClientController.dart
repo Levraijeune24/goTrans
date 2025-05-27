@@ -22,6 +22,7 @@ class ClientController {
   }
 
   Future<List<Map<String,String>>>  getClient() async {
+    print(v.token);
     return v.getClient();
   }
 }
