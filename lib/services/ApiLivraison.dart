@@ -16,35 +16,8 @@ class Apilivraison {
     this.token = token;
   }
   
-  Future<void> fetLivraison(String id) async {
-
-
-    final url = Uri.parse(adresse+'api/livraison/getLivraisonDestinateur/$id');
-
-
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',  // On envoie le token ici
-      }
-    );
-
-    print('Statut : ${response.statusCode}');
-    print('Réponse brute : ${response.body}');
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print('Livraison reçue : $data');
-      // tu peux retourner ou manipuler les données ici
-    } else {
-      print('Erreur : ${response.statusCode}');
-    }
-  }
 
   Future<List<Map<String,String>>> typeVehicule() async {
-
-    print(token);
 
     List<Map<String,String>> mesTypes=[];
 
@@ -137,7 +110,9 @@ class Apilivraison {
 
   }
 
-  Future<List<Map<String,String>>> getLivraison (int id) async {
+  Future<List<Map<String,String>>> getLivraisonExpediteur (int id) async {
+
+
 
     List<Map<String,String>> livraisons=[];
 
@@ -151,6 +126,8 @@ class Apilivraison {
       }
     );
     final data = jsonDecode(response.body);
+    print("ttttttttttttt");
+    print(data);
     if (response.statusCode == 200) {
 
       final data = jsonDecode(response.body);
@@ -220,6 +197,7 @@ class Apilivraison {
      if (response.statusCode == 200) {
 
        final data = jsonDecode(response.body);
+
 
        data["data"].forEach((livraison) {
 
@@ -359,6 +337,7 @@ class Apilivraison {
 
         clients.add({"id":client["id"].toString(),
           "nom":client["user"]["name"],
+          "email":client["user"]["email"],
         },
         );
 

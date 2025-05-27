@@ -17,12 +17,12 @@ class ClientController {
   void InitClient(BuildContext context) async {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MyApp()),
+      MaterialPageRoute(builder: (context) => PageAccueil()),
     );
   }
 
   Future<List<Map<String,String>>>  getClient() async {
-    print(v.token);
+
     return v.getClient();
   }
 }

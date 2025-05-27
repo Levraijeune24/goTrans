@@ -6,6 +6,7 @@ import 'package:menji/services/ApiLivraison.dart';
 import 'package:menji/view/client/commander.dart';
 
 import '../serviceAu/local_storage_service.dart';
+import '../utils/elpers/elperDate.dart';
 import '../view/livreur/pageAccueilleLivreur.darT';
 
 
@@ -19,13 +20,13 @@ class LivraisonController {
 
 
   Future<List<Map<String,String>>> AllLivraison(int id) async{
-     final donneesLivraison= await v.getLivraison(id);
+     final donneesLivraison= await v.getLivraisonExpediteur(id);
      return donneesLivraison;
   }
 
   Future<List<Map<String,String>>> AllLivraisonDestinateur(int id) async{
 
-    final donneesLivraison= await v.getLivraison(id);
+    final donneesLivraison= await v.getLivraisonDestinateur(id);
     return donneesLivraison;
   }
 
@@ -42,6 +43,11 @@ class LivraisonController {
       SnackBar(content: Text("vous avez annulee une livraison")),
     );
   }
+
+
+
+
+
 
   void editLivraisonLivreur(BuildContext context,String id_livraison,String montant, String kilo){
 
@@ -80,13 +86,15 @@ class LivraisonController {
       String telephoneDestination,String telephoneExpediteur,String moyenTransport
       ,BuildContext context) async{
 
+    print("marien ici");
+    print(dateDuJour());
 
       final donnees= await v.SaveLivraison(id_expediteur,id_destinateur,nom,adresseExpedition,
           adresseDestination,telephoneDestination,telephoneExpediteur,moyenTransport);
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MyApp()),
+        MaterialPageRoute(builder: (context) => PageAccueil()),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

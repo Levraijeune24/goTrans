@@ -10,9 +10,6 @@ import '../view/livreur/validationLivreur.dart';
 class Livreurcontroller {
 
 
-
-
-
   void InitLivreur(BuildContext context) async {
     Navigator.push(
       context,
@@ -22,9 +19,6 @@ class Livreurcontroller {
 
   void  getDetailleLivraison(BuildContext context,String id_livreur ,String id_livraison) async {
 
-
-    print("ggfgfgfgfgfgf");
-    print([id_livreur ,id_livraison]);
 
     Navigator.push(
       context,

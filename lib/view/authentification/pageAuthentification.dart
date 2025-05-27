@@ -10,24 +10,6 @@ import 'recupererMotPass.dart';
 import '../client/pageAccueille.dart';
 import 'ProfilePage.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Menji',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
-      home: LoginPage(),
-    );
-  }
-}
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -35,6 +17,8 @@ class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
+
+
 
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();

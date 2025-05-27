@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:menji/view/authentification/ProfilePage.dart';
-import 'package:menji/view/authentification/pageAuthentification.dart';
-import '../../controller/ClientController.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
 import '../../controller/authController.dart';
-import '../../services/ApiLivraison.dart';
-import 'commander.dart';
-import 'package:menji/compenent/blockMoyenTransport.dart';
 import 'package:menji/compenent/ListeBlockTransport.dart';
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return PageAccueil();
-  }
-}
 
 
 class PageAccueil extends StatefulWidget {
@@ -48,10 +35,7 @@ class PageAccueilState extends State<PageAccueil> {
 
   void _initialisationLivraison() async {
     final roleUser= await AuthController().getRole();
-
-    listesLivraison1 = await _livraisonController.AllLivraison(roleUser!.id
-    );
-
+    listesLivraison1 = await _livraisonController.AllLivraison(roleUser!.id);
     setState(() {
       isLoadingLivraison = false;
     });
@@ -59,16 +43,14 @@ class PageAccueilState extends State<PageAccueil> {
 
   void _initialisationLivraisonDestinateur() async {
     final roleUser= await AuthController().getRole();
-
-
-    listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id
-    );
+    listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
     print("00000000000");
-
     setState(() {
       isLoadingLivraisonDestinateur = false;
     });
   }
+
+
 
   @override
   void initState() {
@@ -85,7 +67,7 @@ class PageAccueilState extends State<PageAccueil> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(''),
+        title: Text('Page d\' accueil'),
         iconTheme: IconThemeData(color: Colors.orange),
         actions: [
           IconButton(
@@ -99,7 +81,6 @@ class PageAccueilState extends State<PageAccueil> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section "Mode de transport"
             Row(
               children: [
                 Text(
@@ -152,28 +133,29 @@ class PageAccueilState extends State<PageAccueil> {
                           :
                       Column(
                         children: listesLivraison1.map((livraison) {
-                          return _buildDeliveryCard(
+                          return (livraison["status"] !="annulee" && livraison["status"] !="terminee") ?_buildDeliveryCard(
                               'Bob',
                               livraison["moyen_transport"]!,
                               livraison["status"]!,
                               livraison["date"]!,
                               livraison["id"]!
 
-                          );
+                          ):Center();
                         }).toList(),
                       ),
                       isLoadingLivraisonDestinateur?
                       Center(child: CircularProgressIndicator()):
                       Column(
                           children: listesLivraisonDestinateur.map((livraison) {
-                            return _buildDeliveryCard(
-                                'Bob',
+
+                            return livraison["status"]!="annulee"? _buildDeliveryCard(
+                                'BoOb',
                                 livraison["moyen_transport"]!,
                                 livraison["status"]!,
                                 livraison["date"]!,
                                 livraison["id"]!
 
-                            );
+                            ):Center();
                           }).toList())
 
                     ]
@@ -231,7 +213,8 @@ class PageAccueilState extends State<PageAccueil> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Nom', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Expediteur', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Destinateur', style: TextStyle(fontWeight: FontWeight.bold)),
                 Text('Transport', style: TextStyle(fontWeight: FontWeight.bold)),
                 Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
               ],

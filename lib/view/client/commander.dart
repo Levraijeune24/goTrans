@@ -35,9 +35,8 @@ class _PageCommanderState extends State<PageCommander> {
 
 
   late String selectedValueName;
-  late String id_client;
+  late String id_client="0";
   late final roleUser;
-
 
 
   final TextEditingController controllerAdresseExpediteur = TextEditingController();
@@ -49,17 +48,12 @@ class _PageCommanderState extends State<PageCommander> {
 
 
   void _initialisationClients() async {
-
     roleUser= await AuthController().getRole();
     await _clientController.setToken();
     await _livraisonController.setToken();
-    print('roleUser.id');
-    print(roleUser.id);
+
     clients = await _clientController.getClient();
-
     selectedValueName=clients[0]["nom"]??"";
-    id_client=clients[0]["id"]??"0";
-
 
     setState(() {
       isLoadingClient = false;
@@ -68,8 +62,9 @@ class _PageCommanderState extends State<PageCommander> {
 
   @override
   void initState() {
-    super.initState();
+
     _initialisationClients();
+    super.initState();
 
   }
 
@@ -142,11 +137,12 @@ class _PageCommanderState extends State<PageCommander> {
                         SizedBox(height: 20),
 
                       buildSearchableComboBox(
+                        id_client_encours: !isLoadingClient? roleUser.id.toString() : '',
                         controller: controllerNomDestinateur,
-                        label: "Clients",
+                        label: "Client destinataire",
                         options: clients.map((client) =>client).toList(),
                         onChanged: (String? id, String? nom) {
-                          print("ID: $id, Nom: $nom");
+
                           setState(() {
                             id_client= id!;
                             selectedValueName = nom ?? "";
@@ -154,15 +150,12 @@ class _PageCommanderState extends State<PageCommander> {
                         },
                       )
                         ,
-
                         SizedBox(height: 20),
                         _buildValidatedTextField(controller: controllerNumeroDestinateur, label: 'Numéro téléphone', icon: Icons.phone,type:TextInputType.phone),
                         SizedBox(height: 40),
                         Center(
                           child: ElevatedButton(
                             onPressed: () {
-
-                              print("ICICICI");
 
                               if (_formKey.currentState!.validate()) {
                                 _livraisonController.storeLivraison(
@@ -245,6 +238,7 @@ Widget buildSearchableComboBox({
   required List<Map<String, String>> options,
   required TextEditingController controller,
   required Function(String?, String?) onChanged,
+  required String id_client_encours
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,16 +251,23 @@ Widget buildSearchableComboBox({
             return const Iterable<Map<String, String>>.empty();
           }
           return options.where((client) =>
+          client["id"] != id_client_encours &&
               client["nom"]!
                   .toLowerCase()
                   .contains(textEditingValue.text.toLowerCase()));
         },
-        displayStringForOption: (option) => option["nom"]!,
+        displayStringForOption: (option) =>  '${option["nom"]} (${option["email"]})',
         fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
           controller.text = textEditingController.text;
           return TextFormField(
             controller: textEditingController,
             focusNode: focusNode,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Le champ "$label" est requis';
+                }
+                return null;
+              },
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),

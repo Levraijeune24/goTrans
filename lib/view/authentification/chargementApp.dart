@@ -3,9 +3,6 @@ import 'package:menji/view/authentification/pageAuthentification.dart';
 
 import '../livreur/pageAccueilleLivreur.darT';
 
-void main() {
-  runApp(MyApp());
-}
 
 class MyApp extends StatelessWidget {
   @override

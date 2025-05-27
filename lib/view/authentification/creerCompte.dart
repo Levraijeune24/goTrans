@@ -1,25 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import '../../controller/authController.dart';
 import '../client/pageAccueille.dart';
 
-void main() {
-  runApp(MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Création de Compte',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
-      home: CreationCompte(),
-    );
-  }
-}
 
 class CreationCompte extends StatefulWidget {
   @override
