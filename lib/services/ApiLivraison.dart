@@ -110,8 +110,6 @@ class Apilivraison {
 
   Future<List<Map<String,String>>> getLivraisonExpediteur (int id) async {
 
-
-
     List<Map<String,String>> livraisons=[];
 
     final url = Uri.parse(adresse+'api/livraison/getLivraisonExpediteur/$id');
@@ -130,6 +128,8 @@ class Apilivraison {
 
       final data = jsonDecode(response.body);
       data["data"].forEach((livraison) {
+
+        print(livraison);
 
         livraisons.add({"id":livraison["id"].toString(),
           "status":livraison["status"],

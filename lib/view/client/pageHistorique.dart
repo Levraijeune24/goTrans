@@ -25,6 +25,14 @@ class _PageHistoriqueState extends State<PageHistorique> {
      });
 
   }
+  // void _initialisationLivraisonDestinateur() async {
+  //   final roleUser= await AuthController().getRole();
+  //   listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
+  //   print("00000000000");
+  //   setState(() {
+  //     isLoadingLivraisonDestinateur = false;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -173,8 +181,6 @@ class _PageHistoriqueState extends State<PageHistorique> {
                 ),
                 InkWell(
                   onTap: (){
-                    Livreurcontroller().getDetailleLivraison(context,id_livreur , id_livraison);
-
 
                   },
                   child:Container(
