@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageHistorique.dart';
 import '../../controller/LivraisonController.dart';
@@ -45,7 +46,6 @@ class PageAccueilState extends State<PageAccueil> {
   void _initialisationLivraisonDestinateur() async {
     final roleUser= await AuthController().getRole();
     listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
-    print("00000000000");
     setState(() {
       isLoadingLivraisonDestinateur = false;
     });
@@ -137,10 +137,11 @@ class PageAccueilState extends State<PageAccueil> {
                           return (livraison["status"] !="annulee" && livraison["status"] !="terminee") ?_buildDeliveryCard(
                               livraison["expediteur"]!,
                               livraison["destinateur"]!,
+                              livraison["moyen_transport"]!,
                               livraison["status"]!,
                               livraison["date"]!,
-                              livraison["id"]!
-
+                              livraison["id"]!,
+                            livraison
                           ):Center();
                         }).toList(),
                       ),
@@ -151,10 +152,12 @@ class PageAccueilState extends State<PageAccueil> {
 
                             return livraison["status"]!="annulee"? _buildDeliveryCard(
                                 livraison["expediteur"]!,
+                                livraison["destinateur"]!,
                                 livraison["moyen_transport"]!,
                                 livraison["status"]!,
                                 livraison["date"]!,
-                                livraison["id"]!
+                                livraison["id"]!,
+                                livraison
 
                             ):Center();
                           }).toList())
@@ -203,7 +206,7 @@ class PageAccueilState extends State<PageAccueil> {
   }
 
   Widget _buildDeliveryCard(
-      String name, String transportMode, String status, String time,String id) {
+      String expediteur, String destinateur, String moyen_transport, String status,String date,String id,Map<String, String> liv) {
     Color statusColor =
     status == 'en_cours' ? Colors.blue : Colors.orange;
     statusColor = status == 'terminee' ? Colors.green : Colors.orange;
@@ -230,9 +233,10 @@ class PageAccueilState extends State<PageAccueil> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(name),
-                Text(transportMode),
-                Text(time),
+                Text(expediteur),
+                Text(destinateur),
+                Text(moyen_transport),
+                Text(date),
               ],
             ),
             Divider(),
@@ -284,6 +288,7 @@ class PageAccueilState extends State<PageAccueil> {
                 ,
                 InkWell(
                   onTap: (){
+                    _showCodeDetaille(context,liv);
 
                   },
                   child:Container(
@@ -308,8 +313,9 @@ void _showCodeConfirmationDialog(
     BuildContext context,
     TextEditingController controller,
     String idLivraison,
-    LivraisonController liv
-    ) {
+    LivraisonController liv,
+
+) {
 
   showDialog(
     context: context,
@@ -345,5 +351,92 @@ void _showCodeConfirmationDialog(
         ),
       ],
     ),
+  );
+}
+
+
+void _showCodeDetaille(
+    BuildContext context,
+    Map<String, String> livr,
+    ) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      title: Row(
+        children: [
+          Icon(Icons.local_shipping, color: Colors.blue),
+          SizedBox(width: 10),
+          Text(
+            "Détails de la Livraison",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStyledRow(Icons.person, "Expéditeur :", livr["expediteur"] ?? "Inconnu"),
+            SizedBox(height: 10),
+            _buildStyledRow(Icons.person_outline, "Destinataire :", livr["destinateur"] ?? "Inconnu"),
+            SizedBox(height: 10),
+            _buildStyledRow(Icons.location_on, "Adresse d'expedition :", livr["adresse_expedition"] ?? "N/A"),
+            SizedBox(height: 10),
+            _buildStyledRow(Icons.location_on, "Adresse de destination :", livr["adresse_destination"] ?? "N/A"),
+            SizedBox(height: 10),
+            _buildStyledRow(Icons.qr_code, "Code Livraison :", livr["code"] ?? "Non disponible"),
+            SizedBox(height: 10),
+            _buildStyledRow(Icons.date_range, "Date :", livr["date"] ?? "Non précisée"),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton.icon(
+          icon: Icon(Icons.copy, color: Colors.blue),
+          label: Text("Copier le code"),
+          onPressed: () {
+            final code = livr["code"] ?? "";
+            Clipboard.setData(ClipboardData(text: code));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Code copié dans le presse-papiers")),
+            );
+          },
+        ),
+        ElevatedButton.icon(
+          icon: Icon(Icons.close),
+          label: Text("Fermer"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildStyledRow(IconData icon, String label, String value) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 20, color: Colors.blueAccent),
+      SizedBox(width: 10),
+      Expanded(
+        child: RichText(
+          text: TextSpan(
+            style: TextStyle(color: Colors.black),
+            children: [
+              TextSpan(text: "$label ", style: TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(text: value),
+            ],
+          ),
+        ),
+      ),
+    ],
   );
 }

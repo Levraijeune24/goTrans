@@ -134,6 +134,9 @@ class Apilivraison {
         livraisons.add({"id":livraison["id"].toString(),
           "status":livraison["status"],
           "date":livraison["date"],
+          "code":livraison["code"],
+          "adresse_expedition":livraison["expedition"]["adresse"],
+          "adresse_destination":livraison["destination"]["adresse"],
           "moyen_transport":livraison["moyen_transport"],
           "expediteur": livraison["expediteur"]?["user"]?["name"] ?? "",
           "destinateur": livraison["destinateur"]?["user"]?["name"] ?? "${livraison["destination"]["nom_destination"]} (n'esxiste pas)",
@@ -169,8 +172,12 @@ class Apilivraison {
          livraisons.add({"id":livraison["id"].toString(),
            "status":livraison["status"],
            "date":livraison["date"],
+           "code":livraison["code"],
+           "adresse_expedition":livraison["expedition"]["adresse"],
+           "adresse_destination":livraison["destination"]["adresse"],
            "moyen_transport":livraison["moyen_transport"],
-
+           "expediteur": livraison["expediteur"]?["user"]?["name"] ?? "",
+           "destinateur": livraison["destinateur"]?["user"]?["name"] ?? "${livraison["destination"]["nom_destination"]} (n'esxiste pas)",
          },
          );
 
