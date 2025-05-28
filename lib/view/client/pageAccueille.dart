@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:menji/view/client/pageHistorique.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
 import '../../controller/authController.dart';
@@ -134,8 +135,8 @@ class PageAccueilState extends State<PageAccueil> {
                       Column(
                         children: listesLivraison1.map((livraison) {
                           return (livraison["status"] !="annulee" && livraison["status"] !="terminee") ?_buildDeliveryCard(
-                              'Bob',
-                              livraison["moyen_transport"]!,
+                              livraison["expediteur"]!,
+                              livraison["destinateur"]!,
                               livraison["status"]!,
                               livraison["date"]!,
                               livraison["id"]!
@@ -149,7 +150,7 @@ class PageAccueilState extends State<PageAccueil> {
                           children: listesLivraisonDestinateur.map((livraison) {
 
                             return livraison["status"]!="annulee"? _buildDeliveryCard(
-                                'BoOb',
+                                livraison["expediteur"]!,
                                 livraison["moyen_transport"]!,
                                 livraison["status"]!,
                                 livraison["date"]!,
@@ -189,6 +190,11 @@ class PageAccueilState extends State<PageAccueil> {
           print(index);
           if(index==2){
             context.go('/profil');
+          }else if(index==1){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PageHistorique()),
+            );
           }
           // Gérer la navigation ici
         },
@@ -215,7 +221,7 @@ class PageAccueilState extends State<PageAccueil> {
               children: [
                 Text('Expediteur', style: TextStyle(fontWeight: FontWeight.bold)),
                 Text('Destinateur', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Transport', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Moyen de transport', style: TextStyle(fontWeight: FontWeight.bold)),
                 Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
@@ -276,6 +282,19 @@ class PageAccueilState extends State<PageAccueil> {
                   ) ,
                 ):Center()
                 ,
+                InkWell(
+                  onTap: (){
+
+                  },
+                  child:Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text("plus d'informations", style: TextStyle(color: Colors.white)),
+                  ) ,
+                )
               ],
             ),
           ],

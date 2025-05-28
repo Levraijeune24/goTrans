@@ -105,9 +105,7 @@ class Apilivraison {
       }),
     );
     final data = jsonDecode(response.body);
-    print('beniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii');
     print(data);
-
   }
 
   Future<List<Map<String,String>>> getLivraisonExpediteur (int id) async {
@@ -126,8 +124,8 @@ class Apilivraison {
       }
     );
     final data = jsonDecode(response.body);
-    print("ttttttttttttt");
-    print(data);
+
+
     if (response.statusCode == 200) {
 
       final data = jsonDecode(response.body);
@@ -137,6 +135,8 @@ class Apilivraison {
           "status":livraison["status"],
           "date":livraison["date"],
           "moyen_transport":livraison["moyen_transport"],
+          "expediteur": livraison["expediteur"]?["user"]?["name"] ?? "",
+          "destinateur": livraison["destinateur"]?["user"]?["name"] ?? "${livraison["destination"]["nom_destination"]} (n'esxiste pas)",
 
         },
         );
@@ -197,7 +197,6 @@ class Apilivraison {
      if (response.statusCode == 200) {
 
        final data = jsonDecode(response.body);
-
 
        data["data"].forEach((livraison) {
 
