@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
@@ -39,10 +41,7 @@ class _CreationCompteState extends State<CreationCompte> {
   bool _isLoading = false;
 
   Future<void> _handleRegister() async {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      _showToast('Les mots de passe ne correspondent pas');
-      return;
-    }
+    // Validation des champs obligatoires
     if (_nomController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
@@ -51,12 +50,27 @@ class _CreationCompteState extends State<CreationCompte> {
       return;
     }
 
+    // Validation des mots de passe
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showToast('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    // Validation de l'email
     final emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
     if (!emailRegex.hasMatch(_emailController.text)) {
       _showToast('Adresse email invalide.');
       return;
     }
 
+    // Validation du téléphone (si fourni)
+    if (_phoneController.text.isNotEmpty) {
+      final phoneRegex = RegExp(r'^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$');
+      if (!phoneRegex.hasMatch(_phoneController.text)) {
+        _showToast('Numéro de téléphone invalide. Format attendu: 0612345678 ou +33612345678');
+        return;
+      }
+    }
 
     setState(() => _isLoading = true);
 
@@ -71,25 +85,25 @@ class _CreationCompteState extends State<CreationCompte> {
       _showToast('Bienvenue ${user.name} !', isError: false);
 
       Future.delayed(const Duration(seconds: 2), () {
-        context.go("/home");
+        if (mounted) context.go("/home");
       });
 
     } catch (e) {
+      print('Erreur d\'inscription: $e');
       String errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
 
       if (e.toString().contains('email')) {
-        errorMessage = 'Le champ e-mail est requis.';
+        errorMessage = 'L\'adresse e-mail est déjà utilisée.';
       } else if (e.toString().contains('password')) {
-        errorMessage = 'Le champ mot de passe est requis.';
-      } else if (e.toString().contains('credentials')) {
-        errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
-      } else if (e.toString().contains('SocketException')) {
-        errorMessage = 'Vérifiez votre connexion internet.';
+        errorMessage = 'Le mot de passe doit contenir au moins 6 caractères.';
+      } else if (e.toString().contains('network')) {
+        errorMessage = 'Problème de connexion internet.';
+      } else if (e is TimeoutException) {
+        errorMessage = 'La requête a expiré. Veuillez réessayer.';
       }
 
       _showToast(errorMessage);
-    }
-    finally {
+    } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -231,27 +245,48 @@ class _CreationCompteState extends State<CreationCompte> {
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
   }) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      textAlign: TextAlign.start, // Alignement du texte à gauche dans le champ
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Colors.grey),
-        prefixIcon: Icon(icon, color: Colors.grey),
-        filled: true,
-        fillColor: Colors.grey[200],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.orange, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      ),
+    // Variable d'état pour gérer la visibilité du texte
+    bool showPassword = !obscureText;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return TextField(
+          controller: controller,
+          obscureText: obscureText && !showPassword,
+          keyboardType: keyboardType,
+          textAlign: TextAlign.start,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(color: Colors.grey),
+            prefixIcon: Icon(icon, color: Colors.grey),
+            suffixIcon: obscureText
+                ? IconButton(
+              icon: Icon(
+                showPassword ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  showPassword = !showPassword;
+                });
+              },
+            )
+                : null,
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.orange, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+                vertical: 16, horizontal: 16),
+          ),
+        );
+      },
     );
   }
 }
