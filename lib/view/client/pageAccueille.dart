@@ -21,17 +21,14 @@ class PageAccueilState extends State<PageAccueil> {
   LivraisonController _livraisonController=LivraisonController();
   final TextEditingController codeController = TextEditingController();
 
-  List<Map<String, String>> listes1 = [];
+  List<Map<String, String>> TypesVehicules = [];
   List<Map<String, String>> listesLivraison1 = [];
   List<Map<String, String>> listesLivraisonDestinateur = [];
-
   bool isLoadingTypeVehicule = true;
-  bool isLoadingLivraison = true;
-  bool isLoadingLivraisonDestinateur = true;
 
   void _initialisationTypeVehicule() async {
      await _typevehiculecontroller.setToken();
-      listes1 = await _typevehiculecontroller.AllTypeVehicule();
+      TypesVehicules = await _typevehiculecontroller.AllTypeVehicule();
       setState(() {
         isLoadingTypeVehicule = false;
       });
@@ -43,8 +40,6 @@ class PageAccueilState extends State<PageAccueil> {
     listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
     return [listesLivraison1,listesLivraisonDestinateur];
   }
-
-
 
 
   @override
@@ -60,7 +55,7 @@ class PageAccueilState extends State<PageAccueil> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('Page d\' accueil'),
+        title: Text('Page d\'accueil'),
         iconTheme: IconThemeData(color: Colors.orange),
         actions: [
           IconButton(
@@ -77,7 +72,7 @@ class PageAccueilState extends State<PageAccueil> {
             Row(
               children: [
                 Text(
-                  'Mode de transport',
+                  'Moyen de transport',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(width: 20),
@@ -92,7 +87,7 @@ class PageAccueilState extends State<PageAccueil> {
               child: Row(
                 children: Listeblocktransport(
                   context: context,
-                  typeVehicules: listes1,
+                  typeVehicules: TypesVehicules,
                 ).Run(),
               ),
             ),
@@ -127,27 +122,32 @@ class PageAccueilState extends State<PageAccueil> {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return Center(child: CircularProgressIndicator());
                             } else  if (snapshot.hasError) {
-                              return Center(child: Text('Erreur : ${snapshot.error}'));
+                              return Center(child: Text('Probleme de connexion'));
                             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                               return Center(child: Text('Aucune livraison trouvée, pour l\'instant '));
                             } else {
                               return Column(
-                                children: snapshot.data![0].map((livraison) {
-                                  return LivraisonsCard(expediteur:livraison["expediteur"]!,
-                                      destinateur: livraison["destinateur"]!,id: livraison["id"]!,
-                                      moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
-                                      Annuler: (id){
-                                        setState(() {
-                                          _livraisonController.annulerLivraison(id,context);
-                                          _initialisationLivraison();
-                                        });
-                                      },Confirmer: (id){
-                                        _showCodeConfirmationDialog(context,codeController,id,_livraisonController);
-                                      },showInformation: (liv){
-                                        ShowDetaille(context: context,livr: liv).run();
-                                      }
-                                  ).run();
-                                }).toList(),
+                                children:snapshot.data!.map((livraisons) {
+                                  return Column(
+                                      children: livraisons.map((livraison) {
+                                        return (livraison["status"]!="annulee" || livraison["status"]!="terminee")? LivraisonsCard(expediteur:livraison["expediteur"]!,
+                                            destinateur: livraison["destinateur"]!,id: livraison["id"]!,
+                                            moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
+                                            Annuler: (id){
+                                              setState(() {
+                                                _livraisonController.annulerLivraison(id,context);
+                                                _initialisationLivraison();
+                                              });
+                                            },Confirmer: (id){
+                                              _showCodeConfirmationDialog(context,codeController,id,_livraisonController);
+                                            },showInformation: (liv){
+                                              ShowDetaille(context: context,livr: liv).run();
+                                            }
+                                        ).run():Center();
+                                      }).toList()
+                                  );
+
+                                  }).toList()
                               );
                             }
                           },

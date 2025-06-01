@@ -83,7 +83,7 @@ class LivraisonsCard {
                   child: Container(
                     padding: EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: statusColor,
+                      color: Colors.red,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text("Annuler", style: TextStyle(color: Colors.white)),
@@ -99,7 +99,7 @@ class LivraisonsCard {
                   child:Container(
                     padding: EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: statusColor,
+                      color: Colors.green,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text("Confirmer", style: TextStyle(color: Colors.white)),
@@ -117,7 +117,7 @@ class LivraisonsCard {
                   child:Container(
                     padding: EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: statusColor,
+                      color: Colors.blue,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text("Infos", style: TextStyle(color: Colors.white)),
