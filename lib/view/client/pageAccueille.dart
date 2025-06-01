@@ -97,8 +97,7 @@ class PageAccueilState extends State<PageAccueil> {
             Row(
               children: [
                 Text(
-                  'Mes livraisons',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  'Mes livraisons', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(width: 20),
                 Icon(Icons.local_shipping, size: 24, color: Colors.orange),
@@ -112,7 +111,6 @@ class PageAccueilState extends State<PageAccueil> {
             SizedBox(height: 10),
              Container(
               height: 300,
-
               child: SingleChildScrollView(
                 child: Column(
                     children: [
@@ -146,7 +144,6 @@ class PageAccueilState extends State<PageAccueil> {
                                         ).run():Center();
                                       }).toList()
                                   );
-
                                   }).toList()
                               );
                             }

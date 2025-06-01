@@ -6,7 +6,6 @@ import '../../controller/authController.dart';
 import '../authentification/ProfilePage.dart';
 
 
-
 class PageLivreur extends StatefulWidget {
   @override
   _PageLivreurState createState() => _PageLivreurState();
@@ -27,7 +26,6 @@ class _PageLivreurState extends State<PageLivreur> {
   void initState() {
     super.initState();
     _initialisationLivraison();
-
   }
 
   @override
@@ -35,6 +33,7 @@ class _PageLivreurState extends State<PageLivreur> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        title: Text('Page d\'accueil livreur'),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -59,18 +58,18 @@ class _PageLivreurState extends State<PageLivreur> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Erreur : ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('Aucune livraison trouvée.'));
+                  return Center(child: Text('Aucune livraisons pour vous maintanant'));
                 } else {
                   return ListView(
                     children: snapshot.data!.map((livraison) {
-                      return _buildDeliveryCard(
+                      return livraison["status"]=="validee"? _buildDeliveryCard(
                         livraison["expediteur"] ?? '',
                         livraison["destinateur"] ?? '',
                         livraison["status"] ?? '',
                         livraison["date"] ?? '',
                         livraison["id"] ?? '',
                           livraison["id_livreur"] ?? ''
-                      );
+                      ):Center();
                     }).toList(),
                   );
                 }
@@ -102,12 +101,8 @@ class _PageLivreurState extends State<PageLivreur> {
           onTap: (index) {
             print(index);
             if(index==2){
-
-
               context.go('/profil');
-
             }
-            // Gérer la navigation ici
           },
         )
     );
@@ -160,7 +155,6 @@ class _PageLivreurState extends State<PageLivreur> {
                   onTap: (){
                     Livreurcontroller().getDetailleLivraison(context,id_livreur , id_livraison);
 
-
                   },
                   child:Container(
                     padding: EdgeInsets.all(8.0),
@@ -168,7 +162,7 @@ class _PageLivreurState extends State<PageLivreur> {
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    child: Text("Plus des detailles",
+                    child: Text("Detailles",
                         style: TextStyle(color: Colors.white)),
                   ) ,
                 )
