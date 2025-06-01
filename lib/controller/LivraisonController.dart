@@ -51,9 +51,13 @@ class LivraisonController {
 
   void editLivraisonLivreur(BuildContext context,String id_livraison,String montant, String kilo){
 
+    print("icccciciciic");
+
+    print([id_livraison,montant,kilo]);
+
     Apilivraison().editLivraisonLivreur(id_livraison, montant, kilo);
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => PageLivreur()),
     );

@@ -20,6 +20,8 @@ class Livreurcontroller {
   void  getDetailleLivraison(BuildContext context,String id_livreur ,String id_livraison) async {
 
 
+
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PageValidation(id_livreur ,id_livraison)),

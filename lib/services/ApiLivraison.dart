@@ -205,18 +205,21 @@ class Apilivraison {
 
        final data = jsonDecode(response.body);
 
+
        data["data"].forEach((livraison) {
-
-         livraisons.add({"id_livraison":livraison["id_livraison"].toString(),
-           "immatriculation":livraison["immatriculation"],
-           "nom_expediteur":livraison["nom_expediteur"],
-           "nom_destinateur":livraison["nom_destinateur"],
-           "date":livraison["date"],
+         print(livraison["vehicule"]["livreurs"][0].toString());
+         livraisons.add({"id":livraison["id"].toString(),
+           "id_livreur":livraison["vehicule"]["livreurs"][0]["id"].toString(),
            "status":livraison["status"],
-           "id_livreur":livraison["livreur_id"].toString()
-
-         },);
-
+           "date":livraison["date"],
+           "code":livraison["code"],
+           "adresse_expedition":livraison["expedition"]["adresse"],
+           "adresse_destination":livraison["destination"]["adresse"],
+           "moyen_transport":livraison["moyen_transport"],
+           "expediteur": livraison["expediteur"]?["user"]?["name"] ?? "",
+           "destinateur": livraison["destinateur"]?["user"]?["name"] ?? "${livraison["destination"]["nom_destination"]} (n'esxiste pas)",
+         },
+         );
         }
        );
 
@@ -241,23 +244,31 @@ class Apilivraison {
            'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
          }
      );
-     final data = jsonDecode(response.body);
+
      if (response.statusCode == 200) {
 
        final data = jsonDecode(response.body);
-       print("HHHHHHHHH");
-       print(data);
+
+
        data["data"].forEach((livraison) {
 
-         livraisons.add({"id_livraison":livraison["id_livraison"].toString(),
-           "immatriculation":livraison["immatriculation"],
-           "nom_expediteur":livraison["nom_expediteur"],
-           "nom_destinateur":livraison["nom_destinateur"],
-           "adresse_expedition":livraison["adresse_expedition"],
-           "tel_expedition":livraison["tel_expedition"],
-           "adresse_destination":livraison["adresse_destination"],
-           "tel_destination":livraison["tel_destination"]?? "",
-         },);
+         print(livraison["vehicule"]["livreurs"][0]["id"].toString());
+
+         livraisons.add({"id":livraison["id"].toString(),
+           "id_livreur":livraison["vehicule"]["livreurs"][0]["id"].toString(),
+           "tarif":livraison["vehicule"]["type_vehicule"]["tarif"]["prix_tarif"].toString(),
+           "status":livraison["status"],
+           "date":livraison["date"],
+           "code":livraison["code"],
+           "adresse_expedition":livraison["expedition"]["adresse"],
+           "tel_expedition":livraison["expedition"]["tel_expedition"]?? "",
+           "tel_destination":livraison["destination"]["tel_destination"]?? "",
+           "adresse_destination":livraison["destination"]["adresse"],
+           "moyen_transport":livraison["moyen_transport"],
+           "expediteur": livraison["expediteur"]?["user"]?["name"] ?? "",
+           "destinateur": livraison["destinateur"]?["user"]?["name"] ?? "${livraison["destination"]["nom_destination"]} (n'esxiste pas)",
+         },
+         );
 
 
 

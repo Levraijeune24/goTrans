@@ -5,18 +5,7 @@ import '../../controller/LivreurController.dart';
 import '../../controller/authController.dart';
 import '../authentification/ProfilePage.dart';
 
-class MyAppss extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Page de Livraison',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
-      home: PageLivreur(),
-    );
-  }
-}
+
 
 class PageLivreur extends StatefulWidget {
   @override
@@ -29,11 +18,8 @@ class _PageLivreurState extends State<PageLivreur> {
 
   void _initialisationLivraison() async {
     roleUser = await AuthController().getRole();
-
-    // Une fois roleUser obtenu, on met à jour livraisonsFuture
     setState(() {
-      livraisonsFuture = LivraisonController()
-          .AllLivraisonLivreur(roleUser.id) as Future<List<Map<String, String>>>;
+      livraisonsFuture = LivraisonController().AllLivraisonLivreur(roleUser.id) ;
     });
   }
 
@@ -51,17 +37,6 @@ class _PageLivreurState extends State<PageLivreur> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.orange),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications, color: Colors.orange),
-            onPressed: () {},
-          ),
-          SizedBox(width: 20),
-        ],
       ),
       body: Column(
         children: [
@@ -89,14 +64,12 @@ class _PageLivreurState extends State<PageLivreur> {
                   return ListView(
                     children: snapshot.data!.map((livraison) {
                       return _buildDeliveryCard(
-                        livraison["nom_expediteur"] ?? '',
-                        livraison["nom_destinateur"] ?? '',
+                        livraison["expediteur"] ?? '',
+                        livraison["destinateur"] ?? '',
                         livraison["status"] ?? '',
                         livraison["date"] ?? '',
-                        livraison["id_livraison"] ?? '',
+                        livraison["id"] ?? '',
                           livraison["id_livreur"] ?? ''
-
-
                       );
                     }).toList(),
                   );

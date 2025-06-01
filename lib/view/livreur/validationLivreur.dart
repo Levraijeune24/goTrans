@@ -18,7 +18,7 @@ class _PageValidationState extends State<PageValidation> {
 
   TextEditingController prixUnitaireController = TextEditingController();
   TextEditingController poidsController = TextEditingController();
-  TextEditingController prixTotalController = TextEditingController();
+  int prixTotalController =1;
   final _formKey = GlobalKey<FormState>();
 
 
@@ -30,7 +30,7 @@ class _PageValidationState extends State<PageValidation> {
   void initInfoLivraison() async{
 
     livraisons=await LivraisonController().ShowLivraisonLivreur(id_livreur , id_livraison);
-
+    print("pppppppppppppp");
     print(livraisons);
 
     setState(() {
@@ -75,6 +75,7 @@ class _PageValidationState extends State<PageValidation> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Text(
                   'Informations clients',
@@ -82,13 +83,13 @@ class _PageValidationState extends State<PageValidation> {
                 ),
                 SizedBox(height: 20),
                 isLoadingTypeVehicule==false?CircularProgressIndicator():
-                _buildInfoRow('Nom de l\'xpéditeur', livraisons[0]["nom_expediteur"]!, Icons.person),
+                _buildInfoRow('Nom de l\'xpéditeur', livraisons[0]["expediteur"] ?? "", Icons.person),
 
-                isLoadingTypeVehicule==false?CircularProgressIndicator():
-                _buildInfoRow('Adresse de l\'expediteur', livraisons[0]["adresse_expedition"]!, Icons.location_on),
+                 isLoadingTypeVehicule==false?CircularProgressIndicator():
+                 _buildInfoRow('Adresse de l\'expediteur', livraisons[0]["adresse_expedition"]!?? "", Icons.location_on),
 
-                isLoadingTypeVehicule==false?CircularProgressIndicator():
-                _buildInfoRow('Téléphone de l\'expediteur ', livraisons[0]["tel_expedition"]!, Icons.phone),
+                 isLoadingTypeVehicule==false?CircularProgressIndicator():
+                 _buildInfoRow('Téléphone de l\'expediteur ', livraisons[0]["tel_expedition"]!?? "", Icons.phone),
 
                 Divider(
                   color: Colors.grey, // couleur de la ligne
@@ -97,39 +98,57 @@ class _PageValidationState extends State<PageValidation> {
                   endIndent: 20,      // espace à droite
                 ),
 
-                isLoadingTypeVehicule==false?CircularProgressIndicator():
-                _buildInfoRow('Nom du destinataire', livraisons[0]["nom_destinateur"]!, Icons.person),
+                 isLoadingTypeVehicule==false?CircularProgressIndicator():
+                 _buildInfoRow('Nom du destinataire', livraisons[0]["destinateur"]!?? "", Icons.person),
 
-                isLoadingTypeVehicule==false?CircularProgressIndicator():
-                _buildInfoRow('Adresse du destinateur ', livraisons[0]["adresse_destination"]!, Icons.location_on),
+                 isLoadingTypeVehicule==false?CircularProgressIndicator():
+                 _buildInfoRow('Adresse du destinateur ', livraisons[0]["adresse_destination"]!?? "", Icons.location_on),
 
-                isLoadingTypeVehicule==false?CircularProgressIndicator():
-                _buildInfoRow('Téléphone du destinateur', livraisons[0]["tel_destination"]!, Icons.phone),
-                SizedBox(height: 20),
+                 isLoadingTypeVehicule==false?CircularProgressIndicator():
+                 _buildInfoRow('Téléphone du destinateur', livraisons[0]["tel_destination"]!?? "", Icons.phone),
+                 SizedBox(height: 20),
                 Text(
                   'Tarification',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
-                _buildPricingRow('Prix unitaire', prixUnitaireController),
-                _buildPricingRow('Poids', poidsController),
-                _buildPricingRow('Prix total', prixTotalController),
+                Form(
+                  key:_formKey ,
+                    child: Column(
+                  children: [
+
+                    isLoadingTypeVehicule==false?CircularProgressIndicator():
+                    _buildRow('Prix unitaire',livraisons[0]["tarif"]!+" Fc"),
+
+                    _buildPricingRow('Entrer le poids', poidsController,(){
+
+                      setState(() {
+                        prixTotalController=int.parse(poidsController.text)*int.parse(livraisons[0]["tarif"].toString());
+                      });
+                    }),
+                    _buildRow('Prix total', prixTotalController.toString()+"  Fc"),
+                  ],
+                )),
+
                 SizedBox(height: 40),
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-
                       if (_formKey.currentState!.validate()) {
-                        LivraisonController().editLivraisonLivreur(context,livraisons[0]["id_livraison"]!,
-                            prixTotalController.text, prixTotalController.text);
+
+                        print("hhghghhghghg");
+
+                        print([livraisons[0]["id"]!,
+                          prixTotalController.toString(), poidsController.text]);
+
+                        LivraisonController().editLivraisonLivreur(context,livraisons[0]["id"]!,
+                            prixTotalController.toString(), poidsController.text);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
                         );
                       }
 
-
-                      // Vous pouvez ajouter ici une logique pour traiter la confirmation
 
                     },
                     child: Text('Confirmer'),
@@ -171,7 +190,7 @@ class _PageValidationState extends State<PageValidation> {
     );
   }
 
-  Widget _buildPricingRow(String label, TextEditingController controller) {
+  Widget _buildPricingRow(String label, TextEditingController controller,Function set) {
     return Container(
       padding: EdgeInsets.all(10.0),
       margin: EdgeInsets.only(top: 5.0, bottom: 10.0),
@@ -186,6 +205,11 @@ class _PageValidationState extends State<PageValidation> {
             child: TextFormField(
               keyboardType: TextInputType.number,
               controller: controller,
+              onChanged: (value) {
+
+                set();
+
+              },
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Le champ "$label" est requis';
@@ -197,12 +221,51 @@ class _PageValidationState extends State<PageValidation> {
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(horizontal: 8),
               ),
-            ),
+            )
+            ,
           ),
         ],
       ),
     );
   }}
+
+
+
+Widget _buildRow(String label, String text) {
+  return Container(
+    padding: const EdgeInsets.all(10.0),
+    margin: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+    color: Colors.white,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            textAlign: TextAlign.right,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 15,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
 
 
