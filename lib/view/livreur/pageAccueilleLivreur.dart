@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../compenent/Navigation.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/LivreurController.dart';
 import '../../controller/authController.dart';
@@ -62,7 +63,7 @@ class _PageLivreurState extends State<PageLivreur> {
                 } else {
                   return ListView(
                     children: snapshot.data!.map((livraison) {
-                      return livraison["status"]=="validee"? _buildDeliveryCard(
+                      return livraison["status"]=="validee" || livraison["status"]=="en_encours" || livraison["status"]=="terminee" ? _buildDeliveryCard(
                         livraison["expediteur"] ?? '',
                         livraison["destinateur"] ?? '',
                         livraison["status"] ?? '',
@@ -78,33 +79,7 @@ class _PageLivreurState extends State<PageLivreur> {
           ),
         ],
       ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.grey[200],
-          elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Accueil',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              label: 'Historique',
-            ),
-
-            BottomNavigationBarItem(
-
-              icon: Icon(Icons.person),
-              label: 'Profil',
-            ),
-          ],
-          currentIndex: 0,
-          onTap: (index) {
-            print(index);
-            if(index==2){
-              context.go('/profil');
-            }
-          },
-        )
+        bottomNavigationBar: Navigation(context:context,type: 1).run()
     );
   }
 

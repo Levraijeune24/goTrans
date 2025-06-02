@@ -10,9 +10,10 @@ import '../view/client/pageHistorique.dart';
 class Navigation{
 
   BuildContext context;
+  int type=0;
 
 
-  Navigation({required this.context});
+  Navigation({required this.context,this.type=0});
 
 
   run(){
@@ -39,12 +40,16 @@ class Navigation{
       onTap: (index) {
         print(index);
         if(index==2){
-          context.go('/profil');
+            context.go('/profil');
         }else if(index==1){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PageHistorique()),
-          );
+          if(type==0){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PageHistorique()),
+            );
+
+          }
+
         }
         // Gérer la navigation ici
       },

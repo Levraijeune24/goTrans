@@ -121,7 +121,7 @@ class PageAccueilState extends State<PageAccueil> {
                               return Center(child: CircularProgressIndicator());
                             } else  if (snapshot.hasError) {
                               return Center(child: Text('Probleme de connexion'));
-                            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            } else if (!snapshot.hasData || (snapshot.data![0]!.isEmpty && snapshot.data![1]!.isEmpty)) {
                               return Center(child: Text('Aucune livraison trouvée, pour l\'instant '));
                             } else {
                               return Column(

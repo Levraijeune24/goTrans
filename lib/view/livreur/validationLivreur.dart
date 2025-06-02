@@ -136,7 +136,7 @@ class _PageValidationState extends State<PageValidation> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
 
-                        print("hhghghhghghg");
+
 
                         print([livraisons[0]["id"]!,
                           prixTotalController.toString(), poidsController.text]);

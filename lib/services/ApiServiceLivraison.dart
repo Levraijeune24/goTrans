@@ -361,9 +361,6 @@ class Apilivraison {
       });}
     return clients;
 
-
-
-
   }
 
    Future<String> confirmerLivraison(String id_livraison, String codeLivraison)async{
