@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class BlockMoyenTransport {
 
-  String image;
+  final image;
   String title;
   String description;
   BuildContext context;
@@ -34,7 +34,7 @@ class BlockMoyenTransport {
 
 
   }
-  Widget _buildCard(String imagePath, String title, String subtitle) {
+  Widget _buildCard(final imagePath, String title, String subtitle) {
     return Container(
       width: 250,
       height: 300,
@@ -46,12 +46,7 @@ class BlockMoyenTransport {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              imagePath,
-              width: 160,
-              height: 160,
-              fit: BoxFit.contain,
-            ),
+            imagePath,
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

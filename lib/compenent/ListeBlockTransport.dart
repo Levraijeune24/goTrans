@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:menji/compenent/blockMoyenTransport.dart';
 import 'package:menji/controller/LivraisonController.dart';
 
@@ -26,7 +27,13 @@ class Listeblocktransport {
           BlockMoyenTransport((){
             LivraisonController().creationLivraison([" $nom_type : $kilo_initiale kg - $kilo_final kg",nom_type!],context);
           }, context: context,
-              image: "images/Taxi.png", title: nom_type?? "inconnue", description: "$kilo_initiale kg - $kilo_final kg").Run()
+              image: Lottie.asset(
+                'transport.json',
+                width: 100,
+                height: 100,
+                fit: BoxFit.contain,
+
+              ), title: nom_type?? "inconnue", description: "$kilo_initiale kg - $kilo_final kg").Run()
       );
 
     });

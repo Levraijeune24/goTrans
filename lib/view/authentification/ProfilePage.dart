@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import '../../compenent/Navigation.dart';
 import '../../controller/authController.dart';
 import '../../model/userModel.dart';
 import '../../serviceAu/apiServiceUser.dart';
@@ -426,6 +427,8 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         },
       ),
+
+      bottomNavigationBar: Navigation(context:context).run(),
     );
   }
 }

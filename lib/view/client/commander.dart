@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart' as flutter_lottie;
 import 'package:menji/controller/LivraisonController.dart';
 import '../../controller/ClientController.dart';
 import '../../controller/authController.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/flutter_map.dart' ;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -155,7 +156,14 @@ class _PageCommanderState extends State<PageCommander> {
                           point: currentPosition!,
                           width: 40,
                           height: 40,
-                          child: Icon(Icons.person_pin_circle, color: Colors.blue, size: 40),
+                          child: flutter_lottie.Lottie.asset(
+                            'localisation.json',
+
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.contain,
+
+                          ),
                         )
                     ],
                   ),

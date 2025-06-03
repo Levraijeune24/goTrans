@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:menji/view/authentification/ProfilePage.dart';
 
+import '../view/client/pageAccueille.dart';
 import '../view/client/pageHistorique.dart';
+import '../view/livreur/pageAccueilleLivreur.darT';
 
 
 
@@ -38,10 +41,16 @@ class Navigation{
       ],
       currentIndex: 0,
       onTap: (index) {
-        print(index);
+
+
         if(index==2){
-            context.go('/profil');
-        }else if(index==1){
+          print('FFFFFF');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfilePage()),
+          );
+        }
+        else if(index==1){
           if(type==0){
             Navigator.push(
               context,
@@ -49,7 +58,20 @@ class Navigation{
             );
 
           }
+        }
+        else if(index==0){
+          if(type==0){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PageAccueil()),
+            );
+          }else{
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PageLivreur()),
+            );
 
+          }
         }
         // Gérer la navigation ici
       },

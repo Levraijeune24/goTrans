@@ -144,9 +144,6 @@ class Apilivraison {
 
       final data = jsonDecode(response.body);
       data["data"].forEach((livraison) {
-
-        print(livraison);
-
         livraisons.add({"id":livraison["id"].toString(),
           "status":livraison["status"],
           "date":livraison["date"],
@@ -251,7 +248,6 @@ class Apilivraison {
 
      final url = Uri.parse(adresse+'api/livraison/showLivraisonLivreur/$id_livreur/$id_livraison');
 
-     print(url);
 
      final response = await http.get(
          url,
