@@ -88,13 +88,25 @@ class LivraisonController {
       String adresseExpedition,
       String adresseDestination,
       String telephoneDestination,String telephoneExpediteur,String moyenTransport
-      ,BuildContext context) async{
+      ,BuildContext context,
+      String longitude_expedition,
+      String latitude_expedition,
+      String longitude_destination,
+      String latitude_destination,) async{
 
-    print("marien ici");
-    print(dateDuJour());
+     await v.SaveLivraison(id_expediteur,
+          id_destinateur,
+          nom,adresseExpedition,
+          adresseDestination,
+          telephoneDestination,
+          telephoneExpediteur,
+          moyenTransport,
+          longitude_expedition,
+          latitude_expedition,
+          longitude_destination,
+          latitude_destination
 
-      final donnees= await v.SaveLivraison(id_expediteur,id_destinateur,nom,adresseExpedition,
-          adresseDestination,telephoneDestination,telephoneExpediteur,moyenTransport);
+      );
 
       Navigator.push(
         context,

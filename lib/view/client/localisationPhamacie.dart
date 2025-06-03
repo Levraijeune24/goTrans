@@ -7,20 +7,15 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
-class SignalementApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SignalementPage(),
-    );
-  }
-}
+
 
 class SignalementPage extends StatefulWidget {
   @override
   _SignalementPageState createState() => _SignalementPageState();
 }
+
+
+
 
 class _SignalementPageState extends State<SignalementPage> {
   LatLng? currentPosition;
@@ -41,6 +36,7 @@ class _SignalementPageState extends State<SignalementPage> {
   }
 
   Future<void> _determinePosition() async {
+    print("localisation");
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {

@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:menji/controller/LivraisonController.dart';
 import '../../controller/ClientController.dart';
 import '../../controller/authController.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+
 
 class MyApps extends StatelessWidget {
   final List<String> recaPoid;
@@ -17,13 +25,23 @@ class MyApps extends StatelessWidget {
 class PageCommander extends StatefulWidget {
   final List<String> recaPoid;
 
-  PageCommander(this.recaPoid);
 
+  PageCommander(this.recaPoid);
   @override
   _PageCommanderState createState() => _PageCommanderState();
 }
 
 class _PageCommanderState extends State<PageCommander> {
+  LatLng currentPosition =LatLng(-4.322447, 15.307045);
+  final MapController _mapController = MapController();
+  Set<Marker> _markers = {};
+  bool _isLoading = true;
+  double _zoomLevel = 17.0;
+
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+  Polyline? routePolyline;
+  LatLng destination = LatLng(-4.322447, 15.307045);
   final _formKey = GlobalKey<FormState>();
   final LivraisonController _livraisonController = LivraisonController();
   final ClientController _clientController = ClientController();
@@ -45,6 +63,9 @@ class _PageCommanderState extends State<PageCommander> {
   void initState() {
     super.initState();
     _initialisationClients();
+    _determinePosition();
+
+
   }
 
   void _initialisationClients() async {
@@ -56,6 +77,45 @@ class _PageCommanderState extends State<PageCommander> {
     setState(() {
       isLoadingClient = false;
     });
+  }
+
+  Future<void> _determinePosition() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        print('Les services de localisation sont désactivés');
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print('Les permissions de localisation sont refusées');
+          return;
+        }
+      }
+
+      Position position = await Geolocator.getCurrentPosition();
+
+      print('=== COORDONNÉES GPS ===');
+      print('Latitude: ${position.latitude}');
+      print('Longitude: ${position.longitude}');
+      print('Altitude: ${position.altitude}');
+      print('Précision: ${position.accuracy}m');
+      print('========================');
+
+      setState(() {
+        currentPosition = LatLng(position.latitude, position.longitude);
+        _mapController.move(currentPosition, _zoomLevel);
+        _isLoading = false;
+      });
+
+    } catch (e) {
+      print('Erreur lors de la récupération de la position: $e');
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -73,118 +133,170 @@ class _PageCommanderState extends State<PageCommander> {
         ),
         title: Text('Commander', style: TextStyle(color: Colors.orange)),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('images/map_image.png'),
-                  fit: BoxFit.cover,
+      body:
+          Stack(
+            children: [
+              FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: currentPosition!, // Centré sur le Palais du Peuple par défaut
+                  initialZoom: _zoomLevel,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
+
+                  MarkerLayer(
+                    markers: [
+                      if (currentPosition != null)
+                        Marker(
+                          point: currentPosition!,
+                          width: 40,
+                          height: 40,
+                          child: Icon(Icons.person_pin_circle, color: Colors.blue, size: 40),
+                        )
+                    ],
+                  ),
+                ],
+              ),
+              Positioned(
+                right: 15,
+                bottom: 520,
+                child: FloatingActionButton(
+                  mini: true,
+                  heroTag: 'location',
+                  onPressed: _determinePosition,
+                  child: Icon(Icons.my_location),
+                  backgroundColor: Colors.white,
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: DraggableScrollableSheet(
-                initialChildSize: 0.5,
-                minChildSize: 0.3,
-                maxChildSize: 1.0,
-                builder: (BuildContext context, ScrollController scrollController) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, -3),
+
+
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('images/map_image.png'),
+                          fit: BoxFit.cover,
                         ),
-                      ],
-                    ),
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Récap : ${widget.recaPoid[0]}',
-                            style: TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 20),
-                          _sectionTitle('Expéditeur'),
-                          _buildValidatedTextField(controller: controllerAdresseExpediteur, label: 'Adresse', icon: Icons.person, type: TextInputType.text),
-                          SizedBox(height: 20),
-                          _buildValidatedTextField(controller: controllerNumeroExpediteur, label: 'Numéro téléphone', icon: Icons.phone, type: TextInputType.phone),
-                          SizedBox(height: 20),
-                          _sectionTitle('Destinataire'),
-                          _buildValidatedTextField(controller: controllerAdresseDestinateur, label: 'Adresse', icon: Icons.location_on, type: TextInputType.text),
-                          SizedBox(height: 20),
-                          if (!isLoadingClient)
-                            buildSearchableComboBox(
-                              id_client_encours: roleUser.id.toString(),
-                              controller: controllerNomDestinateur,
-                              label: "Client destinataire",
-                              options: clients,
-                              onChanged: (String? id, String? nom) {
-                                setState(() {
-                                  print(nom);
-                                  id_client = id ?? "0";
-                                  selectedValueName = nom ?? "";
-                                });
-                              },
-                            )
-                          else
-                            Center(child: CircularProgressIndicator()),
-                          SizedBox(height: 20),
-                          _buildValidatedTextField(controller: controllerNumeroDestinateur, label: 'Numéro téléphone', icon: Icons.phone, type: TextInputType.phone),
-                          SizedBox(height: 40),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  _livraisonController.storeLivraison(
-                                    roleUser.id.toString(),
-                                    id_client,
-                                    selectedValueName,
-                                    controllerAdresseExpediteur.text,
-                                    controllerAdresseDestinateur.text,
-                                    controllerNumeroDestinateur.text,
-                                    controllerNumeroExpediteur.text,
-                                    widget.recaPoid[1],
-                                    context,
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
-                                  );
-                                }
-                              },
-                              child: Text('Commander'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ),
-                  );
-                },
+                    SizedBox(height: 20),
+                    Expanded(
+                      child: DraggableScrollableSheet(
+                        initialChildSize: 0.5,
+                        minChildSize: 0.3,
+                        maxChildSize: 1.0,
+                        builder: (BuildContext context, ScrollController scrollController) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(0, -3),
+                                ),
+                              ],
+                            ),
+                            child: SingleChildScrollView(
+                              controller: scrollController,
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Récap : ${widget.recaPoid[0]}',
+                                    style: TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 20),
+                                  _sectionTitle('Expéditeur'),
+                                  _buildValidatedTextField(controller: controllerAdresseExpediteur, label: 'Adresse', icon: Icons.person, type: TextInputType.text),
+                                  SizedBox(height: 20),
+                                  _buildValidatedTextField(controller: controllerNumeroExpediteur, label: 'Numéro téléphone', icon: Icons.phone, type: TextInputType.phone),
+                                  SizedBox(height: 20),
+                                  _sectionTitle('Destinataire'),
+                                  _buildValidatedTextField(controller: controllerAdresseDestinateur, label: 'Adresse', icon: Icons.location_on, type: TextInputType.text),
+                                  SizedBox(height: 20),
+                                  if (!isLoadingClient)
+                                    buildSearchableComboBox(
+                                      id_client_encours: roleUser.id.toString(),
+                                      controller: controllerNomDestinateur,
+                                      label: "Client destinataire",
+                                      options: clients,
+                                      onChanged: (String? id, String? nom) {
+                                        setState(() {
+                                          print(nom);
+                                          id_client = id ?? "0";
+                                          selectedValueName = nom ?? "";
+                                        });
+                                      },
+                                    )
+                                  else
+                                    Center(child: CircularProgressIndicator()),
+                                  SizedBox(height: 20),
+                                  _buildValidatedTextField(controller: controllerNumeroDestinateur, label: 'Numéro téléphone', icon: Icons.phone, type: TextInputType.phone),
+                                  SizedBox(height: 40),
+                                  Center(
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        if (_formKey.currentState!.validate()) {
+                                          _livraisonController.storeLivraison(
+                                            roleUser.id.toString(),
+                                            id_client,
+                                            selectedValueName,
+                                            controllerAdresseExpediteur.text,
+                                            controllerAdresseDestinateur.text,
+                                            controllerNumeroDestinateur.text,
+                                            controllerNumeroExpediteur.text,
+                                            widget.recaPoid[1],
+                                            context,
+                                              currentPosition.longitude.toString(),
+                                            currentPosition.latitude.toString(),
+                                            "34343444",
+                                            "666e6r6r6"
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
+                                          );
+                                        }
+                                      },
+                                      child: Text('Commander'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.orange,
+                                        padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+
+
+
+            ],
+          )
+
+      ,
     );
   }
 

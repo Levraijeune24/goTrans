@@ -75,9 +75,20 @@ class Apilivraison {
 
   }
 
-  Future<void>  SaveLivraison (String id_expediteur, String id_destinateur,String nom,String adresseExpedition,
+  Future<void>  SaveLivraison (String id_expediteur,
+      String id_destinateur,
+      String nom,
+      String adresseExpedition,
       String adresseDestination,
-      String telephoneDestination,String telephoneExpedition ,String moyenTransport)async {
+      String telephoneDestination,
+      String telephoneExpedition ,
+      String moyenTransport,
+      String longitude_expedition,
+      String latitude_expedition,
+      String longitude_destination,
+      String latitude_destination,
+
+      )async {
 
 
     final url = Uri.parse(adresse+'api/livraison/store');
@@ -101,7 +112,12 @@ class Apilivraison {
         "Kilo_total":"",
         "client_expediteur_id": id_expediteur,
         "client_destinateur_id":id_destinateur,
-        "moyen_transport":moyenTransport
+        "moyen_transport":moyenTransport,
+        //
+        "longitude_expedition":longitude_expedition,
+        "latitude_expedition":latitude_expedition,
+        "longitude_destination":longitude_destination,
+        "latitude_destination":latitude_destination
       }),
     );
     final data = jsonDecode(response.body);
