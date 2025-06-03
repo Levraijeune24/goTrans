@@ -125,42 +125,87 @@ class _ProfilePageState extends State<ProfilePage> {
         _confirmPasswordController.clear();
       });
     } catch (e) {
-      _showToast(e.toString(), isError: true);
-    } finally {
+      String errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+
+      if (e.toString().contains('Le mot de passe actuel est incorrect')) {
+        errorMessage = 'Le mot de passe actuel est incorrect.';
+      } else if (e.toString().contains('Exception')) {
+        errorMessage = 'Le champ e-mail est requis.';
+      } else if (e.toString().contains('password')) {
+        errorMessage = 'Le champ mot de passe est requis.';
+      } else if (e.toString().contains('credentials')) {
+        errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage = 'Vérifiez votre connexion internet.';
+      }
+
+      _showToast(errorMessage);
+    }
+    finally {
       setState(() => _isLoading = false);
     }
   }
 
   Widget _buildProfileField({
-
     required String label,
     required TextEditingController controller,
     required bool isEditing,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
-
     bool obscureText = false,
   }) {
-    return TextFormField(
-      controller: controller,
-      enabled: isEditing,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Colors.grey),
-        filled: true,
-        fillColor: isEditing ? Colors.grey[200] : Colors.grey[100],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.orange, width: 2),
-        ),
-      ),
-      validator: (value) => value!.isEmpty ? 'Ce champ est requis' : null,
+    // Variable d'état pour gérer la visibilité du texte
+    bool _obscureText = obscureText;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return TextFormField(
+          controller: controller,
+          enabled: isEditing,
+          obscureText: _obscureText,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: Icon(icon, color: Colors.grey),
+            suffixIcon: obscureText
+                ? IconButton(
+              icon: Icon(
+                _obscureText ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey, // Couleur grise pour l'icône
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureText = !_obscureText;
+                });
+              },
+            )
+                : null,
+            filled: true,
+            fillColor: isEditing ? Colors.grey[200] : Colors.grey[100],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.orange, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.red, width: 2),
+            ),
+          ),
+          validator: (value) => value!.isEmpty ? 'Ce champ est requis' : null,
+        );
+      },
     );
   }
 
@@ -196,15 +241,7 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text('Mon Profil', style: TextStyle(color: Colors.black)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            if (mounted) {
-              context.go('/home');
-            }
 
-          },
-        ),
         actions: [
           if (!_showPasswordFields)
             IconButton(

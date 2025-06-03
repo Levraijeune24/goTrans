@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:lottie/lottie.dart';
 import '../../controller/authController.dart';
 import '../../services/ApiLivraison.dart';
 import '../livreur/pageAccueilleLivreur.darT';
@@ -40,7 +41,31 @@ class _LoginPageState extends State<LoginPage> {
       fontSize: 16.0,
     );
   }
+ Widget _connexion(){
+    if(_isLoading){
+     return Lottie.asset(
+        'images/login.json',
 
+        width: 100,
+        height: 100,
+        fit: BoxFit.contain,
+
+      );
+    }else
+      {
+      return  Text(
+          'Connexion',
+          style: TextStyle(
+            fontFamily: 'Segoe UI',
+            fontSize: 37,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        );
+      }
+
+
+}
   Future<void> _handleLogin() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       _showToast('Veuillez remplir tous les champs');
@@ -66,8 +91,8 @@ class _LoginPageState extends State<LoginPage> {
         },
       );
     } catch (e) {
-      String errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
-
+      String errorMessage = 'Impossible de se connecter. Vérifiez que votre adresse e-mail et votre mot de passe sont corrects.';
+      print(e);
       if (e.toString().contains('email')) {
         errorMessage = 'Le champ e-mail est requis.';
       } else if (e.toString().contains('password')) {
@@ -133,20 +158,14 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+
                 Image.asset(
                   'images/logo2.png',
                   height: 100,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Connexion',
-                  style: TextStyle(
-                    fontFamily: 'Segoe UI',
-                    fontSize: 37,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+
+                _connexion(),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _emailController,

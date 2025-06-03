@@ -105,6 +105,33 @@ class ApiService {
       throw Exception('Erreur lors de la mise à jour: ${response.body}');
     }
   }
+  // Dans votre AuthController.dart
+  Future<void> validateResetToken({
+    required String email,
+    required String token,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://votre-api.com/auth/validate-reset-token'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'token': token,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Invalid token or token expired');
+      }
+
+      final responseData = jsonDecode(response.body);
+      if (responseData['valid'] != true) {
+        throw Exception(responseData['message'] ?? 'Invalid token');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   // Changer le mot de passe
   Future<void> changePassword({
