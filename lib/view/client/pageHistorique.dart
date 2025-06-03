@@ -51,8 +51,6 @@ class PageHistoriqueState extends State<PageHistorique> {
     });
   }
 
-
-
   @override
   void initState() {
     super.initState();

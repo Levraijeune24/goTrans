@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:menji/compenent/blockMoyenTransport.dart';
 import 'package:menji/controller/LivraisonController.dart';
 
-
-
 class Listeblocktransport {
 
   BuildContext context;

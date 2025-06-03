@@ -1,0 +1,2 @@
+C:/Users/manim/AndroidStudioProjects/goTrans/android/app/.cxx/Debug/5a1d312b/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/manim/AndroidStudioProjects/goTrans/android/app/.cxx/Debug/5a1d312b/armeabi-v7a/CMakeFiles/rebuild_cache.dir
