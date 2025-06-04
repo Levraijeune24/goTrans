@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageHistorique.dart';
+import '../../compenent/LivraisonCards.dart';
 import '../../compenent/Navigation.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
@@ -15,49 +16,36 @@ class PageHistorique extends StatefulWidget {
 }
 
 class PageHistoriqueState extends State<PageHistorique> {
-  Typevehiculecontroller _typevehiculecontroller=Typevehiculecontroller();
+
   LivraisonController _livraisonController=LivraisonController();
   final TextEditingController codeController = TextEditingController();
+  late dynamic roleUser;
 
   List<Map<String, String>> listes1 = [];
   List<Map<String, String>> listesLivraison1 = [];
   List<Map<String, String>> listesLivraisonDestinateur = [];
+  List<Map<String, String>> listesLivraisonExpeditaire = [];
+
 
   bool isLoadingTypeVehicule = true;
   bool isLoadingLivraison = true;
   bool isLoadingLivraisonDestinateur = true;
 
-  void _initialisationTypeVehicule() async {
 
-    await _typevehiculecontroller.setToken();
-    listes1 = await _typevehiculecontroller.AllTypeVehicule();
-    setState(() {
-      isLoadingTypeVehicule = false;
-    });
-  }
+  Future<List<List<Map<String, String>>>> _initialisationLivraison() async {
+    roleUser= await AuthController().getRole();
 
-  void _initialisationLivraison() async {
-    final roleUser= await AuthController().getRole();
-    listesLivraison1 = await _livraisonController.AllLivraison(roleUser!.id);
-    setState(() {
-      isLoadingLivraison = false;
-    });
-  }
-
-  void _initialisationLivraisonDestinateur() async {
-    final roleUser= await AuthController().getRole();
+    await _livraisonController.init();
+    listesLivraisonExpeditaire = await _livraisonController.AllLivraison(roleUser!.id);
     listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
-    setState(() {
-      isLoadingLivraisonDestinateur = false;
-    });
+    return [listesLivraisonExpeditaire,listesLivraisonDestinateur];
   }
 
   @override
   void initState() {
     super.initState();
-    _initialisationTypeVehicule();
     _initialisationLivraison();
-    _initialisationLivraisonDestinateur();
+
   }
 
   @override
@@ -101,39 +89,43 @@ class PageHistoriqueState extends State<PageHistorique> {
           SingleChildScrollView(
                   child: Column(
                       children: [
-                        isLoadingLivraison
-                            ? Center(child: CircularProgressIndicator())
-                            :
-                        Column(
-                          children: listesLivraison1.map((livraison) {
-                            return (livraison["status"] =="annulee" || livraison["status"] =="terminee") ?_buildDeliveryCard(
-                                livraison["expediteur"]!,
-                                livraison["destinateur"]!,
-                                livraison["moyen_transport"]!,
-                                livraison["status"]!,
-                                livraison["date"]!,
-                                livraison["id"]!,
-                                livraison
-                            ):Center();
-                          }).toList(),
+                        FutureBuilder(
+                          future: _initialisationLivraison(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else  if (snapshot.hasError) {
+                              return Center(child: Text('Probleme de connexion'));
+                            } else if (!snapshot.hasData || (snapshot.data![0]!.isEmpty && snapshot.data![1]!.isEmpty)) {
+                              return Center(child: Text('Aucune livraison trouvée, pour l\'instant '));
+                            } else {
+                              return Column(
+                                  children:snapshot.data!.map((livraisons) {
+                                    return Column(
+                                        children: livraisons.map((livraison) {
+                                          return  LivraisonsCard(expediteur:livraison["expediteur"]!,
+                                              destinateur: livraison["destinateur"]!,id: livraison["id"]!,
+                                              moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
+                                              typeLivraison: livraison["expediteur_id"]!=roleUser.id?"sortant":"entrant",
+
+                                              Annuler: (id){
+                                                setState(() {
+                                                  _livraisonController.annulerLivraison(id,context);
+                                                  _initialisationLivraison();
+                                                });
+                                              },Confirmer: (id){
+
+                                              },showInformation: (liv){
+
+                                              }
+                                          ).run();
+                                        }).toList()
+                                    );
+                                  }).toList()
+                              );
+                            }
+                          },
                         ),
-                        isLoadingLivraisonDestinateur?
-                        Center(child: CircularProgressIndicator()):
-                        Column(
-                            children: listesLivraisonDestinateur.map((livraison) {
-
-                              return (livraison["status"] =="annulee" || livraison["status"] =="terminee") ? _buildDeliveryCard(
-                                  livraison["expediteur"]!,
-                                  livraison["destinateur"]!,
-                                  livraison["moyen_transport"]!,
-                                  livraison["status"]!,
-                                  livraison["date"]!,
-                                  livraison["id"]!,
-                                  livraison
-
-                              ):Center();
-                            }).toList())
-
                       ]
                   ),
 
@@ -144,163 +136,7 @@ class PageHistoriqueState extends State<PageHistorique> {
       bottomNavigationBar: Navigation(context:context).run(),
     );
   }
-
-  Widget _buildDeliveryCard(
-      String expediteur, String destinateur, String moyen_transport, String status,String date,String id,Map<String, String> liv) {
-    Color statusColor =
-    status == 'en_cours' ? Colors.blue : Colors.orange;
-    statusColor = status == 'terminee' ? Colors.green : Colors.orange;
-
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            // Titres
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Expediteur', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Destinateur', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Moyen de transport', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-            Divider(),
-            // Données
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(expediteur),
-                Text(destinateur),
-                Text(moyen_transport),
-                Text(date),
-              ],
-            ),
-            Divider(),
-            // Boutons d'action
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text("Statut : $status",
-                      style: TextStyle(color: Colors.white)),
-                ),
-
-                InkWell(
-                  onTap: (){
-                    _showCodeDetaille(context,liv);
-
-                  },
-                  child:Container(
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Text("plus d'informations", style: TextStyle(color: Colors.white)),
-                  ) ,
-                )
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 
 
-void _showCodeDetaille(
-    BuildContext context,
-    Map<String, String> livr,
-    ) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      title: Row(
-        children: [
-          Icon(Icons.local_shipping, color: Colors.blue),
-          SizedBox(width: 10),
-          Text(
-            "Détails de la Livraison",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStyledRow(Icons.person, "Expéditeur :", livr["expediteur"] ?? "Inconnu"),
-            SizedBox(height: 10),
-            _buildStyledRow(Icons.person_outline, "Destinataire :", livr["destinateur"] ?? "Inconnu"),
-            SizedBox(height: 10),
-            _buildStyledRow(Icons.location_on, "Adresse d'expedition :", livr["adresse_expedition"] ?? "N/A"),
-            SizedBox(height: 10),
-            _buildStyledRow(Icons.location_on, "Adresse de destination :", livr["adresse_destination"] ?? "N/A"),
-            SizedBox(height: 10),
-            _buildStyledRow(Icons.qr_code, "Code Livraison :", "Non disponible"),
-            SizedBox(height: 10),
-            _buildStyledRow(Icons.date_range, "Date :", livr["date"] ?? "Non précisée"),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton.icon(
-          icon: Icon(Icons.copy, color: Colors.blue),
-          label: Text("Copier le code"),
-          onPressed: () {
-            final code = livr["code"] ?? "";
-            Clipboard.setData(ClipboardData(text: code));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Code copié dans le presse-papiers")),
-            );
-          },
-        ),
-        ElevatedButton.icon(
-          icon: Icon(Icons.close),
-          label: Text("Fermer"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildStyledRow(IconData icon, String label, String value) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Icon(icon, size: 20, color: Colors.blueAccent),
-      SizedBox(width: 10),
-      Expanded(
-        child: RichText(
-          text: TextSpan(
-            style: TextStyle(color: Colors.black),
-            children: [
-              TextSpan(text: "$label ", style: TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: value),
-            ],
-          ),
-        ),
-      ),
-    ],
-  );
-}

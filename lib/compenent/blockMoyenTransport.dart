@@ -46,7 +46,12 @@ class BlockMoyenTransport {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            imagePath,
+            Image.asset(
+              imagePath,
+              width: 160,
+              height: 160,
+              fit: BoxFit.contain,
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

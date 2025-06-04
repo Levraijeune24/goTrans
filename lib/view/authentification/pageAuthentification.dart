@@ -43,8 +43,7 @@ class _LoginPageState extends State<LoginPage> {
  Widget _connexion(){
     if(_isLoading){
      return Lottie.asset(
-        'images/login.json',
-
+        'login.json',
         width: 100,
         height: 100,
         fit: BoxFit.contain,

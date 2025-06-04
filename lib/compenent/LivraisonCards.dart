@@ -15,13 +15,19 @@ class LivraisonsCard {
   Function Confirmer;
   Function showInformation;
 
+  int typeCl=0;
+
+  String typeLivraison;
+
   LivraisonsCard({
     required this.expediteur,required this.destinateur,
     required this.moyen_transport,
     required this.status,required this.date,required this.id,required this.liv,
     required this.Annuler,
     required this.Confirmer,
-    required this.showInformation
+    required this.showInformation,
+    this.typeLivraison="",
+    this.typeCl=0
   });
 
   Widget run(){
@@ -32,13 +38,39 @@ class LivraisonsCard {
     status == 'en_cours' ? Colors.red: status == 'validee' ?
     Colors.green:status == 'en_attente' ? Colors.orange: Colors.orange;
 
-    return Card(
+     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
           children: [
+            // Flèche en haut
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                typeCl==0?
+                Icon(
+                  typeLivraison == "entrant" ? Icons.arrow_downward : Icons.arrow_upward,
+                  color: typeLivraison == "entrant" ? Colors.green : Colors.red,
+                  size: 24,
+                ):Center(),
+
+                SizedBox(width: 8),
+                typeCl==0?
+                Text(
+                  typeLivraison == "entrant" ? "Livraison Entrante" : "Livraison Sortante",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: typeLivraison == "entrant" ? Colors.green : Colors.red,
+                  ),
+                ):Center(),
+              ],
+            ),
+
+            SizedBox(height: 10),
+
+            // Titres
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -49,6 +81,7 @@ class LivraisonsCard {
               ],
             ),
             Divider(),
+
             // Données
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,6 +93,7 @@ class LivraisonsCard {
               ],
             ),
             Divider(),
+
             // Boutons d'action
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -70,65 +104,57 @@ class LivraisonsCard {
                     color: statusColor,
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Text("Statut : $status",
-                      style: TextStyle(color: Colors.white)),
+                  child: Text("Statut : $status", style: TextStyle(color: Colors.white)),
                 ),
 
-                (status=="en_attente")?
-                InkWell(
-                  onTap: () {
-                    Annuler(id);
-
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(8.0),
+                if (status == "en_attente")
+                  InkWell(
+                    onTap: () => Annuler(id),
+                    child: Container(
+                      padding: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text("Annuler", style: TextStyle(color: Colors.white)),
                     ),
-                    child: Text("Annuler", style: TextStyle(color: Colors.white)),
                   ),
-                ):Center(),
-                (status=="en_cours")?
-                InkWell(
-                  onTap: (){
-                    Confirmer(id);
-                    print("confirmer");
-                    //_showCodeConfirmationDialog(context,codeController,id,_livraisonController);
-                  },
-                  child:Container(
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(8.0),
+
+                if (status == "en_cours")
+                  InkWell(
+                    onTap: () {
+                      Confirmer(id);
+                      print("confirmer");
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text("Confirmer", style: TextStyle(color: Colors.white)),
                     ),
-                    child: Text("Confirmer", style: TextStyle(color: Colors.white)),
-                  ) ,
-                ):Center()
-                ,
+                  ),
+
                 InkWell(
-                  onTap: (){
-
-
-                    showInformation(liv);
-                    //_showCodeDetaille(context,liv);
-
-                  },
-                  child:Container(
+                  onTap: () => showInformation(liv),
+                  child: Container(
                     padding: EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text("Infos", style: TextStyle(color: Colors.white)),
-                  ) ,
-                )
+                  ),
+                ),
               ],
             ),
           ],
         ),
       ),
     );
+
+
   }
 
 

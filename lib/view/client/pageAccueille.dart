@@ -18,16 +18,22 @@ class PageAccueil extends StatefulWidget {
 
 class PageAccueilState extends State<PageAccueil> {
   Typevehiculecontroller _typevehiculecontroller=Typevehiculecontroller();
+
+
   LivraisonController _livraisonController=LivraisonController();
   final TextEditingController codeController = TextEditingController();
 
+  late dynamic roleUser;
+
+
   List<Map<String, String>> TypesVehicules = [];
-  List<Map<String, String>> listesLivraison1 = [];
+  List<Map<String, String>> listesLivraisonExpeditaire = [];
   List<Map<String, String>> listesLivraisonDestinateur = [];
   bool isLoadingTypeVehicule = true;
 
   void _initialisationTypeVehicule() async {
-     await _typevehiculecontroller.setToken();
+
+      await _typevehiculecontroller.init();
       TypesVehicules = await _typevehiculecontroller.AllTypeVehicule();
       setState(() {
         isLoadingTypeVehicule = false;
@@ -35,10 +41,12 @@ class PageAccueilState extends State<PageAccueil> {
   }
 
   Future<List<List<Map<String, String>>>> _initialisationLivraison() async {
-    final roleUser= await AuthController().getRole();
-    listesLivraison1 = await _livraisonController.AllLivraison(roleUser!.id);
+    roleUser= await AuthController().getRole();
+
+    await _livraisonController.init();
+    listesLivraisonExpeditaire = await _livraisonController.AllLivraison(roleUser!.id);
     listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
-    return [listesLivraison1,listesLivraisonDestinateur];
+    return [listesLivraisonExpeditaire,listesLivraisonDestinateur];
   }
 
 
@@ -46,6 +54,7 @@ class PageAccueilState extends State<PageAccueil> {
   void initState() {
     super.initState();
     _initialisationTypeVehicule();
+    _initialisationLivraison();
   }
 
   @override
@@ -131,6 +140,8 @@ class PageAccueilState extends State<PageAccueil> {
                                         return (livraison["status"]!="annulee" || livraison["status"]!="terminee")? LivraisonsCard(expediteur:livraison["expediteur"]!,
                                             destinateur: livraison["destinateur"]!,id: livraison["id"]!,
                                             moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
+                                            typeLivraison: livraison["expediteur_id"]!=roleUser.id?"sortant":"entrant",
+
                                             Annuler: (id){
                                               setState(() {
                                                 _livraisonController.annulerLivraison(id,context);

@@ -428,7 +428,6 @@ class _ProfilePageState extends State<ProfilePage> {
         },
       ),
 
-      bottomNavigationBar: Navigation(context:context).run(),
     );
   }
 }

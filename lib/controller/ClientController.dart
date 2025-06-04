@@ -9,9 +9,9 @@ class ClientController {
 
   Apilivraison v= Apilivraison();
 
-  setToken() async{
-    String? token= await LocalStorageService().getToken();
-    v.setToken(token!);
+  Future<void> init () async {
+    v = Apilivraison();
+    await v.init();
   }
 
   void InitClient(BuildContext context) async {

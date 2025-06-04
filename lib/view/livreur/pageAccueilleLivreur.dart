@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../compenent/LivraisonCards.dart';
 import '../../compenent/Navigation.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/LivreurController.dart';
@@ -14,12 +15,16 @@ class PageLivreur extends StatefulWidget {
 
 class _PageLivreurState extends State<PageLivreur> {
   late Future<List<Map<String, String>>> livraisonsFuture;
+  LivraisonController _livraisonController=LivraisonController();
   late final roleUser;
+  final TextEditingController codeController = TextEditingController();
 
   void _initialisationLivraison() async {
+    await _livraisonController.init();
+
     roleUser = await AuthController().getRole();
     setState(() {
-      livraisonsFuture = LivraisonController().AllLivraisonLivreur(roleUser.id) ;
+      livraisonsFuture = _livraisonController.AllLivraisonLivreur(roleUser.id) ;
     });
   }
 
@@ -63,14 +68,31 @@ class _PageLivreurState extends State<PageLivreur> {
                 } else {
                   return ListView(
                     children: snapshot.data!.map((livraison) {
-                      return livraison["status"]=="validee" || livraison["status"]=="en_encours" || livraison["status"]=="terminee" ? _buildDeliveryCard(
-                        livraison["expediteur"] ?? '',
-                        livraison["destinateur"] ?? '',
-                        livraison["status"] ?? '',
-                        livraison["date"] ?? '',
-                        livraison["id"] ?? '',
-                          livraison["id_livreur"] ?? ''
-                      ):Center();
+                      return livraison["status"]=="validee" || livraison["status"]=="en_cours" || livraison["status"]=="terminee" ?
+
+
+                      LivraisonsCard(expediteur:livraison["expediteur"]!,
+                          destinateur: livraison["destinateur"]!,id: livraison["id"]!,
+                          moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
+
+                          typeCl: 1,
+
+                          Annuler: (id){
+                            setState(() {
+                              _livraisonController.annulerLivraison(id,context);
+                              _initialisationLivraison();
+                            });
+                          },Confirmer: (id){
+                            _showCodeConfirmationDialog(context,codeController,id,_livraisonController);
+                          },showInformation: (liv){
+                            Livreurcontroller().getDetailleLivraison(context,livraison["id_livreur"]! , livraison["id"]! );
+                          }
+                      ).run():Center();
+
+
+
+
+
                     }).toList(),
                   );
                 }
@@ -149,4 +171,51 @@ class _PageLivreurState extends State<PageLivreur> {
       ),
     );
   }
+}
+
+
+
+void _showCodeConfirmationDialog(
+    BuildContext context,
+    TextEditingController controller,
+    String idLivraison,
+    LivraisonController liv,
+
+    ) {
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("Confirmation"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("Entrez le code de validation :"),
+          SizedBox(height: 10),
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: "Code de validation",
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: Text("Annuler"),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        ElevatedButton(
+          child: Text("Valider"),
+          onPressed: () async {
+            String code = controller.text;
+
+            liv.confirmerLivraison(context,idLivraison, controller.text);
+
+          },
+        ),
+      ],
+    ),
+  );
 }

@@ -12,9 +12,12 @@ class Apilivraison {
    String? token;
   final adresse="https://gotrans.menjidrc.com/";
 
-  void setToken(String token) {
-    this.token = token;
-  }
+
+   Future<void> init() async {
+     print("Initialisation en cours...");
+     token = await LocalStorageService().getToken();
+     print("Token récupéré : $token");
+   }
   
 
   Future<List<Map<String,String>>> typeVehicule() async {
@@ -149,6 +152,7 @@ class Apilivraison {
           "date":livraison["date"],
           "code":livraison["code"],
           "adresse_expedition":livraison["expedition"]["adresse"],
+          "expediteur_id":livraison["expediteur"]["id"].toString(),
           "adresse_destination":livraison["destination"]["adresse"],
           "moyen_transport":livraison["moyen_transport"],
           "expediteur": livraison["expediteur"]?["user"]?["name"] ?? "",
@@ -189,6 +193,7 @@ class Apilivraison {
            "adresse_expedition":livraison["expedition"]["adresse"],
            "adresse_destination":livraison["destination"]["adresse"],
            "moyen_transport":livraison["moyen_transport"],
+           "expediteur_id":livraison["expediteur"]["id"].toString(),
            "expediteur": livraison["expediteur"]?["user"]?["name"] ?? "",
            "destinateur": livraison["destinateur"]?["user"]?["name"] ?? "${livraison["destination"]["nom_destination"]} (n'esxiste pas)",
          },
@@ -210,7 +215,7 @@ class Apilivraison {
          url,
          headers: {
            'Content-Type': 'application/json',
-           'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+           'Authorization': 'Bearer $token'
          }
      );
      final data = jsonDecode(response.body);
@@ -253,7 +258,7 @@ class Apilivraison {
          url,
          headers: {
            'Content-Type': 'application/json',
-           'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+           'Authorization': 'Bearer $token'
          }
      );
 
@@ -264,7 +269,7 @@ class Apilivraison {
 
        data["data"].forEach((livraison) {
 
-         print(livraison["vehicule"]["livreurs"][0]["id"].toString());
+
 
          livraisons.add({"id":livraison["id"].toString(),
            "id_livreur":livraison["vehicule"]["livreurs"][0]["id"].toString(),
@@ -301,7 +306,7 @@ class Apilivraison {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+          'Authorization': 'Bearer $token'
           // On envoie le token ici
         }
     );
@@ -323,7 +328,7 @@ class Apilivraison {
          url,
          headers: {
            'Content-Type': 'application/json',
-           'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+           'Authorization': 'Bearer $token'
            // On envoie le token ici
          },
          body: jsonEncode({
@@ -342,7 +347,7 @@ class Apilivraison {
    }
 
   Future<List<Map<String,String>>> getClient () async {
-    print("iciiciicicicicicicic");
+
 
     List<Map<String,String>> clients=[];
 
@@ -383,7 +388,7 @@ class Apilivraison {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+'2|mbb2JWJK15qVJUDtUgn5Eg20qfdMIbohHsYE6m5wfdef70e0'
+          'Authorization': 'Bearer $token'
           // On envoie le token ici
         },
         body: jsonEncode({

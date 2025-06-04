@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart' as flutter_lottie;
 import 'package:menji/controller/LivraisonController.dart';
 import '../../controller/ClientController.dart';
 import '../../controller/authController.dart';
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart' ;
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 
 
 class MyApps extends StatelessWidget {
@@ -65,14 +61,12 @@ class _PageCommanderState extends State<PageCommander> {
     super.initState();
     _initialisationClients();
     _determinePosition();
-
-
   }
 
   void _initialisationClients() async {
+    await _livraisonController.init();
+    await _clientController.init();
     roleUser = await AuthController().getRole();
-    await _clientController.setToken();
-    await _livraisonController.setToken();
     clients = await _clientController.getClient();
 
     setState(() {
@@ -99,13 +93,6 @@ class _PageCommanderState extends State<PageCommander> {
       }
 
       Position position = await Geolocator.getCurrentPosition();
-
-      print('=== COORDONNÉES GPS ===');
-      print('Latitude: ${position.latitude}');
-      print('Longitude: ${position.longitude}');
-      print('Altitude: ${position.altitude}');
-      print('Précision: ${position.accuracy}m');
-      print('========================');
 
       setState(() {
         currentPosition = LatLng(position.latitude, position.longitude);
@@ -156,14 +143,7 @@ class _PageCommanderState extends State<PageCommander> {
                           point: currentPosition!,
                           width: 40,
                           height: 40,
-                          child: flutter_lottie.Lottie.asset(
-                            'localisation.json',
-
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.contain,
-
-                          ),
+                          child: Icon(Icons.person_pin_circle, color: Colors.blue, size: 40),
                         )
                     ],
                   ),
@@ -257,6 +237,9 @@ class _PageCommanderState extends State<PageCommander> {
                                     child: ElevatedButton(
                                       onPressed: () {
                                         if (_formKey.currentState!.validate()) {
+
+
+
                                           _livraisonController.storeLivraison(
                                             roleUser.id.toString(),
                                             id_client,

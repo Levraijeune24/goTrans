@@ -18,6 +18,7 @@ class _PageValidationState extends State<PageValidation> {
 
   TextEditingController prixUnitaireController = TextEditingController();
   TextEditingController poidsController = TextEditingController();
+  LivraisonController _livraisonController=LivraisonController();
   int prixTotalController =1;
   final _formKey = GlobalKey<FormState>();
 
@@ -28,11 +29,8 @@ class _PageValidationState extends State<PageValidation> {
   bool isLoadingTypeVehicule=false;
 
   void initInfoLivraison() async{
-
-    livraisons=await LivraisonController().ShowLivraisonLivreur(id_livreur , id_livraison);
-    print("pppppppppppppp");
-    print(livraisons);
-
+    await _livraisonController.init();
+    livraisons=await _livraisonController.ShowLivraisonLivreur(id_livreur , id_livraison);
     setState(() {
       isLoadingTypeVehicule = true;
     });
@@ -40,7 +38,6 @@ class _PageValidationState extends State<PageValidation> {
   }
 
   _PageValidationState(this.id_livreur,this.id_livraison);
-
 
   @override
   void initState() {
@@ -135,11 +132,6 @@ class _PageValidationState extends State<PageValidation> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-
-
-
-                        print([livraisons[0]["id"]!,
-                          prixTotalController.toString(), poidsController.text]);
 
                         LivraisonController().editLivraisonLivreur(context,livraisons[0]["id"]!,
                             prixTotalController.toString(), poidsController.text);

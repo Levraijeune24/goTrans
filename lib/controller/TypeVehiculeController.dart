@@ -13,21 +13,17 @@ import '../serviceAu/local_storage_service.dart';
 class Typevehiculecontroller {
 
   String? token;
-  Apilivraison v= Apilivraison();
+  late Apilivraison v;
 
-  setToken() async{
-    String? token= await LocalStorageService().getToken();
-    v.setToken(token!);
+  Future<void> init () async {
+    v = Apilivraison();
+    await v.init();
   }
-
-  Typevehiculecontroller(){
-    this.setToken();
-  }
-
-
 
 
   Future<List<Map<String,String>>> AllTypeVehicule() async{
+    print(v.token);
+    print("vvvvvvvvvv");
     final typeVehicules= await v.typeVehicule();
     return typeVehicules;
   }

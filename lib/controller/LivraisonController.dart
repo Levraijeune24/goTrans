@@ -11,12 +11,14 @@ import '../view/livreur/pageAccueilleLivreur.darT';
 
 
 class LivraisonController {
-  Apilivraison v= Apilivraison();
+  late Apilivraison v;
 
-  setToken() async{
-    String? token= await LocalStorageService().getToken();
-    v.setToken(token!);
+
+  Future<void> init () async {
+        v = Apilivraison();
+       await v.init();
   }
+
 
 
   Future<List<Map<String,String>>> AllLivraison(int id) async{
@@ -24,11 +26,14 @@ class LivraisonController {
      return donneesLivraison;
   }
 
+
   Future<List<Map<String,String>>> AllLivraisonDestinateur(int id) async{
 
     final donneesLivraison= await v.getLivraisonDestinateur(id);
     return donneesLivraison;
   }
+
+
 
   void creationLivraison(List<String> nom_type,BuildContext context){
     Navigator.push(
@@ -36,6 +41,7 @@ class LivraisonController {
       MaterialPageRoute(builder: (context) => MyApps(nom_type)),
     );
   }
+
 
   void annulerLivraison(String id_livraison,BuildContext context){
     v.annuler(id_livraison);
@@ -47,11 +53,8 @@ class LivraisonController {
 
   void editLivraisonLivreur(BuildContext context,String id_livraison,String montant, String kilo){
 
-    print("icccciciciic");
 
-    print([id_livraison,montant,kilo]);
-
-    Apilivraison().editLivraisonLivreur(id_livraison, montant, kilo);
+    v.editLivraisonLivreur(id_livraison, montant, kilo);
 
     Navigator.pushReplacement(
       context,
@@ -118,7 +121,7 @@ class LivraisonController {
 
   Future<List<Map<String,String>>> AllLivraisonLivreur(int id_livreur) async{
 
-    final donneesLivraison= await Apilivraison().getLivraisonLivreur(id_livreur);
+    final donneesLivraison= await v.getLivraisonLivreur(id_livreur);
     return donneesLivraison;
   }
 
@@ -126,7 +129,7 @@ class LivraisonController {
   Future<List<Map<String,String>>> ShowLivraisonLivreur(String id_livreur, String id_livraison) async{
 
 
-    final donneesLivraison= await Apilivraison().showLivraisonLivreur(id_livreur,id_livraison);
+    final donneesLivraison= await v.showLivraisonLivreur(id_livreur,id_livraison);
 
     return donneesLivraison;
   }
