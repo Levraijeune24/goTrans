@@ -140,7 +140,7 @@ class PageAccueilState extends State<PageAccueil> {
                                         return (livraison["status"]!="annulee" || livraison["status"]!="terminee")? LivraisonsCard(expediteur:livraison["expediteur"]!,
                                             destinateur: livraison["destinateur"]!,id: livraison["id"]!,
                                             moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
-                                            typeLivraison: livraison["expediteur_id"]!=roleUser.id?"sortant":"entrant",
+                                            typeLivraison: livraison["expediteur_id"].toString()==roleUser.id.toString()?"sortant":"entrant",
 
                                             Annuler: (id){
                                               setState(() {
@@ -148,7 +148,9 @@ class PageAccueilState extends State<PageAccueil> {
                                                 _initialisationLivraison();
                                               });
                                             },Confirmer: (id){
-                                              _showCodeConfirmationDialog(context,codeController,id,_livraisonController);
+                                              livraison["expediteur_id"].toString()!=roleUser.id.toString()?
+                                              _showCodeConfirmationDialog(context,codeController,id,_livraisonController):print("");
+
                                             },showInformation: (liv){
                                               ShowDetaille(context: context,livr: liv).run();
                                             }

@@ -46,7 +46,7 @@ class _PageValidationState extends State<PageValidation> {
   @override
   void initState() {
     initInfoLivraison();
-    // TODO: implement initState
+
     super.initState();
 
   }
@@ -146,7 +146,7 @@ class _PageValidationState extends State<PageValidation> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
 
-                        LivraisonController().editLivraisonLivreur(context,livraisons[0]["id"]!,
+                        _livraisonController.editLivraisonLivreur(context,livraisons[0]["id"]!,
                             prixTotalController.toString(), poidsController.text);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(

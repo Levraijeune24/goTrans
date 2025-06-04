@@ -92,7 +92,17 @@ class _PageCommanderState extends State<PageCommander> {
         }
       }
 
+
+
       Position position = await Geolocator.getCurrentPosition();
+
+      print('=== COORDONNÉES GPS ===');
+      print('Latitude: ${position.latitude}');
+      print('Longitudes: ${position.longitude}');
+      print('Altitude: ${position.altitude}');
+      print('Précision: ${position.accuracy}m');
+      print('========================');
+
 
       setState(() {
         currentPosition = LatLng(position.latitude, position.longitude);
@@ -141,8 +151,8 @@ class _PageCommanderState extends State<PageCommander> {
                       if (currentPosition != null)
                         Marker(
                           point: currentPosition!,
-                          width: 40,
-                          height: 40,
+                          width: 50,
+                          height: 50,
                           child: Icon(Icons.person_pin_circle, color: Colors.blue, size: 40),
                         )
                     ],
@@ -237,9 +247,6 @@ class _PageCommanderState extends State<PageCommander> {
                                     child: ElevatedButton(
                                       onPressed: () {
                                         if (_formKey.currentState!.validate()) {
-
-
-
                                           _livraisonController.storeLivraison(
                                             roleUser.id.toString(),
                                             id_client,

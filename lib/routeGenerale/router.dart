@@ -35,7 +35,6 @@ final GoRouter router = GoRouter(
         return '/homeLivreur'; // redirection interdite au client
       }
     }
-
     return null; // Pas de redirection
   },
 

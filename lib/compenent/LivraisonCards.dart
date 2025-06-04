@@ -32,6 +32,8 @@ class LivraisonsCard {
 
   Widget run(){
 
+    print(typeLivraison);
+
     status == 'en_cours' ? status == 'terminee' ? Colors.green : Colors.orange : Colors.orange;
 
     var statusColor = status == 'terminee' ? Colors.blue :
