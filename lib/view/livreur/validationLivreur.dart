@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../controller/LivraisonController.dart';
+import 'localisationClient.dart';
 
 class PageValidation extends StatefulWidget {
 
   late String id_livraison;
  late  String id_livreur;
-
 
   PageValidation(this.id_livreur,this.id_livraison);
 
@@ -15,6 +16,7 @@ class PageValidation extends StatefulWidget {
 }
 
 class _PageValidationState extends State<PageValidation> {
+  LatLng destination = LatLng(-4.322447, 15.307045);
 
   TextEditingController prixUnitaireController = TextEditingController();
   TextEditingController poidsController = TextEditingController();
@@ -32,6 +34,8 @@ class _PageValidationState extends State<PageValidation> {
     await _livraisonController.init();
     livraisons=await _livraisonController.ShowLivraisonLivreur(id_livreur , id_livraison);
     setState(() {
+
+       destination = LatLng(double.parse(livraisons[0]["expedition_longitude"]!) ,double.parse(livraisons[0]["expedition_longitude"]!));
       isLoadingTypeVehicule = true;
     });
 
@@ -83,10 +87,19 @@ class _PageValidationState extends State<PageValidation> {
                 _buildInfoRow('Nom de l\'xpéditeur', livraisons[0]["expediteur"] ?? "", Icons.person),
 
                  isLoadingTypeVehicule==false?CircularProgressIndicator():
-                 _buildInfoRow('Adresse de l\'expediteur', livraisons[0]["adresse_expedition"]!?? "", Icons.location_on),
+                 _buildInfoRow('Adresse de l\'expediteur', livraisons[0]["adresse_expedition"]!?? "", Icons.location_on,
+
+                     action: (){
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LocalisationclientPage(destination),
+                          ));
+                  }),
 
                  isLoadingTypeVehicule==false?CircularProgressIndicator():
-                 _buildInfoRow('Téléphone de l\'expediteur ', livraisons[0]["tel_expedition"]!?? "", Icons.phone),
+                 _buildInfoRow('Téléphone de l\'expediteur ', livraisons[0]["tel_expedition"]!?? "",
+                     Icons.phone
+                 ),
 
                 Divider(
                   color: Colors.grey, // couleur de la ligne
@@ -160,7 +173,7 @@ class _PageValidationState extends State<PageValidation> {
       )  );
   }
 
-  Widget _buildInfoRow(String label, String value, IconData icon) {
+  Widget _buildInfoRow(String label, String value, IconData icon,{VoidCallback? action}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -177,7 +190,15 @@ class _PageValidationState extends State<PageValidation> {
             ),
           ],
         ),
-        Icon(icon),
+        InkWell(
+          onTap: (){
+            action!();
+          },
+
+           child:  Icon(icon)
+
+        )
+      ,
       ],
     );
   }

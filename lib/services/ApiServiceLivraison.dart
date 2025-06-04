@@ -253,7 +253,6 @@ class Apilivraison {
 
      final url = Uri.parse(adresse+'api/livraison/showLivraisonLivreur/$id_livreur/$id_livraison');
 
-
      final response = await http.get(
          url,
          headers: {
@@ -275,6 +274,10 @@ class Apilivraison {
            "id_livreur":livraison["vehicule"]["livreurs"][0]["id"].toString(),
            "tarif":livraison["vehicule"]["type_vehicule"]["tarif"]["prix_tarif"].toString(),
            "status":livraison["status"],
+           "expedition_longitude":livraison["expedition"]["longitude"].toString(),
+           "expedition_latitude":livraison["expedition"]["latitude"].toString(),
+
+
            "date":livraison["date"],
            "code":livraison["code"],
            "adresse_expedition":livraison["expedition"]["adresse"],
