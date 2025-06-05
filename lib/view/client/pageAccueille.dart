@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageHistorique.dart';
 import '../../compenent/Navigation.dart';
+import '../../compenent/ShowCodeConfirmationDialog.dart';
 import '../../compenent/showDetaille.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
 import '../../controller/authController.dart';
 import 'package:menji/compenent/ListeBlockTransport.dart';
 import 'package:menji/compenent/LivraisonCards.dart';
-
 
 class PageAccueil extends StatefulWidget {
   @override
@@ -19,12 +19,10 @@ class PageAccueil extends StatefulWidget {
 class PageAccueilState extends State<PageAccueil> {
   Typevehiculecontroller _typevehiculecontroller=Typevehiculecontroller();
 
-
   LivraisonController _livraisonController=LivraisonController();
   final TextEditingController codeController = TextEditingController();
 
   late dynamic roleUser;
-
 
   List<Map<String, String>> TypesVehicules = [];
   List<Map<String, String>> listesLivraisonExpeditaire = [];
@@ -48,6 +46,7 @@ class PageAccueilState extends State<PageAccueil> {
     listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
     return [listesLivraisonExpeditaire,listesLivraisonDestinateur];
   }
+
 
 
   @override
@@ -141,7 +140,6 @@ class PageAccueilState extends State<PageAccueil> {
                                             destinateur: livraison["destinateur"]!,id: livraison["id"]!,
                                             moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
                                             typeLivraison: livraison["expediteur_id"].toString()==roleUser.id.toString()?"sortant":"entrant",
-
                                             Annuler: (id){
                                               setState(() {
                                                 _livraisonController.annulerLivraison(id,context);
@@ -149,8 +147,8 @@ class PageAccueilState extends State<PageAccueil> {
                                               });
                                             },Confirmer: (id){
                                               livraison["expediteur_id"].toString()!=roleUser.id.toString()?
-                                              _showCodeConfirmationDialog(context,codeController,id,_livraisonController):print("");
-
+                                              ShowCodeConfirmationDialog(context:context,controller:codeController,idLivraison:id,liv:_livraisonController).run()
+                                             :print("");
                                             },showInformation: (liv){
                                               ShowDetaille(context: context,livr: liv).run();
                                             }
@@ -171,51 +169,4 @@ class PageAccueilState extends State<PageAccueil> {
       bottomNavigationBar: Navigation(context:context).run(),
     );
   }
-
-
-void _showCodeConfirmationDialog(
-    BuildContext context,
-    TextEditingController controller,
-    String idLivraison,
-    LivraisonController liv,
-
-) {
-
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text("Confirmation"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Entrez le code de validation :"),
-          SizedBox(height: 10),
-          TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: "Code de validation",
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          child: Text("Annuler"),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        ElevatedButton(
-          child: Text("Valider"),
-          onPressed: () async {
-            String code = controller.text;
-
-            liv.confirmerLivraison(context,idLivraison, controller.text);
-
-          },
-        ),
-      ],
-    ),
-  );
-}
-
 }

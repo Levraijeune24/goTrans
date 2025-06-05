@@ -116,6 +116,20 @@ class _PageCommanderState extends State<PageCommander> {
     }
   }
 
+  void _zoomIn() {
+    setState(() {
+      _zoomLevel += 1;
+      _mapController.move(_mapController.camera.center, _zoomLevel);
+    });
+  }
+
+  void _zoomOut() {
+    setState(() {
+      _zoomLevel -= 1;
+      _mapController.move(_mapController.camera.center, _zoomLevel);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,16 +158,62 @@ class _PageCommanderState extends State<PageCommander> {
                   TileLayer(
                     urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
+                    userAgentPackageName: 'com.example.app',
+                    tileBuilder: (context, widget, tile) {
+                      return ColorFiltered(
+                        colorFilter: ColorFilter.matrix(<double>[
+                          0.2126, 0.7152, 0.0722, 0, 0,
+                          0.2126, 0.7152, 0.0722, 0, 0,
+                          0.2126, 0.7152, 0.0722, 0, 0,
+                          0,      0,      0,      1, 0,
+                        ]),
+                        child: widget,
+                      );
+                    },
                   ),
-
                   MarkerLayer(
                     markers: [
                       if (currentPosition != null)
                         Marker(
                           point: currentPosition!,
-                          width: 50,
-                          height: 50,
-                          child: Icon(Icons.person_pin_circle, color: Colors.blue, size: 40),
+                          width: 60,
+                          height: 60,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(Icons.location_on, color: Colors.red, size: 60),
+                              Positioned(
+                                top: 15,
+                                child: Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         )
                     ],
                   ),
@@ -171,6 +231,29 @@ class _PageCommanderState extends State<PageCommander> {
                 ),
               ),
 
+              Positioned(
+                right: 15,
+                bottom: 400,
+                child: Column(
+                  children: [
+                    FloatingActionButton(
+                      mini: true,
+                      heroTag: 'zoomIn',
+                      onPressed: _zoomIn,
+                      child: Icon(Icons.add),
+                      backgroundColor: Colors.white,
+                    ),
+                    SizedBox(height: 10),
+                    FloatingActionButton(
+                      mini: true,
+                      heroTag: 'zoomOut',
+                      onPressed: _zoomOut,
+                      child: Icon(Icons.remove),
+                      backgroundColor: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
 
               Form(
                 key: _formKey,
