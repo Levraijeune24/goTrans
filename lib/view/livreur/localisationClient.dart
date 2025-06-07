@@ -159,7 +159,7 @@ class _LocalisationclientPageState extends State<LocalisationclientPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0D1136),
       appBar: AppBar(
-        title: Text('Localisation client'),
+        title: Text('Localisation client Expeditaire '),
         backgroundColor: Colors.white,
         elevation: 0,
       ),

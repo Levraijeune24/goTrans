@@ -7,6 +7,7 @@ import 'package:menji/view/client/commander.dart';
 
 import '../serviceAu/local_storage_service.dart';
 import '../utils/elpers/elperDate.dart';
+import '../view/client/suivisColis.dart';
 import '../view/livreur/pageAccueilleLivreur.darT';
 
 
@@ -82,16 +83,32 @@ class LivraisonController {
 
   }
 
-  void storeLivraison (String id_expediteur,String id_destinateur,
-      String nom,
-      String adresseExpedition,
-      String adresseDestination,
-      String telephoneDestination,String telephoneExpediteur,String moyenTransport
-      ,BuildContext context,
-      String longitude_expedition,
-      String latitude_expedition,
-      String longitude_destination,
-      String latitude_destination,) async{
+  void storeLivraison ( dynamic id_expediteur,
+      dynamic id_destinateur,
+      dynamic nom,
+      dynamic adresseExpedition,
+      dynamic adresseDestination,
+      dynamic telephoneDestination,
+      dynamic telephoneExpediteur,
+      dynamic moyenTransport,
+      dynamic context,
+      dynamic longitude_expedition,
+      dynamic latitude_expedition,
+      dynamic longitude_destination,
+      dynamic latitude_destination) async{
+
+
+    print([id_expediteur,
+      id_destinateur,
+      nom,adresseExpedition,
+      adresseDestination,
+      telephoneDestination,
+      telephoneExpediteur,
+      moyenTransport,
+      longitude_expedition,
+      latitude_expedition,
+      longitude_destination,
+      latitude_destination]);
 
      await v.SaveLivraison(id_expediteur,
           id_destinateur,
@@ -132,6 +149,29 @@ class LivraisonController {
     final donneesLivraison= await v.showLivraisonLivreur(id_livreur,id_livraison);
 
     return donneesLivraison;
+  }
+
+     Suivre(context, String id) {
+
+       Navigator.push(
+         context,
+         MaterialPageRoute(builder: (context) => SuivisColis(id)),
+       );
+
+
+      }
+
+  Future<String> setLocalisation(dynamic longitude,dynamic latitude,dynamic id_livraison) {
+
+
+    return v.setLocalisation(longitude,latitude,id_livraison);
+
+
+  }
+
+  Future<Map<String,dynamic>> getLocalisation(String id) {
+    return v.getLocalisation(id);
+    
   }
 
 }

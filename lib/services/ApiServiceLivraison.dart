@@ -78,18 +78,18 @@ class Apilivraison {
 
   }
 
-  Future<void>  SaveLivraison (String id_expediteur,
-      String id_destinateur,
-      String nom,
-      String adresseExpedition,
-      String adresseDestination,
-      String telephoneDestination,
-      String telephoneExpedition ,
-      String moyenTransport,
-      String longitude_expedition,
-      String latitude_expedition,
-      String longitude_destination,
-      String latitude_destination,
+  Future<void>  SaveLivraison (dynamic id_expediteur,
+      dynamic id_destinateur,
+      dynamic nom,
+      dynamic adresseExpedition,
+      dynamic adresseDestination,
+      dynamic telephoneDestination,
+      dynamic telephoneExpedition ,
+      dynamic moyenTransport,
+      dynamic longitude_expedition,
+      dynamic latitude_expedition,
+      dynamic longitude_destination,
+      dynamic latitude_destination,
 
       )async {
 
@@ -124,7 +124,9 @@ class Apilivraison {
       }),
     );
     final data = jsonDecode(response.body);
-    print(data);
+
+    print(data["erreur"]);
+
   }
 
   Future<List<Map<String,String>>> getLivraisonExpediteur (int id) async {
@@ -219,15 +221,15 @@ class Apilivraison {
          }
      );
      final data = jsonDecode(response.body);
+
      if (response.statusCode == 200) {
 
        final data = jsonDecode(response.body);
 
 
        data["data"].forEach((livraison) {
-         print(livraison["vehicule"]["livreurs"][0].toString());
          livraisons.add({"id":livraison["id"].toString(),
-           "id_livreur":livraison["vehicule"]["livreurs"][0]["id"].toString(),
+           "id_livreur":livraison["vehicule"]["livreurs"][0]["livreur"]["id"].toString(),
            "status":livraison["status"],
            "date":livraison["date"],
            "code":livraison["code"],
@@ -241,6 +243,8 @@ class Apilivraison {
         }
        );
 
+       print("NNNNNN");
+       print(livraisons);
 
      }
      return livraisons;
@@ -249,6 +253,7 @@ class Apilivraison {
 
    Future<List<Map<String,String>>> showLivraisonLivreur (String id_livreur, String id_livraison) async {
 
+     print([id_livreur,id_livraison]);
      List<Map<String,String>> livraisons=[];
 
      final url = Uri.parse(adresse+'api/livraison/showLivraisonLivreur/$id_livreur/$id_livraison');
@@ -260,15 +265,14 @@ class Apilivraison {
            'Authorization': 'Bearer $token'
          }
      );
+     print("ooooo");
+     print(response.body);
 
      if (response.statusCode == 200) {
 
        final data = jsonDecode(response.body);
 
-
        data["data"].forEach((livraison) {
-
-
 
          livraisons.add({"id":livraison["id"].toString(),
            "id_livreur":livraison["vehicule"]["livreurs"][0]["id"].toString(),
@@ -276,8 +280,6 @@ class Apilivraison {
            "status":livraison["status"],
            "expedition_longitude":livraison["expedition"]["longitude"].toString(),
            "expedition_latitude":livraison["expedition"]["latitude"].toString(),
-
-
            "date":livraison["date"],
            "code":livraison["code"],
            "adresse_expedition":livraison["expedition"]["adresse"],
@@ -289,6 +291,7 @@ class Apilivraison {
            "destinateur": livraison["destinateur"]?["user"]?["name"] ?? "${livraison["destination"]["nom_destination"]} (n'esxiste pas)",
          },
          );
+
 
 
 
@@ -406,6 +409,76 @@ class Apilivraison {
     return data;
 
   }
+
+   Future<String> setLocalisation(dynamic longitude,dynamic latitude,dynamic id_livraison)async{
+     final url = Uri.parse(adresse+'api/localisation/setLocalisation');
+     try {
+       final response = await http.post(
+         url,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer $token',
+         },
+         body: jsonEncode({
+           "longitude": longitude,
+           "latitude": latitude,
+           "livraison_id": id_livraison
+         }),
+       );
+
+       if (response.statusCode == 200) {
+         final data = jsonDecode(response.body);
+         print('Réponse : $data');
+       } else {
+         print('Erreur HTTP : ${response.statusCode}');
+         print('Corps de l’erreur : ${response.body}');
+       }
+     } catch (e) {
+       print('Exception : $e');
+     }
+
+
+     return "OK";
+
+   }
+
+
+   Future<Map<String,dynamic>> getLocalisation(String id)async{
+
+     Map<String,dynamic> localisation={};
+
+     final url = Uri.parse(adresse+'api/localisation/getLocalisation');
+     try {
+       final response = await http.post(
+         url,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer $token',
+         },
+         body: jsonEncode({
+
+           "livraison_id": id.toString()
+         }),
+       );
+
+       if (response.statusCode == 200) {
+         final data = jsonDecode(response.body);
+         print('Réponse : $data');
+         localisation["latitude"]=data["localisation"]["latitude"];
+         localisation["longitude"]=data["localisation"]["longitude"];
+       } else {
+         print('Erreur HTTP : ${response.statusCode}');
+         print('Corps de l’erreur : ${response.body}');
+       }
+     } catch (e) {
+       print('Exception : $e');
+     }
+
+
+
+     return localisation;
+
+   }
 
 
 }

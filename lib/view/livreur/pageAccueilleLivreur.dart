@@ -24,15 +24,18 @@ class _PageLivreurState extends State<PageLivreur> {
     await _livraisonController.init();
 
     roleUser = await AuthController().getRole();
-    setState(() {
+    setState(()  {
       livraisonsFuture = _livraisonController.AllLivraisonLivreur(roleUser.id);
+
     });
   }
 
   @override
   void initState() {
+
     super.initState();
     _initialisationLivraison();
+
   }
 
   @override
@@ -60,6 +63,7 @@ class _PageLivreurState extends State<PageLivreur> {
               child: FutureBuilder<List<Map<String, String>>>(
                 future: livraisonsFuture,
                 builder: (context, snapshot) {
+                  print(snapshot.connectionState);
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
@@ -68,12 +72,19 @@ class _PageLivreurState extends State<PageLivreur> {
                     return Center(
                         child: Text('Aucune livraisons pour vous maintanant'));
                   } else {
+
                     return ListView(
                       children: snapshot.data!.map((livraison) {
+                        print("gggggg");
+                        print(livraison["expediteur"]!);
+                        print(livraison["destinateur"]!);
+
+
                         return livraison["status"] == "validee" ||
                             livraison["status"] == "en_cours" ||
-                            livraison["status"] == "terminee" ?
-
+                            livraison["status"] == "terminee"||
+                            livraison["status"] == "validee"
+                            ?
 
                         LivraisonsCard(expediteur: livraison["expediteur"]!,
                             destinateur: livraison["destinateur"]!,

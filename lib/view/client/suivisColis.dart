@@ -8,16 +8,25 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../../controller/LivraisonController.dart';
 
-class SignalementPage extends StatefulWidget {
+
+class SuivisColis extends StatefulWidget {
+
+  late String id;
+  SuivisColis(this.id);
+
   @override
-  _MapState createState() => _MapState();
+  _MapState createState() => _MapState(id);
 }
 
 
 
-class _MapState extends State<SignalementPage> {
+class _MapState extends State<SuivisColis> {
+  late String id;
+  LivraisonController _livraisonController=LivraisonController();
   LatLng? currentPosition;
+  late  Map<String,dynamic> localisation;
   final MapController _mapController = MapController();
   Set<Marker> _markers = {};
   bool _isLoading = true;
@@ -26,21 +35,45 @@ class _MapState extends State<SignalementPage> {
   LatLng? _lastPosition;
   bool _firstPositionReceived = false;
 
+  bool _lacalisation = false;
+
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   Polyline? routePolyline;
-  LatLng destination = LatLng(-4.322447, 15.307045); // Palais du Peuple, Kinshasa
+  LatLng destination = LatLng(-4.322447, 15.307045);
+
+  LatLng mydestination = LatLng(-4.322447, 15.307045);// Palais du Peuple, Kinshasa
 
   String _durationText = 'Calcul en cours...';
   String _currentLocationName = 'Position actuelle';
   String _destinationName = 'Palais du Peuple';
 
+  _MapState(this.id);
+
 
   // les etats
+
+  Future<void> _initialisationLivraison() async {
+
+    await _livraisonController.init();
+    localisation= await _livraisonController.getLocalisation(id);
+    mydestination=LatLng(localisation["longitude"] , localisation["latitude"]);
+
+    setState(() {
+      print(localisation["longitude"]);
+      _lacalisation=true;
+    });
+
+
+  }
 
   @override
   void initState() {
     super.initState();
+    // Lancer le timer toutes les 10 secondes
+     Timer.periodic(Duration(seconds: 5), (timer) async {
+       _initialisationLivraison();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkPermissionsAndStartTracking();
     });
@@ -160,7 +193,7 @@ class _MapState extends State<SignalementPage> {
       _isLoading = false;
     });
 
-    _mapController.move(newPosition, _zoomLevel);
+    _mapController.move(mydestination, _zoomLevel);
     _updateMarkers();
     getOSRMRoute();
   }
@@ -363,9 +396,23 @@ class _MapState extends State<SignalementPage> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: Text('Suivre mon colis'),
+          iconTheme: IconThemeData(color: Colors.orange),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.notifications, color: Colors.orange),
+              onPressed: () {},
+            ),
+          ],
+        ),
       backgroundColor: const Color(0xFF0D1136),
       body: Stack(
         children: [
@@ -442,6 +489,10 @@ class _MapState extends State<SignalementPage> {
               ],
             ),
           ),
+          _lacalisation==false?
+          Center(child: CircularProgressIndicator()):
+              Center(child: Text(""),)
+
         ],
       ),
     );

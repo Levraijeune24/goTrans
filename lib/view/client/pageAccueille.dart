@@ -151,6 +151,9 @@ class PageAccueilState extends State<PageAccueil> {
                                              :print("");
                                             },showInformation: (liv){
                                               ShowDetaille(context: context,livr: liv).run();
+                                            },suivre: (){
+                                              _livraisonController.Suivre(context,livraison["id"]!);
+
                                             }
                                         ).run():Center();
                                       }).toList()

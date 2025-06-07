@@ -47,7 +47,7 @@ class _PageCommanderState extends State<PageCommander> {
   bool isLoadingClient = true;
 
   String selectedValueName = '';
-  String id_client = "0";
+  dynamic id_client =null;
   dynamic roleUser;
 
   final TextEditingController controllerAdresseExpediteur = TextEditingController();
@@ -91,8 +91,6 @@ class _PageCommanderState extends State<PageCommander> {
           return;
         }
       }
-
-
 
       Position position = await Geolocator.getCurrentPosition();
 
@@ -316,7 +314,7 @@ class _PageCommanderState extends State<PageCommander> {
                                       onChanged: (String? id, String? nom) {
                                         setState(() {
                                           print(nom);
-                                          id_client = id ?? "0";
+                                          id_client = id ?? null;
                                           selectedValueName = nom ?? "";
                                         });
                                       },
