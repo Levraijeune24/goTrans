@@ -23,7 +23,7 @@ class ShowDetaille{
             Icon(Icons.local_shipping, color: Colors.blue),
             SizedBox(width: 10),
             Text(
-              "Détails de la Livraison",
+              "Détails ",
               style: TextStyle(fontWeight: FontWeight.bold),
               softWrap: true,
               overflow: TextOverflow.visible,
