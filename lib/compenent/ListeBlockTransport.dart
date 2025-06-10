@@ -24,7 +24,7 @@ class Listeblocktransport {
           String? nom_type= typeVehile["nom_type"];
       MoyenTransports.add(
           BlockMoyenTransport((){
-            LivraisonController().creationLivraison([" $nom_type : $kilo_initiale kg - $kilo_final kg",nom_type!],context);
+            LivraisonController().create([" $nom_type : $kilo_initiale kg - $kilo_final kg",nom_type!],context);
           }, context: context,
               image: "images/Taxi.png", title: nom_type?? "inconnue", description: "$kilo_initiale kg - $kilo_final kg").Run()
       );

@@ -36,8 +36,8 @@ class PageHistoriqueState extends State<PageHistorique> {
     roleUser= await AuthController().getRole();
 
     await _livraisonController.init();
-    listesLivraisonExpeditaire = await _livraisonController.AllLivraison(roleUser!.id);
-    listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
+    listesLivraisonExpeditaire = await _livraisonController.getForExpeditaire(roleUser!.id);
+    listesLivraisonDestinateur = await _livraisonController.getForDestinataire(roleUser!.id);
     return [listesLivraisonExpeditaire,listesLivraisonDestinateur];
   }
 
@@ -110,7 +110,7 @@ class PageHistoriqueState extends State<PageHistorique> {
 
                                               Annuler: (id){
                                                 setState(() {
-                                                  _livraisonController.annulerLivraison(id,context);
+                                                  _livraisonController.cancel(id,context);
                                                   _initialisationLivraison();
                                                 });
                                               },Confirmer: (id){

@@ -17,26 +17,25 @@ class PageLivreur extends StatefulWidget {
 class _PageLivreurState extends State<PageLivreur> {
   late Future<List<Map<String, String>>> livraisonsFuture;
   LivraisonController _livraisonController = LivraisonController();
-  late final roleUser;
-  final TextEditingController codeController = TextEditingController();
+  late  TextEditingController codeController = TextEditingController();
 
   void _initialisationLivraison() async {
     await _livraisonController.init();
 
-    roleUser = await AuthController().getRole();
+    var roleUser = await AuthController().getRole();
     setState(()  {
-      livraisonsFuture = _livraisonController.AllLivraisonLivreur(roleUser.id);
+      livraisonsFuture = _livraisonController.getForLivreur(roleUser!.id);
 
     });
   }
 
   @override
   void initState() {
-
     super.initState();
     _initialisationLivraison();
-
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +97,7 @@ class _PageLivreurState extends State<PageLivreur> {
 
                             Annuler: (id) {
                               setState(() {
-                                _livraisonController.annulerLivraison(
+                                _livraisonController.cancel(
                                     id, context);
                                 _initialisationLivraison();
                               });

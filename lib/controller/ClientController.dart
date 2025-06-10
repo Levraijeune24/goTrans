@@ -7,10 +7,10 @@ import '../services/ApiServiceLivraison.dart';
 
 class ClientController {
 
-  Apilivraison v= Apilivraison();
+  late ApiServiceLivraison v ;
 
   Future<void> init () async {
-    v = Apilivraison();
+    v = ApiServiceLivraison();
     await v.init();
   }
 
@@ -22,7 +22,6 @@ class ClientController {
   }
 
   Future<List<Map<String,String>>>  getClient() async {
-
     return v.getClient();
   }
 }

@@ -32,7 +32,7 @@ class PageAccueilState extends State<PageAccueil> {
   void _initialisationTypeVehicule() async {
 
       await _typevehiculecontroller.init();
-      TypesVehicules = await _typevehiculecontroller.AllTypeVehicule();
+      TypesVehicules = await _typevehiculecontroller.fetchTypeVehicule();
       setState(() {
         isLoadingTypeVehicule = false;
       });
@@ -42,8 +42,8 @@ class PageAccueilState extends State<PageAccueil> {
     roleUser= await AuthController().getRole();
 
     await _livraisonController.init();
-    listesLivraisonExpeditaire = await _livraisonController.AllLivraison(roleUser!.id);
-    listesLivraisonDestinateur = await _livraisonController.AllLivraisonDestinateur(roleUser!.id);
+    listesLivraisonExpeditaire = await _livraisonController.getForExpeditaire(roleUser!.id);
+    listesLivraisonDestinateur = await _livraisonController.getForDestinataire(roleUser!.id);
     return [listesLivraisonExpeditaire,listesLivraisonDestinateur];
   }
 
@@ -142,7 +142,7 @@ class PageAccueilState extends State<PageAccueil> {
                                             typeLivraison: livraison["expediteur_id"].toString()==roleUser.id.toString()?"sortant":"entrant",
                                             Annuler: (id){
                                               setState(() {
-                                                _livraisonController.annulerLivraison(id,context);
+                                                _livraisonController.cancel(id,context);
                                                 _initialisationLivraison();
                                               });
                                             },Confirmer: (id){
@@ -153,7 +153,6 @@ class PageAccueilState extends State<PageAccueil> {
                                               ShowDetaille(context: context,livr: liv).run();
                                             },suivre: (){
                                               _livraisonController.Suivre(context,livraison["id"]!);
-
                                             }
                                         ).run():Center();
                                       }).toList()

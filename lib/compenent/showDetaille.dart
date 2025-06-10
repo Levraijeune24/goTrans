@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
-
-
-
 class ShowDetaille{
-
 
   Map<String, String> livr;
   BuildContext context;
@@ -18,7 +13,7 @@ class ShowDetaille{
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.local_shipping, color: Colors.blue),
             SizedBox(width: 10),
@@ -36,34 +31,34 @@ class ShowDetaille{
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildStyledRow(icon:  Icons.person, label: "Expéditeur :", value:  livr["expediteur"] ?? "Inconnu").run(),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               buildStyledRow(icon: Icons.person_outline,label: "Destinataire :",value: livr["destinateur"] ?? "Inconnu").run(),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               buildStyledRow(icon: Icons.location_on,label: "Adresse d'expedition :",value: livr["adresse_expedition"] ?? "N/A").run(),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               buildStyledRow(icon: Icons.location_on,label: "Adresse de destination :",value: livr["adresse_destination"] ?? "N/A").run(),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               buildStyledRow(icon:Icons.qr_code,label: "Code Livraison :",value: livr["code"] ?? "Non disponible").run(),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               buildStyledRow(icon:Icons.date_range,label: "Date :",value: livr["date"] ?? "Non précisée").run(),
             ],
           ),
         ),
         actions: [
           TextButton.icon(
-            icon: Icon(Icons.copy, color: Colors.blue),
-            label: Text("Copier le code"),
+            icon: const Icon(Icons.copy, color: Colors.blue),
+            label: const Text("Copier le code"),
             onPressed: () {
               final code = livr["code"] ?? "";
               Clipboard.setData(ClipboardData(text: code));
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Code copié dans le presse-papiers")),
+                const SnackBar(content: Text("Code copié dans le presse-papiers")),
               );
             },
           ),
           ElevatedButton.icon(
-            icon: Icon(Icons.close),
-            label: Text("Fermer"),
+            icon: const Icon(Icons.close),
+            label: const Text("Fermer"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -94,13 +89,13 @@ class buildStyledRow{
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 20, color: Colors.blueAccent),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.black),
               children: [
-                TextSpan(text: "$label ", style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "$label ", style: const TextStyle(fontWeight: FontWeight.bold)),
                 TextSpan(text: value),
               ],
             ),
@@ -109,9 +104,5 @@ class buildStyledRow{
       ],
     );
   }
-
-
-
-
 }
 

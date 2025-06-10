@@ -12,40 +12,36 @@ import '../view/livreur/pageAccueilleLivreur.darT';
 
 
 class LivraisonController {
-  late Apilivraison v;
-
+  late ApiServiceLivraison v;
 
   Future<void> init () async {
-        v = Apilivraison();
+        v = ApiServiceLivraison();
        await v.init();
   }
 
-
-
-  Future<List<Map<String,String>>> AllLivraison(int id) async{
+  Future<List<Map<String,String>>> getForExpeditaire(int id) async{
      final donneesLivraison= await v.getLivraisonExpediteur(id);
      return donneesLivraison;
   }
 
 
-  Future<List<Map<String,String>>> AllLivraisonDestinateur(int id) async{
+  Future<List<Map<String,String>>> getForDestinataire(int id) async{
 
     final donneesLivraison= await v.getLivraisonDestinateur(id);
     return donneesLivraison;
   }
 
-
-
-  void creationLivraison(List<String> nom_type,BuildContext context){
+  void create(List<String> nom_type,BuildContext context){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MyApps(nom_type)),
+      MaterialPageRoute(builder: (context) => PageCommander(nom_type)),
     );
   }
 
 
-  void annulerLivraison(String id_livraison,BuildContext context){
+  void cancel(String id_livraison,BuildContext context){
     v.annuler(id_livraison);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("vous avez annulee une livraison")),
     );
@@ -53,7 +49,6 @@ class LivraisonController {
 
 
   void editLivraisonLivreur(BuildContext context,String id_livraison,String montant, String kilo){
-
 
     v.editLivraisonLivreur(id_livraison, montant, kilo);
 
@@ -67,23 +62,19 @@ class LivraisonController {
     );
   }
 
-  void confirmerLivraison(BuildContext context,String id_livraison,String code_livraison)async{
+  void confirm(BuildContext context,String id_livraison,String code_livraison)async{
 
      v.confirmerLivraison(id_livraison, code_livraison);
+     Navigator.pop(context);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => PageAccueil()),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Livraison termine')),
+     ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('le statut est change avec succes')),
     );
 
 
   }
 
-  void storeLivraison ( dynamic id_expediteur,
+  void store ( dynamic id_expediteur,
       dynamic id_destinateur,
       dynamic nom,
       dynamic adresseExpedition,
@@ -98,18 +89,6 @@ class LivraisonController {
       dynamic latitude_destination) async{
 
 
-    print([id_expediteur,
-      id_destinateur,
-      nom,adresseExpedition,
-      adresseDestination,
-      telephoneDestination,
-      telephoneExpediteur,
-      moyenTransport,
-      longitude_expedition,
-      latitude_expedition,
-      longitude_destination,
-      latitude_destination]);
-
      await v.SaveLivraison(id_expediteur,
           id_destinateur,
           nom,adresseExpedition,
@@ -121,7 +100,6 @@ class LivraisonController {
           latitude_expedition,
           longitude_destination,
           latitude_destination
-
       );
 
       Navigator.push(
@@ -136,14 +114,14 @@ class LivraisonController {
 
 
 
-  Future<List<Map<String,String>>> AllLivraisonLivreur(int id_livreur) async{
+  Future<List<Map<String,String>>> getForLivreur(int id_livreur) async{
 
     final donneesLivraison= await v.getLivraisonLivreur(id_livreur);
     return donneesLivraison;
   }
 
 
-  Future<List<Map<String,String>>> ShowLivraisonLivreur(String id_livreur, String id_livraison) async{
+  Future<List<Map<String,String>>> ShowForLivreur(String id_livreur, String id_livraison) async{
 
 
     final donneesLivraison= await v.showLivraisonLivreur(id_livreur,id_livraison);
@@ -163,9 +141,7 @@ class LivraisonController {
 
   Future<String> setLocalisation(dynamic longitude,dynamic latitude,dynamic id_livraison) {
 
-
     return v.setLocalisation(longitude,latitude,id_livraison);
-
 
   }
 
@@ -173,6 +149,8 @@ class LivraisonController {
     return v.getLocalisation(id);
     
   }
+
+
 
 }
 

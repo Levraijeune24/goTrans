@@ -2,81 +2,25 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:menji/utils/elpers/elperDate.dart';
 import 'package:menji/utils/elpers/elperLivraisons.dart';
-
-import '../controller/authController.dart';
 import '../serviceAu/local_storage_service.dart';
 
 
-class Apilivraison {
+class ApiServiceLivraison {
 
-   String? token;
-  final adresse="https://gotrans.menjidrc.com/";
 
+  Map<String, String> get _headers => {
+    'Content-Type': 'application/json',
+    if (token != null) 'Authorization': 'Bearer $token',
+  };
+
+  String get adresse => "https://gotrans.menjidrc.com/";
+
+  String? token;
 
    Future<void> init() async {
-     print("Initialisation en cours...");
+
      token = await LocalStorageService().getToken();
-     print("Token récupéré : $token");
    }
-  
-
-  Future<List<Map<String,String>>> typeVehicule() async {
-
-    List<Map<String,String>> mesTypes=[];
-
-    final url = Uri.parse(adresse+'api/typeVehicule');
-
-
-    final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',  // On envoie le token ici
-        }
-    );
-
-    print('Statut : ${response.statusCode}');
-
-
-    if (response.statusCode == 200) {
-
-      final data = jsonDecode(response.body);
-      data["typeVehicule"].forEach((typeVehile) {
-
-        mesTypes.add({"id":typeVehile["id"].toString(),
-          "nom_type":typeVehile["nom_type"],
-          "kilo_initiale":typeVehile["kilo_initiale"].toString(),
-          "kilo_final":typeVehile["kilo_final"].toString(),
-
-        },
-        );
-
-
-      });
-
-    } else {
-      print('Erreur : ${response.statusCode}');
-    }
-    return mesTypes;
-  }
-
-  Future<void>  Connection ()async {
-
-    final url = Uri.parse(adresse+'api/login');
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json'
-        // On envoie le token ici
-      },
-      body: jsonEncode({
-        "email":"benikasu@gmail.com",
-        "password": "password" // ou d'autres données nécessaires à l'API
-      }),
-    );
-
-  }
 
   Future<void>  SaveLivraison (dynamic id_expediteur,
       dynamic id_destinateur,
@@ -98,10 +42,7 @@ class Apilivraison {
 
     final response = await http.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
+      headers: _headers,
       body: jsonEncode({
         "adresse_expedition":adresseExpedition,
         "tel_expedition": telephoneExpedition,
@@ -123,9 +64,7 @@ class Apilivraison {
         "latitude_destination":latitude_destination
       }),
     );
-    final data = jsonDecode(response.body);
-
-    print(data["erreur"]);
+    jsonDecode(response.body);
 
   }
 
@@ -137,13 +76,8 @@ class Apilivraison {
 
     final response = await http.get(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      }
+      headers: _headers
     );
-    final data = jsonDecode(response.body);
-
 
     if (response.statusCode == 200) {
 
@@ -163,7 +97,8 @@ class Apilivraison {
         },
         );
 
-      });}
+      });
+    }
 
     return livraisons;
 
@@ -177,10 +112,7 @@ class Apilivraison {
 
      final response = await http.get(
          url,
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer $token'
-         }
+         headers: _headers
      );
      final data = jsonDecode(response.body);
      if (response.statusCode == 200) {
@@ -215,10 +147,7 @@ class Apilivraison {
 
      final response = await http.get(
          url,
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer $token'
-         }
+         headers: _headers
      );
      final data = jsonDecode(response.body);
 
@@ -260,13 +189,8 @@ class Apilivraison {
 
      final response = await http.get(
          url,
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer $token'
-         }
+         headers: _headers
      );
-     print("ooooo");
-     print(response.body);
 
      if (response.statusCode == 200) {
 
@@ -310,18 +234,13 @@ class Apilivraison {
 
     final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-          // On envoie le token ici
-        }
+        headers: _headers
     );
 
     final data = jsonDecode(response.body);
     print(data);
 
     return data;
-
 
   }
 
@@ -332,11 +251,7 @@ class Apilivraison {
 
      final response = await http.post(
          url,
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer $token'
-           // On envoie le token ici
-         },
+         headers: _headers,
          body: jsonEncode({
            "id":id_livraison,
            "montant":montant,
@@ -345,15 +260,11 @@ class Apilivraison {
      );
 
      final data = jsonDecode(response.body);
-     print(data);
 
      return data;
-
-
    }
 
   Future<List<Map<String,String>>> getClient () async {
-
 
     List<Map<String,String>> clients=[];
 
@@ -361,10 +272,7 @@ class Apilivraison {
 
     final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-        }
+        headers: _headers
     );
 
     final data = jsonDecode(response.body);
@@ -392,11 +300,7 @@ class Apilivraison {
 
     final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-          // On envoie le token ici
-        },
+        headers: _headers,
         body: jsonEncode({
           "id":id_livraison,
           "codeLivraison":codeLivraison
@@ -404,7 +308,7 @@ class Apilivraison {
     );
 
     final data = jsonDecode(response.body);
-    print(data);
+
 
     return data;
 
@@ -415,10 +319,7 @@ class Apilivraison {
      try {
        final response = await http.post(
          url,
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer $token',
-         },
+         headers: _headers,
          body: jsonEncode({
            "longitude": longitude,
            "latitude": latitude,
@@ -451,10 +352,7 @@ class Apilivraison {
      try {
        final response = await http.post(
          url,
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer $token',
-         },
+         headers: _headers,
          body: jsonEncode({
 
            "livraison_id": id.toString()

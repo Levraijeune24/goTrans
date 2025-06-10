@@ -43,7 +43,7 @@ class _PageValidationState extends State<PageValidation> {
 
   Future<void> initInfoLivraison() async {
     await _livraisonController.init();
-    livraisons = await _livraisonController.ShowLivraisonLivreur(
+    livraisons = await _livraisonController.ShowForLivreur(
       widget.id_livreur,
       widget.id_livraison,
     );

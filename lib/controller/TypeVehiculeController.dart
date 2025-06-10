@@ -1,35 +1,28 @@
 
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:menji/view/client/pageAccueille.dart';
 import 'package:menji/services/ApiServiceLivraison.dart';
-import 'package:menji/view/client/commander.dart';
 
-import '../serviceAu/local_storage_service.dart';
+import '../services/ApiServiceTypeVehicule.dart';
 
 
 
 
 class Typevehiculecontroller {
 
-  String? token;
-  late Apilivraison v;
+
+  late ApiServiceTypeVehicule v;
 
   Future<void> init () async {
-    v = Apilivraison();
+    v = ApiServiceTypeVehicule();
     await v.init();
+
   }
 
 
-  Future<List<Map<String,String>>> AllTypeVehicule() async{
-    print(v.token);
-    print("vvvvvvvvvv");
-    final typeVehicules= await v.typeVehicule();
+  Future<List<Map<String,String>>> fetchTypeVehicule() async{
+
+    final typeVehicules= await v.fetchTypeVehicules();
     return typeVehicules;
   }
-
-
-
 
 
 }

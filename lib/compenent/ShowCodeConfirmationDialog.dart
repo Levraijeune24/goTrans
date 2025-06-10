@@ -43,7 +43,7 @@ class ShowCodeConfirmationDialog {
             child: const Text("Valider"),
             onPressed: () async {
               String code = controller.text;
-              liv.confirmerLivraison(context,idLivraison, controller.text);
+              liv.confirm(context,idLivraison, controller.text);
             },
           ),
         ],

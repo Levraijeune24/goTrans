@@ -8,20 +8,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 
-class MyApps extends StatelessWidget {
-  final List<String> recaPoid;
 
-  MyApps(this.recaPoid);
-
-  @override
-  Widget build(BuildContext context) {
-    return PageCommander(recaPoid);
-  }
-}
 
 class PageCommander extends StatefulWidget {
   final List<String> recaPoid;
-
 
   PageCommander(this.recaPoid);
   @override
@@ -29,7 +19,7 @@ class PageCommander extends StatefulWidget {
 }
 
 class _PageCommanderState extends State<PageCommander> {
-  LatLng currentPosition =LatLng(-4.322447, 15.307045);
+  LatLng currentPosition =const LatLng(-4.322447, 15.307045);
   final MapController _mapController = MapController();
   Set<Marker> _markers = {};
   bool _isLoading = true;
@@ -38,7 +28,7 @@ class _PageCommanderState extends State<PageCommander> {
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   Polyline? routePolyline;
-  LatLng destination = LatLng(-4.322447, 15.307045);
+  LatLng destination = const LatLng(-4.322447, 15.307045);
   final _formKey = GlobalKey<FormState>();
   final LivraisonController _livraisonController = LivraisonController();
   final ClientController _clientController = ClientController();
@@ -136,12 +126,12 @@ class _PageCommanderState extends State<PageCommander> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.orange),
+          icon: const Icon(Icons.arrow_back, color: Colors.orange),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text('Commander', style: TextStyle(color: Colors.orange)),
+        title: const Text('Commander', style: TextStyle(color: Colors.orange)),
       ),
       body:
           Stack(
@@ -159,7 +149,7 @@ class _PageCommanderState extends State<PageCommander> {
                     userAgentPackageName: 'com.example.app',
                     tileBuilder: (context, widget, tile) {
                       return ColorFiltered(
-                        colorFilter: ColorFilter.matrix(<double>[
+                        colorFilter: const ColorFilter.matrix(<double>[
                           0.2126, 0.7152, 0.0722, 0, 0,
                           0.2126, 0.7152, 0.0722, 0, 0,
                           0.2126, 0.7152, 0.0722, 0, 0,
@@ -179,7 +169,7 @@ class _PageCommanderState extends State<PageCommander> {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              Icon(Icons.location_on, color: Colors.red, size: 60),
+                              const Icon(Icons.location_on, color: Colors.red, size: 60),
                               Positioned(
                                 top: 15,
                                 child: Container(
@@ -224,7 +214,7 @@ class _PageCommanderState extends State<PageCommander> {
                   mini: true,
                   heroTag: 'location',
                   onPressed: _determinePosition,
-                  child: Icon(Icons.my_location),
+                  child: const Icon(Icons.my_location),
                   backgroundColor: Colors.white,
                 ),
               ),
@@ -238,15 +228,15 @@ class _PageCommanderState extends State<PageCommander> {
                       mini: true,
                       heroTag: 'zoomIn',
                       onPressed: _zoomIn,
-                      child: Icon(Icons.add),
+                      child: const Icon(Icons.add),
                       backgroundColor: Colors.white,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     FloatingActionButton(
                       mini: true,
                       heroTag: 'zoomOut',
                       onPressed: _zoomOut,
-                      child: Icon(Icons.remove),
+                      child: const Icon(Icons.remove),
                       backgroundColor: Colors.white,
                     ),
                   ],
@@ -259,14 +249,14 @@ class _PageCommanderState extends State<PageCommander> {
                   children: [
                     Container(
                       height: 200,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage('images/map_image.png'),
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Expanded(
                       child: DraggableScrollableSheet(
                         initialChildSize: 0.5,
@@ -276,13 +266,13 @@ class _PageCommanderState extends State<PageCommander> {
                           return Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.grey.withOpacity(0.5),
                                   spreadRadius: 2,
                                   blurRadius: 5,
-                                  offset: Offset(0, -3),
+                                  offset: const Offset(0, -3),
                                 ),
                               ],
                             ),
@@ -294,17 +284,17 @@ class _PageCommanderState extends State<PageCommander> {
                                 children: [
                                   Text(
                                     'Récap : ${widget.recaPoid[0]}',
-                                    style: TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(height: 20),
+                                  const SizedBox(height: 20),
                                   _sectionTitle('Expéditeur'),
                                   _buildValidatedTextField(controller: controllerAdresseExpediteur, label: 'Adresse', icon: Icons.person, type: TextInputType.text),
-                                  SizedBox(height: 20),
+                                  const SizedBox(height: 20),
                                   _buildValidatedTextField(controller: controllerNumeroExpediteur, label: 'Numéro téléphone', icon: Icons.phone, type: TextInputType.phone),
-                                  SizedBox(height: 20),
+                                  const SizedBox(height: 20),
                                   _sectionTitle('Destinataire'),
                                   _buildValidatedTextField(controller: controllerAdresseDestinateur, label: 'Adresse', icon: Icons.location_on, type: TextInputType.text),
-                                  SizedBox(height: 20),
+                                  const SizedBox(height: 20),
                                   if (!isLoadingClient)
                                     buildSearchableComboBox(
                                       id_client_encours: roleUser.id.toString(),
@@ -320,15 +310,15 @@ class _PageCommanderState extends State<PageCommander> {
                                       },
                                     )
                                   else
-                                    Center(child: CircularProgressIndicator()),
-                                  SizedBox(height: 20),
+                                    const Center(child: CircularProgressIndicator()),
+                                  const SizedBox(height: 20),
                                   _buildValidatedTextField(controller: controllerNumeroDestinateur, label: 'Numéro téléphone', icon: Icons.phone, type: TextInputType.phone),
-                                  SizedBox(height: 40),
+                                  const SizedBox(height: 40),
                                   Center(
                                     child: ElevatedButton(
                                       onPressed: () {
                                         if (_formKey.currentState!.validate()) {
-                                          _livraisonController.storeLivraison(
+                                          _livraisonController.store(
                                             roleUser.id.toString(),
                                             id_client,
                                             selectedValueName,
@@ -345,14 +335,14 @@ class _PageCommanderState extends State<PageCommander> {
                                           );
                                         } else {
                                           ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
+                                            const SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
                                           );
                                         }
                                       },
-                                      child: Text('Commander'),
+                                      child: const Text('Commander'),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.orange,
-                                        padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                                        padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(30),
                                         ),
@@ -410,7 +400,7 @@ class _PageCommanderState extends State<PageCommander> {
   Widget _sectionTitle(String text) {
     return Text(
       text,
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     );
   }
 }
