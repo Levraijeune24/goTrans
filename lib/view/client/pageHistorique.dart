@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageHistorique.dart';
 import '../../compenent/LivraisonCards.dart';
 import '../../compenent/Navigation.dart';
+import '../../compenent/showDetaille.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
 import '../../controller/authController.dart';
@@ -107,16 +108,14 @@ class PageHistoriqueState extends State<PageHistorique> {
                                               destinateur: livraison["destinateur"]!,id: livraison["id"]!,
                                               moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
                                               typeLivraison: livraison["expediteur_id"]!=roleUser.id?"sortant":"entrant",
-
                                               Annuler: (id){
                                                 setState(() {
                                                   _livraisonController.cancel(id,context);
                                                   _initialisationLivraison();
                                                 });
                                               },Confirmer: (id){
-
                                               },showInformation: (liv){
-
+                                                ShowDetaille(context: context,livr: liv).run();
                                               }
                                           ).run();
                                         }).toList()

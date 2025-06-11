@@ -8,8 +8,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 
-
-
 class PageCommander extends StatefulWidget {
   final List<String> recaPoid;
 
@@ -19,7 +17,7 @@ class PageCommander extends StatefulWidget {
 }
 
 class _PageCommanderState extends State<PageCommander> {
-  LatLng currentPosition =const LatLng(-4.322447, 15.307045);
+   LatLng? currentPosition;
   final MapController _mapController = MapController();
   Set<Marker> _markers = {};
   bool _isLoading = true;
@@ -28,7 +26,7 @@ class _PageCommanderState extends State<PageCommander> {
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   Polyline? routePolyline;
-  LatLng destination = const LatLng(-4.322447, 15.307045);
+
   final _formKey = GlobalKey<FormState>();
   final LivraisonController _livraisonController = LivraisonController();
   final ClientController _clientController = ClientController();
@@ -94,7 +92,7 @@ class _PageCommanderState extends State<PageCommander> {
 
       setState(() {
         currentPosition = LatLng(position.latitude, position.longitude);
-        _mapController.move(currentPosition, _zoomLevel);
+        _mapController.move(currentPosition!, _zoomLevel);
         _isLoading = false;
       });
 
@@ -136,10 +134,14 @@ class _PageCommanderState extends State<PageCommander> {
       body:
           Stack(
             children: [
+
+
+              (currentPosition!=null)?
+
               FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
-                  initialCenter: currentPosition!, // Centré sur le Palais du Peuple par défaut
+                  initialCenter: currentPosition!,
                   initialZoom: _zoomLevel,
                 ),
                 children: [
@@ -206,7 +208,7 @@ class _PageCommanderState extends State<PageCommander> {
                     ],
                   ),
                 ],
-              ),
+              ):Center(child: CircularProgressIndicator()),
               Positioned(
                 right: 15,
                 bottom: 520,
@@ -328,8 +330,8 @@ class _PageCommanderState extends State<PageCommander> {
                                             controllerNumeroExpediteur.text,
                                             widget.recaPoid[1],
                                             context,
-                                              currentPosition.longitude.toString(),
-                                            currentPosition.latitude.toString(),
+                                              currentPosition!.longitude.toString(),
+                                            currentPosition!.latitude.toString(),
                                             "34343444",
                                             "666e6r6r6"
                                           );
@@ -359,9 +361,6 @@ class _PageCommanderState extends State<PageCommander> {
                   ],
                 ),
               ),
-
-
-
             ],
           )
 

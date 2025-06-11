@@ -13,6 +13,9 @@ class LivraisonsCard {
   Function showInformation;
   late VoidCallback? suivre;
 
+
+  bool isExpeditaire = false ;
+
   int typeCl = 0;
 
   String typeLivraison;
@@ -31,6 +34,7 @@ class LivraisonsCard {
     this.typeLivraison = "",
     this.typeCl = 0,
     this.suivre,
+    this.isExpeditaire=false
   });
 
   Widget run() {
@@ -45,8 +49,8 @@ class LivraisonsCard {
         : Colors.orange;
 
     return LayoutBuilder(builder: (context, constraints) {
-      // Taille dispo max pour adapter le texte
-      double maxWidth = constraints.maxWidth;
+
+
 
       return Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
@@ -148,10 +152,11 @@ class LivraisonsCard {
                     ),
 
                   if (status == "en_cours")
+                    isExpeditaire?
                     InkWell(
                       onTap: () {
                         Confirmer(id);
-                        print("confirmer");
+
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
@@ -161,7 +166,7 @@ class LivraisonsCard {
                         ),
                         child: Text("Confirmer", style: TextStyle(color: Colors.white)),
                       ),
-                    ),
+                    ):Center(),
 
                   InkWell(
                     onTap: () => showInformation(liv),

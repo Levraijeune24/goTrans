@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -40,7 +41,7 @@ class _MapState extends State<SuivisColis> {
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   Polyline? routePolyline;
-  LatLng destination = LatLng(-4.322447, 15.307045);
+
 
   LatLng mydestination = LatLng(-4.322447, 15.307045);// Palais du Peuple, Kinshasa
 
@@ -52,32 +53,56 @@ class _MapState extends State<SuivisColis> {
 
 
   // les etats
+  Future<void> _startPositionStream() async {
+    final settings = LocationSettings(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 1, // déclenchement quand la position change de ≥ 1 m
+    );
+
+    _positionStreamSubscription = Geolocator
+        .getPositionStream(locationSettings: settings)
+        .listen((position) {
+      final newPos = LatLng(position.latitude, position.longitude);
+      print('Position mise à jour: $newPos');
+
+      setState(() {
+        currentPosition = newPos;
+      });
+
+      _updateMarkers();
+      _mapController.move(newPos, _zoomLevel);
+
+      getOSRMRoute(); // ou fetchRouteORS()
+    });
+  }
 
   Future<void> _initialisationLivraison() async {
 
     await _livraisonController.init();
     localisation= await _livraisonController.getLocalisation(id);
-    mydestination=LatLng(localisation["longitude"] , localisation["latitude"]);
+    mydestination=LatLng(localisation["latitude"],localisation["longitude"]);
 
     setState(() {
-      print(localisation["longitude"]);
       _lacalisation=true;
     });
 
 
   }
 
+  Future<void>  inis()async{
+
+    await _initialisationLivraison();
+    await _checkPermissionsAndStartTracking();
+
+  }
   @override
   void initState() {
     super.initState();
-    // Lancer le timer toutes les 10 secondes
-     Timer.periodic(Duration(seconds: 5), (timer) async {
-       _initialisationLivraison();
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkPermissionsAndStartTracking();
+    inis().then((_) {
+      _startPositionStream(); // ✅ lance le suivi GPS après l'initialisation
     });
   }
+
 
   @override
   void dispose() {
@@ -111,9 +136,23 @@ class _MapState extends State<SuivisColis> {
         return;
       }
 
-      // Tout est bon, démarrer le tracking
-      _determinePosition();
-      _startPositionStream();
+      Position position =  await Geolocator.getCurrentPosition();
+      print('Position actuelle obtenue: ttt');
+      final newPosition = LatLng(position.latitude, position.longitude);
+
+      print([position.latitude, position.longitude]);
+
+        currentPosition = newPosition;
+        _isLoading = false;
+        //_mapController.move(newPosition, _zoomLevel);
+
+        print("hhhhhhhhh----");
+
+      _updateMarkers();
+      getOSRMRoute();
+
+
+      //_startPositionStream();
 
     } catch (e) {
       print('Erreur lors de la vérification des permissions: $e');
@@ -121,98 +160,6 @@ class _MapState extends State<SuivisColis> {
     }
   }
 
-
-
-  void _startPositionStream() async {
-    print('Démarrage du stream de position avec une sensibilité de 1 mètre...');
-
-    final locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.bestForNavigation, // Meilleure précision
-      distanceFilter: 1, // Détection à partir de 1 mètre de déplacement
-    );
-
-    _positionStreamSubscription?.cancel(); // Annuler tout abonnement existant
-
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: locationSettings,
-    ).listen(
-          (Position position) {
-        print('Nouvelle position reçue: ${position.latitude}, ${position.longitude}');
-        _handleNewPosition(position);
-      },
-      onError: (error) {
-        print('Erreur dans le stream de position: $error');
-        if (error is LocationServiceDisabledException) {
-          _showToast("Les services de localisation ont été désactivés");
-        } else {
-          _showToast("Erreur de localisation: ${error.toString()}");
-        }
-      },
-      cancelOnError: false, // Ne pas annuler le stream en cas d'erreur
-    );
-  }
-
-
-  void _handleNewPosition(Position position) {
-    final newPosition = LatLng(position.latitude, position.longitude);
-    final now = DateTime.now();
-
-    print('Nouvelle position à ${now.hour}:${now.minute}:${now.second}');
-
-    if (_lastPosition != null) {
-      final distance = Geolocator.distanceBetween(
-        _lastPosition!.latitude,
-        _lastPosition!.longitude,
-        newPosition.latitude,
-        newPosition.longitude,
-      );
-
-      print('Distance depuis dernière position: ${distance.toStringAsFixed(2)} mètres');
-
-      // Seulement mettre à jour si le déplacement est significatif
-      if (distance >= 2) { // Utilisation de >= au lieu de >
-        _showMovementToast(distance, newPosition);
-        _updateMapPosition(newPosition);
-        _lastPosition = newPosition; // Mettre à jour _lastPosition seulement après un déplacement significatif
-      }
-    } else {
-      // Cas initial - première position
-      _updateMapPosition(newPosition);
-      _lastPosition = newPosition;
-    }
-
-    if (!_firstPositionReceived) {
-      _firstPositionReceived = true;
-      _updateMapPosition(newPosition);
-    }
-  }
-
-  void _updateMapPosition(LatLng newPosition) {
-    setState(() {
-      currentPosition = newPosition;
-      _isLoading = false;
-    });
-
-    _mapController.move(mydestination, _zoomLevel);
-    _updateMarkers();
-    getOSRMRoute();
-  }
-
-  void _showMovementToast(double distance, LatLng newPosition) {
-    // Vérifier à nouveau la distance par sécurité
-    if (distance >= 2) {
-      Fluttertoast.showToast(
-        msg: "Déplacement: ${distance.toStringAsFixed(2)} m\n"
-            "Lat: ${newPosition.latitude.toStringAsFixed(6)}\n"
-            "Lng: ${newPosition.longitude.toStringAsFixed(6)}",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-        fontSize: 14.0,
-      );
-    }
-  }
 
   void _showToast(String message) {
     Fluttertoast.showToast(
@@ -224,11 +171,8 @@ class _MapState extends State<SuivisColis> {
 
   Future<void> _determinePosition() async {
     try {
-      setState(() => _isLoading = true);
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      ).timeout(Duration(seconds: 5));
+      Position position =  await Geolocator.getCurrentPosition();
 
       print('Position actuelle obtenue: ${position.latitude}, ${position.longitude}');
 
@@ -257,6 +201,8 @@ class _MapState extends State<SuivisColis> {
   }
 
   void _updateMarkers() {
+    print("marker");
+    print([currentPosition!.latitude,currentPosition!.longitude]);
     setState(() {
       _markers = {
         if (currentPosition != null)
@@ -302,7 +248,7 @@ class _MapState extends State<SuivisColis> {
             ),
           ),
         Marker(
-          point: destination,
+          point: mydestination,
           width: 30,
           height: 30,
           child: Container(
@@ -342,10 +288,12 @@ class _MapState extends State<SuivisColis> {
   }
 
   void _drawStraightLine() {
+
+
     if (currentPosition == null) return;
 
     setState(() {
-      polylineCoordinates = [currentPosition!, destination];
+      polylineCoordinates = [currentPosition!, mydestination];
       routePolyline = Polyline(
         points: polylineCoordinates,
         strokeWidth: 2,
@@ -355,51 +303,75 @@ class _MapState extends State<SuivisColis> {
   }
 
   Future<void> getOSRMRoute() async {
+
     if (currentPosition == null) {
       print("Position actuelle non disponible");
-      _drawStraightLine();
+
       return;
     }
 
     try {
-      final response = await http.get(Uri.parse(
-          'https://router.project-osrm.org/route/v1/driving/'
-              '${currentPosition!.longitude},${currentPosition!.latitude};'
-              '${destination.longitude},${destination.latitude}?'
-              'overview=full&geometries=geojson'
-      ));
+      print([currentPosition!.latitude, currentPosition!.longitude]);
+      print([mydestination.latitude, mydestination.longitude]);
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final geometry = data['routes'][0]['geometry']['coordinates'] as List;
-        final durationInSeconds = data['routes'][0]['duration'] as double;
+      // 1. Construction de l'URI avec ta clé ORS
+      const orsKey = '5b3ce3597851110001cf62486df9e0bde943474d815baa10e9dfab92';
+      final uri = Uri.https(
+        'api.openrouteservice.org',
+        '/v2/directions/driving-car',
+        {
+          'api_key': orsKey,
+          'start': '${currentPosition!.longitude},${currentPosition!.latitude}',
+          'end': '${mydestination.longitude},${mydestination.latitude}',
+        },
+      );
+
+      // 2. Appel HTTP avec timeout/fallback
+      final resp = await http
+          .get(uri)
+          .timeout(
+        const Duration(seconds: 20),
+        onTimeout: () => http.Response('{"features":[]}', 504),
+      );
+
+      print("ORS RESPONSE STATUS: ${resp.statusCode}");
+
+      if (resp.statusCode == 200) {
+        final data = json.decode(resp.body);
+
+        // 3. Extraire les coordonnées
+        final coords = (data['features'][0]['geometry']['coordinates'] as List)
+            .cast<List<dynamic>>()
+            .map((c) => LatLng(c[1] as double, c[0] as double))
+            .toList();
+
+        // 4. Extraire la durée (elle est un double, pas un String)
+        final seconds = (data['features'][0]['properties']['segments'][0]['duration'] as num).toDouble();
 
         setState(() {
-          _durationText = '${(durationInSeconds / 60).round()} min';
-          polylineCoordinates = geometry
-              .map((coord) => LatLng(coord[1] as double, coord[0] as double))
-              .toList();
+          polylineCoordinates = coords;
+          routePolyline = Polyline(points: coords, strokeWidth: 4, color: Colors.blue);
+          _durationText = '${(seconds ~/ 60)} min';
+          _isLoading = true;
 
-          routePolyline = Polyline(
-            points: polylineCoordinates,
-            strokeWidth: 4,
-            color: Colors.blue,
-          );
+          // 5. Centrer et zoomer la carte sur l'itinéraire
+
         });
+      } else if (resp.statusCode == 504) {
+
       } else {
-        print("Erreur OSRM: ${response.statusCode}");
-        _drawStraightLine();
+
       }
     } catch (e) {
-      print('Erreur OSRM: $e');
-      _drawStraightLine();
+      print('Erreur réseau ORS : $e');
     }
+
+
   }
-
-
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -416,13 +388,11 @@ class _MapState extends State<SuivisColis> {
       backgroundColor: const Color(0xFF0D1136),
       body: Stack(
         children: [
-          if (_isLoading)
-            Center(child: CircularProgressIndicator()),
 
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: destination,
+              initialCenter: currentPosition!,
               initialZoom: _zoomLevel,
             ),
             children: [

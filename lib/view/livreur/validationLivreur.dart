@@ -1,11 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-
 import '../../controller/LivraisonController.dart';
 import 'localisationClient.dart';
+
+
 
 class PageValidation extends StatefulWidget {
   final String id_livraison;
@@ -89,13 +89,10 @@ class _PageValidationState extends State<PageValidation> {
       ),
     ).listen((Position position) {
       setState(() {
-        destination = LatLng(position.latitude, position.longitude);
-
         _livraisonController.setLocalisation(position.longitude,position.latitude,widget.id_livraison);
-
+        _showSnackBar("longitude :${position.longitude},  latitude :${position.latitude}");
 
       });
-
     });
   }
 
