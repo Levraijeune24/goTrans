@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -35,6 +35,8 @@ class _MapState extends State<SuivisColis> {
   StreamSubscription<Position>? _positionStreamSubscription;
   LatLng? _lastPosition;
   bool _firstPositionReceived = false;
+  bool _userMovedMap = false;
+
 
   bool _lacalisation = false;
 
@@ -42,12 +44,11 @@ class _MapState extends State<SuivisColis> {
   PolylinePoints polylinePoints = PolylinePoints();
   Polyline? routePolyline;
 
-
   LatLng mydestination = LatLng(-4.322447, 15.307045);// Palais du Peuple, Kinshasa
 
-  String _durationText = 'Calcul en cours...';
-  String _currentLocationName = 'Position actuelle';
-  String _destinationName = 'Palais du Peuple';
+  // String _durationText = 'Calcul en cours...';
+  // String _currentLocationName = 'Position actuelle';
+  // String _destinationName = 'Palais du Peuple';
 
   _MapState(this.id);
 
@@ -70,7 +71,11 @@ class _MapState extends State<SuivisColis> {
       });
 
       _updateMarkers();
-      _mapController.move(newPos, _zoomLevel);
+     // _mapController.move(newPos, _zoomLevel);
+
+      if (!_userMovedMap) {
+        _mapController.move(newPos, _zoomLevel); // Ne recentre que si l'utilisateur n’a pas déplacé la carte
+      }
 
       getOSRMRoute(); // ou fetchRouteORS()
     });
@@ -89,6 +94,24 @@ class _MapState extends State<SuivisColis> {
 
   }
 
+
+  Future<void> appelTempReel() async {
+
+
+    Timer.periodic(Duration(seconds: 10), (timer) async {
+      await _initialisationLivraison(); // Met à jour la localisation
+      if (mounted) {
+        setState(() {
+          mydestination = LatLng(localisation["latitude"], localisation["longitude"]);
+        });
+
+        _updateMarkers();
+        getOSRMRoute(); // Recalculer l'itinéraire
+      }
+    });
+  }
+
+
   Future<void>  inis()async{
 
     await _initialisationLivraison();
@@ -98,11 +121,13 @@ class _MapState extends State<SuivisColis> {
   @override
   void initState() {
     super.initState();
-    inis().then((_) {
-      _startPositionStream(); // ✅ lance le suivi GPS après l'initialisation
-    });
-  }
 
+    inis().then((_) {
+      _startPositionStream();
+      appelTempReel(); // Démarrer la mise à jour régulière
+    });
+
+  }
 
   @override
   void dispose() {
@@ -140,7 +165,7 @@ class _MapState extends State<SuivisColis> {
       print('Position actuelle obtenue: ttt');
       final newPosition = LatLng(position.latitude, position.longitude);
 
-      print([position.latitude, position.longitude]);
+
 
         currentPosition = newPosition;
         _isLoading = false;
@@ -201,8 +226,7 @@ class _MapState extends State<SuivisColis> {
   }
 
   void _updateMarkers() {
-    print("marker");
-    print([currentPosition!.latitude,currentPosition!.longitude]);
+
     setState(() {
       _markers = {
         if (currentPosition != null)
@@ -351,21 +375,17 @@ class _MapState extends State<SuivisColis> {
         setState(() {
           polylineCoordinates = coords;
           routePolyline = Polyline(points: coords, strokeWidth: 4, color: Colors.blue);
-          _durationText = '${(seconds ~/ 60)} min';
+         var  _durationText = '${(seconds ~/ 60)} min';
           _isLoading = true;
-
-          // 5. Centrer et zoomer la carte sur l'itinéraire
 
         });
       } else if (resp.statusCode == 504) {
-
+        _showToast("Erreur de récupération d'itinéraire (${resp.statusCode})");
       } else {
-
       }
     } catch (e) {
       print('Erreur réseau ORS : $e');
     }
-
 
   }
 
@@ -388,12 +408,19 @@ class _MapState extends State<SuivisColis> {
       backgroundColor: const Color(0xFF0D1136),
       body: Stack(
         children: [
+          (currentPosition == null || !_lacalisation) ?
+    Center(child: CircularProgressIndicator()):
 
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
               initialCenter: currentPosition!,
               initialZoom: _zoomLevel,
+                onPositionChanged: ( position, bool hasGesture) {
+                  if (hasGesture) {
+                    _userMovedMap = true;
+                  }
+                }
             ),
             children: [
               TileLayer(
@@ -468,56 +495,4 @@ class _MapState extends State<SuivisColis> {
     );
   }
 
-  Widget _buildTextField({required String label, required String hintText, required IconData icon}) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            decoration: InputDecoration(
-              labelText: label,
-              hintText: hintText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 10),
-        Container(
-          padding: EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: Colors.orange,
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: Icon(icon, color: Colors.white),
-        ),
-      ],
-    );
-  }
-
-  void _showAlertDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Text("Votre demande est en attente..."),
-          actions: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-              child: TextButton(
-                child: Text("OK", style: TextStyle(color: Colors.white)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
