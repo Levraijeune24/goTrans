@@ -22,8 +22,9 @@ class SuivisColis extends StatefulWidget {
 }
 
 
-
 class _MapState extends State<SuivisColis> {
+
+
   late String id;
   LivraisonController _livraisonController=LivraisonController();
   LatLng? currentPosition;
@@ -33,10 +34,8 @@ class _MapState extends State<SuivisColis> {
   bool _isLoading = true;
   double _zoomLevel = 17.0;
   StreamSubscription<Position>? _positionStreamSubscription;
-  LatLng? _lastPosition;
-  bool _firstPositionReceived = false;
-  bool _userMovedMap = false;
 
+  bool _userMovedMap = false;
 
   bool _lacalisation = false;
 
@@ -71,7 +70,6 @@ class _MapState extends State<SuivisColis> {
       });
 
       _updateMarkers();
-     // _mapController.move(newPos, _zoomLevel);
 
       if (!_userMovedMap) {
         _mapController.move(newPos, _zoomLevel); // Ne recentre que si l'utilisateur n’a pas déplacé la carte
@@ -90,16 +88,13 @@ class _MapState extends State<SuivisColis> {
     setState(() {
       _lacalisation=true;
     });
-
-
   }
 
 
   Future<void> appelTempReel() async {
 
-
     Timer.periodic(Duration(seconds: 10), (timer) async {
-      await _initialisationLivraison(); // Met à jour la localisation
+      await _initialisationLivraison();
       if (mounted) {
         setState(() {
           mydestination = LatLng(localisation["latitude"], localisation["longitude"]);
@@ -112,7 +107,7 @@ class _MapState extends State<SuivisColis> {
   }
 
 
-  Future<void>  inis()async{
+  Future<void>  ini()async{
 
     await _initialisationLivraison();
     await _checkPermissionsAndStartTracking();
@@ -122,18 +117,23 @@ class _MapState extends State<SuivisColis> {
   void initState() {
     super.initState();
 
-    inis().then((_) {
+    ini().then((_) {
       _startPositionStream();
       appelTempReel(); // Démarrer la mise à jour régulière
     });
 
   }
 
+
+
   @override
   void dispose() {
     _positionStreamSubscription?.cancel();
     super.dispose();
   }
+
+
+
 
   Future<void> _checkPermissionsAndStartTracking() async {
     try {
@@ -165,19 +165,12 @@ class _MapState extends State<SuivisColis> {
       print('Position actuelle obtenue: ttt');
       final newPosition = LatLng(position.latitude, position.longitude);
 
-
-
         currentPosition = newPosition;
         _isLoading = false;
-        //_mapController.move(newPosition, _zoomLevel);
 
-        print("hhhhhhhhh----");
+        _updateMarkers();
+        getOSRMRoute();
 
-      _updateMarkers();
-      getOSRMRoute();
-
-
-      //_startPositionStream();
 
     } catch (e) {
       print('Erreur lors de la vérification des permissions: $e');
@@ -194,6 +187,8 @@ class _MapState extends State<SuivisColis> {
     );
   }
 
+
+  // detemination de ma position actuelle
   Future<void> _determinePosition() async {
     try {
 
@@ -225,8 +220,9 @@ class _MapState extends State<SuivisColis> {
     }
   }
 
-  void _updateMarkers() {
 
+  //modification du marker
+  void _updateMarkers() {
     setState(() {
       _markers = {
         if (currentPosition != null)
@@ -409,8 +405,7 @@ class _MapState extends State<SuivisColis> {
       body: Stack(
         children: [
           (currentPosition == null || !_lacalisation) ?
-    Center(child: CircularProgressIndicator()):
-
+            Center(child: CircularProgressIndicator()):
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(

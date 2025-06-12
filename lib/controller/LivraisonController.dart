@@ -74,7 +74,7 @@ class LivraisonController {
 
   }
 
-  void store ( dynamic id_expediteur,
+  Future<bool> store ( dynamic id_expediteur,
       dynamic id_destinateur,
       dynamic nom,
       dynamic adresseExpedition,
@@ -89,7 +89,7 @@ class LivraisonController {
       dynamic latitude_destination) async{
 
 
-     await v.SaveLivraison(id_expediteur,
+     bool isStore =await v.SaveLivraison(id_expediteur,
           id_destinateur,
           nom,adresseExpedition,
           adresseDestination,
@@ -102,14 +102,9 @@ class LivraisonController {
           latitude_destination
       );
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PageAccueil()),
-      );
+     return isStore;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("la livraison est ajouter avec succes !!!")),
-      );
+
   }
 
 

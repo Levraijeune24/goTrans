@@ -22,7 +22,7 @@ class ApiServiceLivraison {
      token = await LocalStorageService().getToken();
    }
 
-  Future<void>  SaveLivraison (dynamic id_expediteur,
+  Future<bool>  SaveLivraison (dynamic id_expediteur,
       dynamic id_destinateur,
       dynamic nom,
       dynamic adresseExpedition,
@@ -36,6 +36,10 @@ class ApiServiceLivraison {
       dynamic latitude_destination,
 
       )async {
+
+    print("ggggg");
+
+     bool isStore=false;
 
 
     final url = Uri.parse(adresse+'api/livraison/store');
@@ -64,7 +68,19 @@ class ApiServiceLivraison {
         "latitude_destination":latitude_destination
       }),
     );
-    jsonDecode(response.body);
+
+
+
+    if(response.statusCode==200){
+
+      isStore=true;
+
+    }else{
+      isStore=false;
+    }
+
+    return isStore;
+
 
   }
 
@@ -157,11 +173,14 @@ class ApiServiceLivraison {
 
 
        data["data"].forEach((livraison) {
+         print(livraison);
+         print("gghhhhhh");
          livraisons.add({"id":livraison["id"].toString(),
            "id_livreur":livraison["vehicule"]["livreurs"][0]["livreur"]["id"].toString(),
            "status":livraison["status"],
            "date":livraison["date"],
            "code":livraison["code"],
+           "kilo":livraison["kilo_total"].toString(),
            "adresse_expedition":livraison["expedition"]["adresse"],
            "adresse_destination":livraison["destination"]["adresse"],
            "moyen_transport":livraison["moyen_transport"],
@@ -197,6 +216,8 @@ class ApiServiceLivraison {
        final data = jsonDecode(response.body);
 
        data["data"].forEach((livraison) {
+         print(livraison);
+         print("gggggg");
 
          livraisons.add({"id":livraison["id"].toString(),
            "id_livreur":livraison["vehicule"]["livreurs"][0]["id"].toString(),
@@ -205,7 +226,9 @@ class ApiServiceLivraison {
            "expedition_longitude":livraison["expedition"]["longitude"].toString(),
            "expedition_latitude":livraison["expedition"]["latitude"].toString(),
            "date":livraison["date"],
+           "montant":livraison["montant"].toString(),
            "code":livraison["code"],
+           "kilo":livraison["kilo_total"].toString(),
            "adresse_expedition":livraison["expedition"]["adresse"],
            "tel_expedition":livraison["expedition"]["tel_expedition"]?? "",
            "tel_destination":livraison["destination"]["tel_destination"]?? "",

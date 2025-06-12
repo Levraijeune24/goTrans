@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:menji/controller/LivraisonController.dart';
+import 'package:menji/view/client/pageAccueille.dart';
 import '../../controller/ClientController.dart';
 import '../../controller/authController.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -22,6 +26,9 @@ class _PageCommanderState extends State<PageCommander> {
   Set<Marker> _markers = {};
   bool _isLoading = true;
   double _zoomLevel = 17.0;
+  bool isCliqued=false;
+
+   bool testEnvoiColis=false;
 
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
@@ -305,7 +312,7 @@ class _PageCommanderState extends State<PageCommander> {
                                       options: clients,
                                       onChanged: (String? id, String? nom) {
                                         setState(() {
-                                          print(nom);
+
                                           id_client = id ?? null;
                                           selectedValueName = nom ?? "";
                                         });
@@ -318,30 +325,62 @@ class _PageCommanderState extends State<PageCommander> {
                                   const SizedBox(height: 40),
                                   Center(
                                     child: ElevatedButton(
-                                      onPressed: () {
+                                      onPressed: () async {
+
                                         if (_formKey.currentState!.validate()) {
-                                          _livraisonController.store(
-                                            roleUser.id.toString(),
-                                            id_client,
-                                            selectedValueName,
-                                            controllerAdresseExpediteur.text,
-                                            controllerAdresseDestinateur.text,
-                                            controllerNumeroDestinateur.text,
-                                            controllerNumeroExpediteur.text,
-                                            widget.recaPoid[1],
-                                            context,
-                                              currentPosition!.longitude.toString(),
-                                            currentPosition!.latitude.toString(),
-                                            "34343444",
-                                            "666e6r6r6"
-                                          );
+                                            setState(() {
+                                              isCliqued=true;
+                                            });
+
+                                            try {
+                                              await _livraisonController.store(
+                                                roleUser.id.toString(),
+                                                id_client,
+                                                selectedValueName,
+                                                controllerAdresseExpediteur.text,
+                                                controllerAdresseDestinateur.text,
+                                                controllerNumeroDestinateur.text,
+                                                controllerNumeroExpediteur.text,
+                                                widget.recaPoid[1],
+                                                context,
+                                                currentPosition!.longitude.toString(),
+                                                currentPosition!.latitude.toString(),
+                                                "",
+                                                "",
+                                              );
+
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => PageAccueil()),
+                                              );
+
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("La livraison a été ajoutée avec succès !")),
+                                              );
+                                            } catch (e) {
+                                              if (e.toString().contains('SocketException')) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text("Aucune connexion Internet. Vérifiez votre réseau."))
+                                                );
+
+                                              } else {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text("Une erreur inattendue est survenue."))
+                                                );
+                                              }
+                                            } finally {
+                                              setState(() {
+                                                isCliqued = false;
+                                              });
+                                            }
+
                                         } else {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             const SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
                                           );
                                         }
                                       },
-                                      child: const Text('Commander'),
+                                      child: isCliqued==true ? Text("Chargement en cours..."): const Text('Commander'),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.orange,
                                         padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),

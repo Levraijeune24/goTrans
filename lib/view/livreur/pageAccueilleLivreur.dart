@@ -36,7 +36,6 @@ class _PageLivreurState extends State<PageLivreur> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,11 +61,11 @@ class _PageLivreurState extends State<PageLivreur> {
               child: FutureBuilder<List<Map<String, String>>>(
                 future: livraisonsFuture,
                 builder: (context, snapshot) {
-                  print(snapshot.connectionState);
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Erreur : ${snapshot.error}'));
+                    return Center(child: Text('Probleme de connexion...'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(
                         child: Text('Aucune livraisons pour vous maintanant'));
@@ -74,17 +73,12 @@ class _PageLivreurState extends State<PageLivreur> {
 
                     return ListView(
                       children: snapshot.data!.map((livraison) {
-                        print("gggggg");
-                        print(livraison["expediteur"]!);
-                        print(livraison["destinateur"]!);
-
 
                         return livraison["status"] == "validee" ||
                             livraison["status"] == "en_cours" ||
                             livraison["status"] == "terminee"||
                             livraison["status"] == "validee"
                             ?
-
                         LivraisonsCard(expediteur: livraison["expediteur"]!,
                             destinateur: livraison["destinateur"]!,
                             id: livraison["id"]!,
@@ -92,6 +86,7 @@ class _PageLivreurState extends State<PageLivreur> {
                             status: livraison["status"]!,
                             date: livraison["date"]!,
                             liv: livraison,
+                            isExpeditaire: true,
 
                             typeCl: 1,
 

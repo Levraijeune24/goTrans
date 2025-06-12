@@ -20,6 +20,10 @@ class PageValidation extends StatefulWidget {
 class _PageValidationState extends State<PageValidation> {
   late StreamSubscription<Position> _positionStreamSubscription;
   LatLng destination = LatLng(-4.322447, 15.307045);
+  Position? _lastPosition;
+
+  bool isState=false;
+
 
   final poidsController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -35,11 +39,13 @@ class _PageValidationState extends State<PageValidation> {
     initInfoLivraison();
   }
 
+
   @override
   void dispose() {
     _positionStreamSubscription.cancel();
     super.dispose();
   }
+
 
   Future<void> initInfoLivraison() async {
     await _livraisonController.init();
@@ -47,6 +53,13 @@ class _PageValidationState extends State<PageValidation> {
       widget.id_livreur,
       widget.id_livraison,
     );
+    setState(() {
+
+      if(livraisons[0]["status"]=="en_cours"){
+        isState=true;
+      }
+
+    });
 
     if (livraisons.isNotEmpty) {
       setState(() {
@@ -82,18 +95,35 @@ class _PageValidationState extends State<PageValidation> {
 
     _showSnackBar("nous avons active votre position ...");
 
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 1,
-      ),
-    ).listen((Position position) {
-      setState(() {
-        _livraisonController.setLocalisation(position.longitude,position.latitude,widget.id_livraison);
-        _showSnackBar("longitude :${position.longitude},  latitude :${position.latitude}");
 
+
+
+      _positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 3,
+        ),
+      ).listen((Position position) {
+        if (_lastPosition == null ||
+            Geolocator.distanceBetween(
+              _lastPosition!.latitude,
+              _lastPosition!.longitude,
+              position.latitude,
+              position.longitude,
+            ) >= 1) {
+
+          setState(() {
+            _livraisonController.setLocalisation(
+              position.longitude,
+              position.latitude,
+              widget.id_livraison,
+            );
+            _showSnackBar("longitude :${position.longitude},  latitude :${position.latitude}");
+            _lastPosition = position;
+          });
+        }
       });
-    });
+
   }
 
   void _showSnackBar(String message) {
@@ -140,16 +170,44 @@ class _PageValidationState extends State<PageValidation> {
               _buildInfoRow('Adresse du destinataire', livraisons[0]["adresse_destination"] ?? "", Icons.location_on),
               _buildInfoRow('Téléphone du destinataire', livraisons[0]["tel_destination"] ?? "", Icons.phone),
               SizedBox(height: 20),
-              _sectionTitle('Tarification'),
+
+              Row(
+                children: [_sectionTitle('Tarification'), ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      isState=false;
+
+
+                    });
+
+                  },
+                  icon: Icon(Icons.edit),
+                  label: Text("modification"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                )],
+              )
+
+              ,
+
               _buildRow('Prix unitaire', '${livraisons[0]["tarif"]} Fc'),
+              isState==false?
               _buildPricingRow('Entrer le poids', poidsController, () {
                 final poids = int.tryParse(poidsController.text) ?? 0;
                 final tarif = int.tryParse(livraisons[0]["tarif"] ?? "0") ?? 0;
                 setState(() {
                   prixTotal = poids * tarif;
                 });
-              }),
-              _buildRow('Prix total', '$prixTotal Fc'),
+              }):_buildRow('Poid estime', '${livraisons[0]["kilo"].toString()} Fc'),
+              isState==false?
+              _buildRow('Prix total', '$prixTotal Fc'):
+              _buildRow('Prix total', '${livraisons[0]["montant"].toString()} Fc')
+              ,
               SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: _getCurrentLocation,
@@ -166,7 +224,7 @@ class _PageValidationState extends State<PageValidation> {
               SizedBox(height: 30),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed:isState==false? () {
                     if (_formKey.currentState!.validate()) {
                       _livraisonController.editLivraisonLivreur(
                         context,
@@ -177,7 +235,7 @@ class _PageValidationState extends State<PageValidation> {
                     } else {
                       _showSnackBar("Veuillez remplir tous les champs obligatoires");
                     }
-                  },
+                  }:null,
                   child: Text('Confirmer'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
