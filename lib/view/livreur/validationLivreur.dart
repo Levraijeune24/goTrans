@@ -55,7 +55,7 @@ class _PageValidationState extends State<PageValidation> {
     );
     setState(() {
 
-      if(livraisons[0]["status"]=="en_cours"){
+      if(livraisons[0]["status"]=="en_cours" || livraisons[0]["status"]=="terminee"){
         isState=true;
       }
 
@@ -118,7 +118,7 @@ class _PageValidationState extends State<PageValidation> {
               position.latitude,
               widget.id_livraison,
             );
-            _showSnackBar("longitude :${position.longitude},  latitude :${position.latitude}");
+            //_showSnackBar("longitude :${position.longitude},  latitude :${position.latitude}");
             _lastPosition = position;
           });
         }
@@ -172,12 +172,10 @@ class _PageValidationState extends State<PageValidation> {
               SizedBox(height: 20),
 
               Row(
-                children: [_sectionTitle('Tarification'), ElevatedButton.icon(
+                children: [_sectionTitle('Tarification'),livraisons[0]["status"]!="terminee"? ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
                       isState=false;
-
-
                     });
 
                   },
@@ -190,10 +188,11 @@ class _PageValidationState extends State<PageValidation> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )],
+                ):Center()],
               )
 
               ,
+              _buildRow('Type :: ${livraisons[0]["nom_type"]}',c:Colors.red, ' entre ${livraisons[0]["kilo_initiale"]}kg et ${livraisons[0]["kilo_final"]}kg '),
 
               _buildRow('Prix unitaire', '${livraisons[0]["tarif"]} Fc'),
               isState==false?
@@ -303,6 +302,16 @@ class _PageValidationState extends State<PageValidation> {
                 if (value == null || value.trim().isEmpty) {
                   return 'Le champ "$label" est requis';
                 }
+                final number = num.tryParse(value);
+                if (number == null || number < 0) {
+                  return 'Veuillez entrer un nombre positif svp';
+                }
+                num? min = num.tryParse(livraisons[0]["kilo_initiale"]!) ; // Limite minimale
+                num ?  max =num.tryParse(livraisons[0]["kilo_final"]!) ; // Limite maximale
+
+                if (number < min! || number > max!) {
+                  return 'Le poid entre $min Kg et $max Kg';
+                }
                 return null;
               },
               decoration: InputDecoration(
@@ -317,7 +326,7 @@ class _PageValidationState extends State<PageValidation> {
     );
   }
 
-  Widget _buildRow(String label, String text) {
+  Widget _buildRow(String label, String text,{Color c=Colors.black}) {
     return Container(
       padding: const EdgeInsets.all(10.0),
       margin: const EdgeInsets.only(top: 5.0, bottom: 10.0),
@@ -325,7 +334,7 @@ class _PageValidationState extends State<PageValidation> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold,color: c, fontSize: 16)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -333,7 +342,7 @@ class _PageValidationState extends State<PageValidation> {
               textAlign: TextAlign.right,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: Colors.black87),
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: c),
             ),
           ),
         ],

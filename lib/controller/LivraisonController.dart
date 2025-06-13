@@ -71,7 +71,6 @@ class LivraisonController {
       SnackBar(content: Text('le statut est change avec succes')),
     );
 
-
   }
 
   Future<bool> store ( dynamic id_expediteur,
@@ -102,12 +101,9 @@ class LivraisonController {
           latitude_destination
       );
 
+
      return isStore;
-
-
   }
-
-
 
   Future<List<Map<String,String>>> getForLivreur(int id_livreur) async{
 
@@ -125,9 +121,6 @@ class LivraisonController {
   }
 
      Suivre(context, String id) {
-
-    print("donc c'est ici?");
-    print(id);
 
 
        Navigator.push(

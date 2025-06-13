@@ -345,8 +345,8 @@ class _PageCommanderState extends State<PageCommander> {
                                                 context,
                                                 currentPosition!.longitude.toString(),
                                                 currentPosition!.latitude.toString(),
-                                                "",
-                                                "",
+                                                "444",
+                                                "555",
                                               );
 
                                               Navigator.push(

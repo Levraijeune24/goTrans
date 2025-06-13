@@ -216,7 +216,7 @@ class ApiServiceLivraison {
        final data = jsonDecode(response.body);
 
        data["data"].forEach((livraison) {
-         print(livraison);
+         print(livraison["vehicule"]["type_vehicule"]);
          print("gggggg");
 
          livraisons.add({"id":livraison["id"].toString(),
@@ -228,6 +228,9 @@ class ApiServiceLivraison {
            "date":livraison["date"],
            "montant":livraison["montant"].toString(),
            "code":livraison["code"],
+           "kilo_initiale":livraison["vehicule"]["type_vehicule"]["kilo_initiale"].toString(),
+           "kilo_final":livraison["vehicule"]["type_vehicule"]["kilo_final"].toString(),
+           "nom_type":livraison["vehicule"]["type_vehicule"]["nom_type"].toString(),
            "kilo":livraison["kilo_total"].toString(),
            "adresse_expedition":livraison["expedition"]["adresse"],
            "tel_expedition":livraison["expedition"]["tel_expedition"]?? "",
