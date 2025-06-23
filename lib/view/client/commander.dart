@@ -11,9 +11,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 class PageCommander extends StatefulWidget {
-  final List<String> recaPoid;
+  final String nom_type;
 
-  PageCommander(this.recaPoid);
+  PageCommander(this.nom_type);
   @override
   _PageCommanderState createState() => _PageCommanderState();
 }
@@ -330,11 +330,6 @@ class _PageCommanderState extends State<PageCommander> {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              _buildCompactTextField(
-                                controller: controllerAdresseDestinateur,
-                                hintText: 'Nom',
-                              ),
-                              const SizedBox(height: 8),
                               if (!isLoadingClient)
                                 _buildCompactClientComboBox(
                                   id_client_encours: roleUser.id.toString(),
@@ -349,6 +344,13 @@ class _PageCommanderState extends State<PageCommander> {
                                 )
                               else
                                 const Center(child: CircularProgressIndicator()),
+                              const SizedBox(height: 8),
+                              _buildCompactTextField(
+                                controller: controllerAdresseDestinateur,
+                                hintText: 'Adresse',
+                              ),
+                              const SizedBox(height: 8),
+
                               const SizedBox(height: 8),
                               _buildCompactTextField(
                                 controller: controllerNumeroDestinateur,
@@ -373,7 +375,7 @@ class _PageCommanderState extends State<PageCommander> {
                                           controllerAdresseDestinateur.text,
                                           controllerNumeroDestinateur.text,
                                           controllerNumeroExpediteur.text,
-                                          widget.recaPoid[1],
+                                          widget.nom_type,
                                           context,
                                           currentPosition!.longitude.toString(),
                                           currentPosition!.latitude.toString(),
@@ -502,7 +504,7 @@ class _PageCommanderState extends State<PageCommander> {
             controller: textEditingController,
             focusNode: focusNode,
             decoration: InputDecoration(
-              hintText: 'Adresse',
+              hintText: 'Nom',
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: InputBorder.none,
               isDense: true,

@@ -6,6 +6,7 @@ import 'package:menji/view/client/pageAccueille.dart';
 import 'package:menji/view/authentification/creerCompte.dart';
 import 'package:menji/view/livreur/pageAccueilleLivreur.dart';
 import '../serviceAu/local_storage_service.dart';
+import '../view/redesign/pageAccueille.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/login',
@@ -42,7 +43,7 @@ final GoRouter router = GoRouter(
     // Authentification
     GoRoute(
       path: '/login',
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) =>  LoginPage(),
     ),
     GoRoute(
       path: '/register',

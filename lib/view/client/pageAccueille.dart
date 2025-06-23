@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageHistorique.dart';
+import '../../compenent/ButtonClient.dart';
+import '../../compenent/Commande.dart';
 import '../../compenent/Navigation.dart';
 import '../../compenent/ShowCodeConfirmationDialog.dart';
+import '../../compenent/TextBienvenue.dart';
 import '../../compenent/showDetaille.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
@@ -23,11 +26,13 @@ class PageAccueilState extends State<PageAccueil> {
   final TextEditingController codeController = TextEditingController();
 
   late dynamic roleUser;
+  late dynamic nameUser;
 
   List<Map<String, String>> TypesVehicules = [];
   List<Map<String, String>> listesLivraisonExpeditaire = [];
   List<Map<String, String>> listesLivraisonDestinateur = [];
   bool isLoadingTypeVehicule = true;
+  bool isLoadingLivraison=false;
 
   void _initialisationTypeVehicule() async {
 
@@ -36,6 +41,19 @@ class PageAccueilState extends State<PageAccueil> {
       setState(() {
         isLoadingTypeVehicule = false;
       });
+  }
+
+  void _initialisationNom() async {
+
+    nameUser=await AuthController().getUser();
+    nameUser=nameUser.name;
+
+    setState(() {
+      isLoadingLivraison=true;
+    });
+
+
+
   }
 
   Future<List<List<Map<String, String>>>> _initialisationLivraison() async {
@@ -54,6 +72,7 @@ class PageAccueilState extends State<PageAccueil> {
     super.initState();
     _initialisationTypeVehicule();
     _initialisationLivraison();
+    _initialisationNom();
   }
 
   @override
@@ -61,9 +80,13 @@ class PageAccueilState extends State<PageAccueil> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.orange,
         elevation: 0,
-        title: Text('Page d\'accueil'),
+        title: Text('Accueil',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 30
+        ),),
         iconTheme: IconThemeData(color: Colors.orange),
         actions: [
           IconButton(
@@ -77,16 +100,44 @@ class PageAccueilState extends State<PageAccueil> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 20),
+            isLoadingLivraison==false?Center(child: CircularProgressIndicator() ):
+
+            TextBienvenue(
+              name: nameUser
+            ).run(),
+
+            const SizedBox(height: 30),
+
+
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Moyen de transport',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                const Text(
+                  'Categories',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontFamily: 'Segoe UI',
+                  ),
                 ),
-                SizedBox(width: 20),
-                Icon(Icons.directions_car, size: 24, color: Colors.orange),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    'See all',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.orange,
+                      fontFamily: 'Segoe UI',
+                    ),
+                  ),
+                ),
               ],
             ),
+
+
             SizedBox(height: 20),
             isLoadingTypeVehicule
                 ? Center(child: CircularProgressIndicator())
@@ -106,17 +157,37 @@ class PageAccueilState extends State<PageAccueil> {
               children: [
                 Text(
                   'Mes livraisons', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(width: 20),
-                Icon(Icons.local_shipping, size: 24, color: Colors.orange),
-                SizedBox(width: 20),
-                IconButton(
-                  icon: Icon(Icons.refresh, color: Colors.orange, size: 24),
-                  onPressed: _initialisationLivraison,
-                ),
+                )
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 15),
+            Row(
+              children: [
+                ButtonClient(
+                    isSelected: false,
+                    libelle: "Entrant",
+                    height: 40,
+                    action: (){
+                      setState(() {
+                       // _selectedDeliveryIndex = 1;
+                      });
+
+                    }
+                ).run(),
+                const SizedBox(width: 20),
+
+                ButtonClient(
+                    libelle: "Sortant",
+                    height: 40,
+                    action: (){
+                      setState(() {
+                       // _selectedDeliveryIndex = 1;
+                      });
+                    }
+                ).run(),
+              ],
+            ),
+            SizedBox(height: 15),
              Container(
               height: 300,
               child: SingleChildScrollView(
@@ -137,26 +208,36 @@ class PageAccueilState extends State<PageAccueil> {
                                   return Column(
                                       children: livraisons.map((livraison) {
 
-                                        return (livraison["status"]!="annulee" && livraison["status"]!="terminee")? LivraisonsCard(expediteur:livraison["expediteur"]!,
-                                            destinateur: livraison["destinateur"]!,id: livraison["id"]!,
-                                            moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
-                                            typeLivraison: livraison["expediteur_id"].toString()==roleUser.id.toString()?"sortant":"entrant",
-                                            isExpeditaire: !(livraison["expediteur_id"].toString()==roleUser.id.toString()) ,
-                                            Annuler: (id){
-                                              setState(() {
-                                                _livraisonController.cancel(id,context);
-                                                _initialisationLivraison();
-                                              });
-                                            },Confirmer: (id){
-                                              livraison["expediteur_id"].toString()!=roleUser.id.toString()?
-                                              ShowCodeConfirmationDialog(context:context,controller:codeController,idLivraison:id,liv:_livraisonController).run()
-                                             :print("");
-                                            },showInformation: (liv){
-                                              ShowDetaille(context: context,livr: liv).run();
-                                            },suivre: (){
-                                              _livraisonController.Suivre(context,livraison["id"]!);
-                                            }
-                                        ).run():Center();
+                                        return (livraison["status"]!="annulee" && livraison["status"]!="terminee")?
+                                        Commande(
+                                            status:" ${ livraison["status"]} " ,
+                                            titre: "Commande #${livraison["code"]} ",
+                                            itineraire: "De : Combe > Lingwala",
+                                            date: "04 Juin 2025 - 09h00", actions: [
+
+                                          ButtonClient(
+                                              libelle: "Suivre",
+                                              action: (){
+                                                _livraisonController.Suivre(context,livraison["id"]!);
+                                              }
+                                          ).run(),
+                                          ButtonClient(
+                                              libelle: "Fin course",
+                                              action: (){
+                                                livraison["expediteur_id"].toString()==roleUser.id.toString()?
+                                                ShowCodeConfirmationDialog(context:context,controller:codeController,idLivraison:livraison["expediteur_id"].toString(),liv:_livraisonController).run()
+                                                    :print("");
+                                                //_livraisonController.confirm(context,livraison["expediteur_id"].toString(), livraison["code"].toString());
+                                              }
+                                          ).run()
+
+                                        ], actionVoirPlus: () {
+                                          ShowDetaille(context: context,livr: livraison).run();
+
+                                        }
+                                        ).run()
+
+                                            :Center();
                                       }).toList()
                                   );
                                   }).toList()

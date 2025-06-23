@@ -5,9 +5,11 @@ import 'package:menji/view/client/pageAccueille.dart';
 import 'package:menji/services/ApiServiceLivraison.dart';
 import 'package:menji/view/client/commander.dart';
 
+import '../model/TypeVehiculeModel.dart';
 import '../serviceAu/local_storage_service.dart';
 import '../utils/elpers/elperDate.dart';
 import '../view/client/suivisColis.dart';
+import '../view/client/vehiculeInfoScreen.dart';
 import '../view/livreur/pageAccueilleLivreur.darT';
 
 
@@ -31,10 +33,19 @@ class LivraisonController {
     return donneesLivraison;
   }
 
-  void create(List<String> nom_type,BuildContext context){
+  void createScreen(VehiculeType nom_type,BuildContext context){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PageCommander(nom_type)),
+     // MaterialPageRoute(builder: (context) => PageCommander(nom_type)),
+
+
+        MaterialPageRoute(builder: (context) => VehiculeInfoScreen(vehicleType:nom_type)),
+    );
+  }
+  void create(String moyen_transport,BuildContext context){
+    Navigator.push(
+      context,
+       MaterialPageRoute(builder: (context) => PageCommander(moyen_transport)),
     );
   }
 
