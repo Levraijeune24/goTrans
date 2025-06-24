@@ -22,6 +22,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> login(String email, String password) async {
+
+
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       body: {
@@ -31,13 +33,20 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
+
+
+
       final data = jsonDecode(response.body);
-      _token = data['token']; // Stocke le token après la connexion
+      _token = data['token'];
+
+      // Stocke le token après la connexion
+
       return {
         'user': User.fromJson(data['user']),
         'roleInfo': RoleInfo.fromJson(data['roleInfo']),
         'token': data['token'],
       };
+
     } else {
       throw Exception('Erreur de connexion');
     }

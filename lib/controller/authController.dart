@@ -12,8 +12,16 @@ class AuthController {
   final LocalStorageService _localStorage = LocalStorageService();
 
   Future<User> login(String email, String password) async {
+    print('GGGGGGG');
+
     final result = await _apiService.login(email, password);
+
+    print(result);
+    print("ggggggg");
     final token = result['token'];
+
+
+
     final user = result['user'] as User;
     final roleInfo = result['roleInfo'] as RoleInfo;
 

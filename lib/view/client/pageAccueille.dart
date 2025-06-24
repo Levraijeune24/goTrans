@@ -14,6 +14,8 @@ import '../../controller/authController.dart';
 import 'package:menji/compenent/ListeBlockTransport.dart';
 import 'package:menji/compenent/LivraisonCards.dart';
 
+import '../../utils/elpers/elperDate.dart';
+
 class PageAccueil extends StatefulWidget {
   @override
   State<PageAccueil> createState() => PageAccueilState();
@@ -213,7 +215,7 @@ class PageAccueilState extends State<PageAccueil> {
                                             status:" ${ livraison["status"]} " ,
                                             titre: "Commande #${livraison["code"]} ",
                                             itineraire: "De : Combe > Lingwala",
-                                            date: "04 Juin 2025 - 09h00", actions: [
+                                            date: formaterDate(livraison["date"]!), actions: [
 
                                           ButtonClient(
                                               libelle: "Suivre",

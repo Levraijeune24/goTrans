@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../compenent/ButtonClient.dart';
+import '../../compenent/Commande.dart';
 import '../../compenent/LivraisonCards.dart';
 import '../../compenent/Navigation.dart';
 import '../../compenent/ShowCodeConfirmationDialog.dart';
+import '../../compenent/showDetaille.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/LivreurController.dart';
 import '../../controller/authController.dart';
+import '../../utils/elpers/elperDate.dart';
 import '../authentification/ProfilePage.dart';
 
 
@@ -57,6 +61,7 @@ class _PageLivreurState extends State<PageLivreur> {
               ),
             ),
             SizedBox(height: 20),
+
             Expanded(
               child: FutureBuilder<List<Map<String, String>>>(
                 future: livraisonsFuture,
@@ -79,36 +84,37 @@ class _PageLivreurState extends State<PageLivreur> {
                             livraison["status"] == "terminee"||
                             livraison["status"] == "validee"
                             ?
-                        LivraisonsCard(expediteur: livraison["expediteur"]!,
-                            destinateur: livraison["destinateur"]!,
-                            id: livraison["id"]!,
-                            moyen_transport: livraison["moyen_transport"]!,
-                            status: livraison["status"]!,
-                            date: livraison["date"]!,
-                            liv: livraison,
-                            isExpeditaire: true,
+                        Commande(
+                            status:" ${ livraison["status"]} " ,
+                            titre: "Commande #${livraison["code"]} ",
+                            itineraire: "De : Combe > Lingwala",
 
-                            typeCl: 1,
+                            date: formaterDate(livraison["date"]!), actions: [
 
-                            Annuler: (id) {
-                              setState(() {
-                                _livraisonController.cancel(
-                                    id, context);
-                                _initialisationLivraison();
-                              });
-                            },
-                            Confirmer: (id) {
-                              ShowCodeConfirmationDialog(context: context,
-                                  controller: codeController,
-                                  idLivraison: id,
-                                  liv: _livraisonController).run();
-                            },
-                            showInformation: (liv) {
-                              Livreurcontroller().getDetailleLivraison(
-                                  context, livraison["id_livreur"]!,
-                                  livraison["id"]!);
-                            }
-                        ).run() : Center();
+                          ButtonClient(
+                              libelle: "autre",
+                              action: (){
+                                //_livraisonController.Suivre(context,livraison["id"]!);
+                              }
+                          ).run(),
+                          livraison["status"] == "en_cours"?
+                          ButtonClient(
+                              libelle: "Fin course",
+                              action: (){
+                                ShowCodeConfirmationDialog(context: context,
+                                    controller: codeController,
+                                    idLivraison: livraison["id"]!,
+                                    liv: _livraisonController).run();
+                              }
+                          ).run():Center()
+
+                        ], actionVoirPlus: () {
+                          Livreurcontroller().getDetailleLivraison(
+                              context, livraison["id_livreur"]!,
+                              livraison["id"]!);
+
+                        }
+                        ).run(): Center();
                       }).toList(),
                     );
                   }

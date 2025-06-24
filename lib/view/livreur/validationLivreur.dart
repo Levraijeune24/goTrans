@@ -151,9 +151,12 @@ class _PageValidationState extends State<PageValidation> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _sectionTitle('Informations clients'),
-              _buildInfoRow('Nom de l\'expéditeur', livraisons[0]["expediteur"] ?? "", Icons.person),
-              _buildInfoRow(
+              entetePage(),
+
+              const SizedBox(height: 15),
+              enteteInfoClient("Exepeditaire"),
+              _buildInfoRowNew('Nom de l\'expéditeur', livraisons[0]["expediteur"] ?? "", Icons.person),
+              _buildInfoRowNew(
                 'Adresse de l\'expéditeur',
                 livraisons[0]["adresse_expedition"] ?? "",
                 Icons.location_on,
@@ -164,20 +167,22 @@ class _PageValidationState extends State<PageValidation> {
                   ),
                 ),
               ),
-              _buildInfoRow('Téléphone de l\'expéditeur', livraisons[0]["tel_expedition"] ?? "", Icons.phone),
-              Divider(),
-              _buildInfoRow('Nom du destinataire', livraisons[0]["destinateur"] ?? "", Icons.person),
-              _buildInfoRow('Adresse du destinataire', livraisons[0]["adresse_destination"] ?? "", Icons.location_on),
-              _buildInfoRow('Téléphone du destinataire', livraisons[0]["tel_destination"] ?? "", Icons.phone),
+
+              _buildInfoRowNew('Téléphone de l\'expéditeur', livraisons[0]["tel_expedition"] ?? "", Icons.person),
+              enteteInfoClient("Destinataire"),
+
+
+              _buildInfoRowNew('Nom du destinataire', livraisons[0]["destinateur"] ?? "", Icons.person),
+              _buildInfoRowNew('Adresse du destinataire', livraisons[0]["adresse_destination"] ?? "", Icons.location_on),
+              _buildInfoRowNew('Téléphone du destinataire', livraisons[0]["tel_destination"] ?? "", Icons.phone),
               SizedBox(height: 20),
 
               Row(
-                children: [_sectionTitle('Tarification'),livraisons[0]["status"]!="terminee"? ElevatedButton.icon(
+                children: [ enteteInfoClient("Tarification"),livraisons[0]["status"]=="terminee"? ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
                       isState=false;
                     });
-
                   },
                   icon: Icon(Icons.edit),
                   label: Text("modification"),
@@ -192,9 +197,9 @@ class _PageValidationState extends State<PageValidation> {
               )
 
               ,
-              _buildRow('Type :: ${livraisons[0]["nom_type"]}',c:Colors.red, ' entre ${livraisons[0]["kilo_initiale"]}kg et ${livraisons[0]["kilo_final"]}kg '),
+              _buildRowNew('Type :: ${livraisons[0]["nom_type"]}',c:Colors.red, ' entre ${livraisons[0]["kilo_initiale"]}kg et ${livraisons[0]["kilo_final"]}kg '),
 
-              _buildRow('Prix unitaire', '${livraisons[0]["tarif"]} Fc'),
+              _buildRowNew('Prix unitaire', '${livraisons[0]["tarif"]} Fc'),
               isState==false?
               _buildPricingRow('Entrer le poids', poidsController, () {
                 final poids = int.tryParse(poidsController.text) ?? 0;
@@ -202,9 +207,9 @@ class _PageValidationState extends State<PageValidation> {
                 setState(() {
                   prixTotal = poids * tarif;
                 });
-              }):_buildRow('Poid estime', '${livraisons[0]["kilo"].toString()} Fc'),
+              }):_buildRowNew('Poid estime', '${livraisons[0]["kilo"].toString()} Fc'),
               isState==false?
-              _buildRow('Prix total', '$prixTotal Fc'):
+              _buildRowNew('Prix total', '$prixTotal Fc'):
               _buildRow('Prix total', '${livraisons[0]["montant"].toString()} Fc')
               ,
               SizedBox(height: 20),
@@ -221,6 +226,7 @@ class _PageValidationState extends State<PageValidation> {
                 ),
               ),
               SizedBox(height: 30),
+
               Center(
                 child: ElevatedButton(
                   onPressed:isState==false? () {
@@ -235,14 +241,17 @@ class _PageValidationState extends State<PageValidation> {
                       _showSnackBar("Veuillez remplir tous les champs obligatoires");
                     }
                   }:null,
-                  child: Text('Confirmer'),
+                  child: Text('Confirmer',
+                      style: TextStyle(fontSize: 20)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                ),
                 ),
               ),
             ],
@@ -282,15 +291,49 @@ class _PageValidationState extends State<PageValidation> {
     );
   }
 
+  Widget _buildInfoRowNew(String label, String value, IconData icon, {VoidCallback? action}) {
+    return Column(
+      children: [
+        Container(
+          width: 400,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(245, 247, 250, 1.0),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+
+      ],
+    );
+  }
+
   Widget _buildPricingRow(String label, TextEditingController controller, VoidCallback onChanged) {
     return Container(
       padding: EdgeInsets.all(10.0),
       margin: EdgeInsets.only(top: 5.0, bottom: 10.0),
-      color: Colors.white,
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        borderRadius: BorderRadius.circular(8),
+
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(label,  style: TextStyle(
+            //color: Colors.orange,
+            fontSize: 20,
+            fontWeight: FontWeight.normal,
+          )),
           Container(
             width: 200,
             height: 40,
@@ -314,11 +357,48 @@ class _PageValidationState extends State<PageValidation> {
                 }
                 return null;
               },
-              decoration: InputDecoration(
-                hintText: 'Entrez $label',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              decoration:  InputDecoration(
+              hintText: 'Entrez $label',
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+
+
+
+              // Bordure quand le champ est activé (mais pas focus)
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Colors.orange, // gris par défaut
+                  width: 1,
+                ),
               ),
+
+              // Bordure quand le champ est focus (cliqué)
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Colors.orange, // rouge ici quand focus
+                  width: 2,
+                ),
+              ),
+
+              // Bordure si erreur (validation échouée)
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Colors.orange, // couleur si invalide
+                  width: 1,
+                ),
+              ),
+
+              // Bordure si focus + erreur
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Colors.redAccent,
+                  width: 2,
+                ),
+              ),
+            ),
             ),
           ),
         ],
@@ -349,4 +429,94 @@ class _PageValidationState extends State<PageValidation> {
       ),
     );
   }
+
+  Widget _buildRowNew(String label, String text,{Color c=Colors.black}) {
+    return Container(
+
+      padding: const EdgeInsets.all(10.0),
+      margin: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        borderRadius: BorderRadius.circular(8),
+
+      ),
+
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+           Text(
+            label,
+            style: TextStyle(
+                fontSize: 18
+            ),
+          ),
+          IntrinsicWidth(
+            child:Container(
+              height: 40,
+              width: 130,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange),
+              ),
+              child:  Text(
+                text,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18
+                ),
+              ),
+            ) ,
+          )
+          ,
+        ],
+      ),
+    );
+  }
+
+  Widget enteteInfoClient(String title){
+
+    return  Text(
+      title,
+      style: TextStyle(
+        color: Colors.orange,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget entetePage(){
+
+    return  Center(
+      child: Column(
+        children: [
+          const Text(
+            'Informations clients',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Container(
+            height: 2,
+            width: 150,
+            color: Colors.orange,
+            margin: const EdgeInsets.only(top: 8),
+          ),
+        ],
+      ),
+    );
+
+
+
+
+
+  }
+
+
 }

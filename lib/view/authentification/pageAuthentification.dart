@@ -80,6 +80,8 @@ class _LoginPageState extends State<LoginPage> {
           )
           .timeout(const Duration(seconds: 10));
 
+      print("ici erreur");
+
       _showToast('Bienvenue, ${user.name}', isError: false);
 
       Future.delayed(
