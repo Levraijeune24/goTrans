@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:menji/view/client/pageAccueille.dart';
 import 'package:menji/view/client/pageHistorique.dart';
+import '../../compenent/ButtonClient.dart';
+import '../../compenent/Commande.dart';
 import '../../compenent/LivraisonCards.dart';
+import '../../compenent/MenuNavgation.dart';
 import '../../compenent/Navigation.dart';
+import '../../compenent/ShowCodeConfirmationDialog.dart';
 import '../../compenent/showDetaille.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/TypeVehiculeController.dart';
 import '../../controller/authController.dart';
 import 'package:menji/compenent/ListeBlockTransport.dart';
+
+import '../../utils/elpers/elperDate.dart';
+import '../authentification/ProfilePage.dart';
 
 
 class PageHistorique extends StatefulWidget {
@@ -22,10 +30,17 @@ class PageHistoriqueState extends State<PageHistorique> {
   final TextEditingController codeController = TextEditingController();
   late dynamic roleUser;
 
+
+  late var _currentIndex=0;
+
   List<Map<String, String>> listes1 = [];
   List<Map<String, String>> listesLivraison1 = [];
   List<Map<String, String>> listesLivraisonDestinateur = [];
   List<Map<String, String>> listesLivraisonExpeditaire = [];
+
+  bool isSelected=true;
+
+
 
 
   bool isLoadingTypeVehicule = true;
@@ -54,9 +69,13 @@ class PageHistoriqueState extends State<PageHistorique> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.orange,
         elevation: 0,
-        title: Text('Mes historiques'),
+        title: Text('Mon historique',
+          style: TextStyle(
+              color: Colors.white,
+              fontSize: 30
+          ),),
         iconTheme: IconThemeData(color: Colors.orange),
         actions: [
           IconButton(
@@ -77,13 +96,48 @@ class PageHistoriqueState extends State<PageHistorique> {
                   'Mes livraisons',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(width: 20),
-                Icon(Icons.local_shipping, size: 24, color: Colors.orange),
-                SizedBox(width: 20),
-                IconButton(
-                  icon: Icon(Icons.refresh, color: Colors.orange, size: 24),
-                  onPressed: _initialisationLivraison,
-                ),
+
+              ],
+            ),
+            SizedBox(height: 15),
+            Row(
+              children: [
+                ButtonClient(
+                    isSelected: isSelected,
+                    libelle: "Entrant",
+                    height: 40,
+                    action: (){
+                      setState(() {
+                        isSelected=!isSelected;
+                      });
+
+                    }
+                ).run(),
+                const SizedBox(width: 20),
+
+                ButtonClient(
+                  isSelected: !isSelected,
+                    libelle: "Sortant",
+                    height: 40,
+                    action: (){
+                      setState(() {
+                        isSelected=!isSelected;
+                      });
+                    }
+                ).run(),
+
+                const SizedBox(width: 20),
+
+                ButtonClient(
+                  isSelected: false,
+                    libelle: "All",
+                    height: 40,
+                    action: (){
+                      setState(() {
+                        // _selectedDeliveryIndex = 1;
+                      });
+                    }
+                ).run(),
               ],
             ),
             SizedBox(height: 10),
@@ -103,20 +157,35 @@ class PageHistoriqueState extends State<PageHistorique> {
                               return Column(
                                   children:snapshot.data!.map((livraisons) {
                                     return Column(
-                                        children: livraisons.map((livraison) {
-                                          return  LivraisonsCard(expediteur:livraison["expediteur"]!,
-                                              destinateur: livraison["destinateur"]!,id: livraison["id"]!,
-                                              moyen_transport: livraison["moyen_transport"]!,status:livraison["status"]!,date: livraison["date"]!,liv:livraison,
-                                              typeLivraison: livraison["expediteur_id"]!=roleUser.id?"sortant":"entrant",
-                                              Annuler: (id){
-                                                setState(() {
-                                                  _livraisonController.cancel(id,context);
-                                                  _initialisationLivraison();
-                                                });
-                                              },Confirmer: (id){
-                                              },showInformation: (liv){
-                                                ShowDetaille(context: context,livr: liv).run();
-                                              }
+                                        children: livraisons.where((livraison){
+                                          String expediteurId = livraison["expediteur_id"].toString();
+                                          String userId = roleUser.id.toString();
+
+                                          return isSelected
+                                              ? expediteurId != userId
+                                              : expediteurId == userId;
+                                        }).map((livraison) {
+                                          return  Commande(
+                                              status:" ${ livraison["status"]} " ,
+                                              titre: "Commande #${livraison["code"]} ",
+                                              itineraire: "De : Combe > Lingwala",
+                                              date: formaterDate(livraison["date"]!), actions: [
+
+                                            livraison["status"] == "en_cours"?
+                                            ButtonClient(
+                                                libelle: "Fin course",
+                                                action: (){
+                                                  livraison["expediteur_id"].toString()==roleUser.id.toString()?
+                                                  ShowCodeConfirmationDialog(context:context,controller:codeController,idLivraison:livraison["expediteur_id"].toString(),liv:_livraisonController).run()
+                                                      :print("");
+                                                  //_livraisonController.confirm(context,livraison["expediteur_id"].toString(), livraison["code"].toString());
+                                                }
+                                            ).run():Center()
+
+                                          ], actionVoirPlus: () {
+                                            ShowDetaille(context: context,livr: livraison).run();
+
+                                          }
                                           ).run();
                                         }).toList()
                                     );
@@ -132,7 +201,30 @@ class PageHistoriqueState extends State<PageHistorique> {
           ],
         ),
       ),
-      bottomNavigationBar: Navigation(context:context).run(),
+      bottomNavigationBar: MenuNavigation(
+        action: (index){
+      if(index==2){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage()),
+        );
+      }
+      else if(index==1){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PageHistorique()),
+        );
+      }
+      else if(index==0){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PageAccueil()),
+        );
+
+      }
+    },
+    currentIndex: _currentIndex
+    ).run(),
     );
   }
 }

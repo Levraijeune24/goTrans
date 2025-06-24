@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../compenent/ButtonClient.dart';
 import '../../compenent/Commande.dart';
 import '../../compenent/LivraisonCards.dart';
+import '../../compenent/MenuNavgation.dart';
 import '../../compenent/Navigation.dart';
 import '../../compenent/ShowCodeConfirmationDialog.dart';
 import '../../compenent/showDetaille.dart';
@@ -11,6 +12,8 @@ import '../../controller/LivreurController.dart';
 import '../../controller/authController.dart';
 import '../../utils/elpers/elperDate.dart';
 import '../authentification/ProfilePage.dart';
+import '../client/pageAccueille.dart';
+import '../client/pageHistorique.dart';
 
 
 class PageLivreur extends StatefulWidget {
@@ -22,6 +25,8 @@ class _PageLivreurState extends State<PageLivreur> {
   late Future<List<Map<String, String>>> livraisonsFuture;
   LivraisonController _livraisonController = LivraisonController();
   late  TextEditingController codeController = TextEditingController();
+
+  late var _currentIndex=0;
 
   void _initialisationLivraison() async {
     await _livraisonController.init();
@@ -45,9 +50,20 @@ class _PageLivreurState extends State<PageLivreur> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text('Page d\'accueil livreur'),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.orange,
           elevation: 0,
+          title: Text('Accueil',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 30
+            ),),
+          iconTheme: IconThemeData(color: Colors.orange),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.notifications, color: Colors.orange),
+              onPressed: () {},
+            ),
+          ],
         ),
         body: Column(
           children: [
@@ -123,7 +139,30 @@ class _PageLivreurState extends State<PageLivreur> {
             ),
           ],
         ),
-        bottomNavigationBar: Navigation(context: context, type: 1).run()
+         bottomNavigationBar: MenuNavigation(
+        action: (index){
+      if(index==2){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage()),
+        );
+      }
+      else if(index==1){
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => PageHistorique()),
+        // );
+      }
+      else if(index==0){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PageLivreur()),
+        );
+
+      }
+    },
+    currentIndex: _currentIndex
+    ).run()
     );
   }
 }

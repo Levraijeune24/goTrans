@@ -22,16 +22,17 @@ class MenuNavigation {
       type: BottomNavigationBarType.fixed,
       items: [
         itemButtonNavigation(
-            chemin: "images/moto.png",
+            chemin: "images/Icone_Home.png",
             numero: 0, label: 'Accueil'
         ),
+
         itemButtonNavigation(
-            chemin: "images/moto.png",
-            numero: 1, label: 'Profil'
+            chemin: "images/historique.png",
+            numero: 2, label: 'Historique'
         ),
         itemButtonNavigation(
-            chemin: "images/moto.png",
-            numero: 2, label: 'Historique'
+            chemin: "images/Icone_Compte.png",
+            numero: 1, label: 'Profil'
         ),
 
       ],

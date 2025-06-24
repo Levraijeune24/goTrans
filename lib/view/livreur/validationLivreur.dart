@@ -21,6 +21,7 @@ class _PageValidationState extends State<PageValidation> {
   late StreamSubscription<Position> _positionStreamSubscription;
   LatLng destination = LatLng(-4.322447, 15.307045);
   Position? _lastPosition;
+  var Geolocatort;
 
   bool isState=false;
 
@@ -36,6 +37,7 @@ class _PageValidationState extends State<PageValidation> {
   @override
   void initState() {
     super.initState();
+    _getPermition();
     initInfoLivraison();
   }
 
@@ -72,7 +74,8 @@ class _PageValidationState extends State<PageValidation> {
     }
   }
 
-  Future<void> _getCurrentLocation() async {
+  Future<void> _getPermition() async {
+
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _showSnackBar("La localisation est désactivée");
@@ -92,26 +95,36 @@ class _PageValidationState extends State<PageValidation> {
       _showSnackBar("Permission définitivement refusée");
       return;
     }
+    setState(() {
+      Geolocatort=Geolocator;
+    });
 
-    _showSnackBar("nous avons active votre position ...");
+
+  }
+
+  Future<void> _getCurrentLocation() async {
+
+    if(Geolocatort==null){
+
+      _showSnackBar("erreur de localisation activee votre localisation");
+
+    }else {
+      _showSnackBar("Nous vous suivons merci ");
 
 
-
-
-      _positionStreamSubscription = Geolocator.getPositionStream(
+      _positionStreamSubscription = Geolocatort.getPositionStream(
         locationSettings: LocationSettings(
           accuracy: LocationAccuracy.high,
           distanceFilter: 3,
         ),
       ).listen((Position position) {
         if (_lastPosition == null ||
-            Geolocator.distanceBetween(
+            Geolocatort.distanceBetween(
               _lastPosition!.latitude,
               _lastPosition!.longitude,
               position.latitude,
               position.longitude,
             ) >= 1) {
-
           setState(() {
             _livraisonController.setLocalisation(
               position.longitude,
@@ -123,6 +136,7 @@ class _PageValidationState extends State<PageValidation> {
           });
         }
       });
+    }
 
   }
 
@@ -214,7 +228,7 @@ class _PageValidationState extends State<PageValidation> {
               ,
               SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: _getCurrentLocation,
+                onPressed: null,
                 icon: Icon(Icons.my_location),
                 label: Text("activer ma position actuelle"),
                 style: ElevatedButton.styleFrom(
@@ -237,6 +251,7 @@ class _PageValidationState extends State<PageValidation> {
                         prixTotal.toString(),
                         poidsController.text,
                       );
+                      _getCurrentLocation();
                     } else {
                       _showSnackBar("Veuillez remplir tous les champs obligatoires");
                     }

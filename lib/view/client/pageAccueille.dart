@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageHistorique.dart';
 import '../../compenent/ButtonClient.dart';
 import '../../compenent/Commande.dart';
+import '../../compenent/MenuNavgation.dart';
 import '../../compenent/Navigation.dart';
 import '../../compenent/ShowCodeConfirmationDialog.dart';
 import '../../compenent/TextBienvenue.dart';
@@ -15,6 +16,7 @@ import 'package:menji/compenent/ListeBlockTransport.dart';
 import 'package:menji/compenent/LivraisonCards.dart';
 
 import '../../utils/elpers/elperDate.dart';
+import '../authentification/ProfilePage.dart';
 
 class PageAccueil extends StatefulWidget {
   @override
@@ -26,6 +28,10 @@ class PageAccueilState extends State<PageAccueil> {
 
   LivraisonController _livraisonController=LivraisonController();
   final TextEditingController codeController = TextEditingController();
+
+  late var _currentIndex=0;
+
+  bool isSelected =true;
 
   late dynamic roleUser;
   late dynamic nameUser;
@@ -166,12 +172,12 @@ class PageAccueilState extends State<PageAccueil> {
             Row(
               children: [
                 ButtonClient(
-                    isSelected: false,
+                    isSelected: isSelected,
                     libelle: "Entrant",
                     height: 40,
                     action: (){
                       setState(() {
-                       // _selectedDeliveryIndex = 1;
+                        isSelected = !isSelected;
                       });
 
                     }
@@ -179,11 +185,12 @@ class PageAccueilState extends State<PageAccueil> {
                 const SizedBox(width: 20),
 
                 ButtonClient(
+                  isSelected: !isSelected,
                     libelle: "Sortant",
                     height: 40,
                     action: (){
                       setState(() {
-                       // _selectedDeliveryIndex = 1;
+                        isSelected = !isSelected;
                       });
                     }
                 ).run(),
@@ -208,9 +215,17 @@ class PageAccueilState extends State<PageAccueil> {
                               return Column(
                                 children:snapshot.data!.map((livraisons) {
                                   return Column(
-                                      children: livraisons.map((livraison) {
+                                      children: livraisons.where((livraison){
+                                        String expediteurId = livraison["expediteur_id"].toString();
+                                        String userId = roleUser.id.toString();
+
+                                        return isSelected
+                                            ? expediteurId != userId
+                                            : expediteurId == userId;
+                                  }).map((livraison) {
 
                                         return (livraison["status"]!="annulee" && livraison["status"]!="terminee")?
+
                                         Commande(
                                             status:" ${ livraison["status"]} " ,
                                             titre: "Commande #${livraison["code"]} ",
@@ -223,6 +238,7 @@ class PageAccueilState extends State<PageAccueil> {
                                                 _livraisonController.Suivre(context,livraison["id"]!);
                                               }
                                           ).run(),
+                                          livraison["status"] == "en_cours"?
                                           ButtonClient(
                                               libelle: "Fin course",
                                               action: (){
@@ -231,15 +247,13 @@ class PageAccueilState extends State<PageAccueil> {
                                                     :print("");
                                                 //_livraisonController.confirm(context,livraison["expediteur_id"].toString(), livraison["code"].toString());
                                               }
-                                          ).run()
+                                          ).run():Center()
 
                                         ], actionVoirPlus: () {
                                           ShowDetaille(context: context,livr: livraison).run();
 
                                         }
-                                        ).run()
-
-                                            :Center();
+                                        ).run() :Center();
                                       }).toList()
                                   );
                                   }).toList()
@@ -253,7 +267,30 @@ class PageAccueilState extends State<PageAccueil> {
           ],
         ),
       ),
-      bottomNavigationBar: Navigation(context:context).run(),
+      bottomNavigationBar: MenuNavigation(
+          action: (index){
+            if(index==2){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            }
+            else if(index==1){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PageHistorique()),
+                );
+            }
+            else if(index==0){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PageAccueil()),
+                );
+
+              }
+            },
+          currentIndex: _currentIndex
+      ).run(),
     );
   }
 }
