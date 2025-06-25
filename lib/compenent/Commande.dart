@@ -24,6 +24,7 @@ class Commande {
      builder: (context, constraints) {
        return Container(
          padding: const EdgeInsets.all(12),
+         margin:const EdgeInsets.only(bottom: 12) ,
          decoration: BoxDecoration(
            color:  Colors.white,
            borderRadius: BorderRadius.circular(12),

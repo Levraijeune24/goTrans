@@ -358,6 +358,7 @@ class _PageCommanderState extends State<PageCommander> {
                                       });
 
                                       try {
+
                                         await _livraisonController.store(
                                           roleUser.id.toString(),
                                           id_client,
@@ -368,8 +369,8 @@ class _PageCommanderState extends State<PageCommander> {
                                           controllerNumeroExpediteur.text,
                                           widget.nom_type,
                                           context,
-                                          currentPosition!.longitude.toString(),
-                                          currentPosition!.latitude.toString(),
+                                          currentPosition!.longitude.toString()?? "",
+                                          currentPosition!.latitude.toString()?? "",
                                           "444",
                                           "555",
                                         );

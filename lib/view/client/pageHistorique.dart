@@ -109,18 +109,7 @@ class PageHistoriqueState extends State<PageHistorique> {
                     }
                 ).run(),
 
-                const SizedBox(width: 20),
 
-                ButtonClient(
-                  isSelected: false,
-                    libelle: "All",
-                    height: 40,
-                    action: (){
-                      setState(() {
-                        // _selectedDeliveryIndex = 1;
-                      });
-                    }
-                ).run(),
               ],
             ),
             SizedBox(height: 10),
@@ -148,7 +137,7 @@ class PageHistoriqueState extends State<PageHistorique> {
                                               ? expediteurId != userId
                                               : expediteurId == userId;
                                         }).map((livraison) {
-                                          return  Commande(
+                                          return livraison["status"]=="terminee"? Commande(
                                               status:" ${ livraison["status"]} " ,
                                               titre: "Commande #${livraison["code"]} ",
                                               itineraire: "De : Combe > Lingwala",
@@ -169,7 +158,7 @@ class PageHistoriqueState extends State<PageHistorique> {
                                             ShowDetaille(context: context,livr: livraison).run();
 
                                           }
-                                          ).run();
+                                          ).run():Center();
                                         }).toList()
                                     );
                                   }).toList()

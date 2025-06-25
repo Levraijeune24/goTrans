@@ -104,7 +104,8 @@ class PageAccueilState extends State<PageAccueil> {
   }
 
   Widget _buildMainContent() {
-    final List<Map<String, String>> currentList = isSelected ? listesLivraisonDestinateur : listesLivraisonExpeditaire;
+    final List<Map<String, String>> currentList =
+    isSelected ? listesLivraisonDestinateur : listesLivraisonExpeditaire;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
@@ -114,6 +115,8 @@ class PageAccueilState extends State<PageAccueil> {
           const SizedBox(height: 20),
           TextBienvenue(name: nameUser).run(),
           const SizedBox(height: 30),
+
+          // Section titre catégorie
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -132,7 +135,10 @@ class PageAccueilState extends State<PageAccueil> {
               ),
             ],
           ),
+
           const SizedBox(height: 20),
+
+          // Liste horizontale des catégories
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -142,9 +148,13 @@ class PageAccueilState extends State<PageAccueil> {
               ).Run(),
             ),
           ),
+
           const SizedBox(height: 30),
+
+          // Section livraisons
           enteteInfo("Mes livraisons"),
           const SizedBox(height: 15),
+
           Row(
             children: [
               ButtonClient(
@@ -162,49 +172,61 @@ class PageAccueilState extends State<PageAccueil> {
               ).run(),
             ],
           ),
+
           const SizedBox(height: 15),
-          Column(
-            children: currentList
-                .where((liv) => liv["status"] != "annulee" && liv["status"] != "terminee")
-                .map((livraison) => Commande(
-              status: " ${livraison["status"]} ",
-              titre: "Commande #${livraison["code"]} ",
-              itineraire: "De : Combe > Lingwala",
-              date: formaterDate(livraison["date"]!),
-              actions: [
-                ButtonClient(
-                  libelle: "Suivre",
-                  action: () => _livraisonController.Suivre(
-                    context,
-                    livraison["id"]!,
-                    livraison["nom_livreur"].toString(),
-                    livraison["numero_livreur"].toString(),
-                    livraison["nom_type_livreur"].toString(),
-                    livraison["immatriculation_livreur"].toString(),
-                  ),
-                ).run(),
-                livraison["status"] == "en_cours"
-                    ? ButtonClient(
-                  libelle: "Fin course",
-                  action: () {
-                    if (livraison["expediteur_id"].toString() == roleUser.id.toString()) {
-                      ShowCodeConfirmationDialog(
-                        context: context,
-                        controller: codeController,
-                        idLivraison: livraison["expediteur_id"].toString(),
-                        liv: _livraisonController,
-                      ).run();
-                    }
-                  },
-                ).run()
-                    : const SizedBox(),
-              ],
-              actionVoirPlus: () => ShowDetaille(context: context, livr: livraison).run(),
-            ).run())
-                .toList(),
-          ),
+
+          // Liste des livraisons
+          Container(
+            height: 300, // hauteur fixe avec scroll interne
+            child: SingleChildScrollView(
+              child: Column(
+                children: currentList
+                    .where((liv) => liv["status"] != "annulee" && liv["status"] != "terminee")
+                    .map((livraison) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: Commande(
+                    status: " ${livraison["status"]} ",
+                    titre: "Commande #${livraison["code"]} ",
+                    itineraire: "De : Combe > Lingwala",
+                    date: formaterDate(livraison["date"]!),
+                    actions: [
+                      if (livraison["status"] == "en_cours")
+                        ButtonClient(
+                          libelle: "Suivre",
+                          action: () => _livraisonController.Suivre(
+                            context,
+                            livraison["id"]!,
+                            livraison["nom_livreur"].toString(),
+                            livraison["numero_livreur"].toString(),
+                            livraison["nom_type_livreur"].toString(),
+                            livraison["immatriculation_livreur"].toString(),
+                          ),
+                        ).run(),
+                      if (livraison["status"] == "en_cours")
+                        ButtonClient(
+                          libelle: "Fin course",
+                          action: () {
+                            if (livraison["expediteur_id"].toString() == roleUser.id.toString()) {
+                              ShowCodeConfirmationDialog(
+                                context: context,
+                                controller: codeController,
+                                idLivraison: livraison["expediteur_id"].toString(),
+                                liv: _livraisonController,
+                              ).run();
+                            }
+                          },
+                        ).run(),
+                    ],
+                    actionVoirPlus: () => ShowDetaille(context: context, livr: livraison).run(),
+                  ).run(),
+                ))
+                    .toList(),
+              ),
+            ),
+          )
         ],
       ),
     );
   }
+
 }
