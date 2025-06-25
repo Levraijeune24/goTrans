@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../compenent/AppBarCostum.dart';
 import '../../controller/LivraisonController.dart';
 
 
@@ -403,17 +404,8 @@ class _MapState extends State<SuivisColis> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.orange,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text('Validation', style: TextStyle(color: Colors.white)),
-        ),
-      backgroundColor: const Color(0xFF0D1136),
-      body: Stack(
+        appBar: AppBarCostum(context:context,libelle:"Suivis colis").run(),
+        body: Stack(
         children: [
 
           (currentPosition == null || !_lacalisation) ?

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:menji/controller/LivraisonController.dart';
 import 'package:menji/view/client/pageAccueille.dart';
+import '../../compenent/AppBarCostum.dart';
 import '../../controller/ClientController.dart';
 import '../../controller/authController.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -123,17 +124,7 @@ class _PageCommanderState extends State<PageCommander> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.orange),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text('Commander', style: TextStyle(color: Colors.orange)),
-      ),
+      appBar: AppBarCostum(context:context,libelle:"Commander").run(),
       body: Stack(
         children: [
           (currentPosition != null)

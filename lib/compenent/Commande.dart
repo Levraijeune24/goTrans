@@ -19,97 +19,115 @@ class Commande {
    required this.date,required this.actions,required this.actionVoirPlus});
 
 
-   Container run(){
+ Widget run() {
+   return LayoutBuilder(
+     builder: (context, constraints) {
+       return Container(
+         padding: const EdgeInsets.all(12),
+         decoration: BoxDecoration(
+           color:  Colors.white,
+           borderRadius: BorderRadius.circular(12),
+           boxShadow: [
+             BoxShadow(
+               color: Colors.grey.withOpacity(0.2),
+               spreadRadius: 2,
+               blurRadius: 5,
+               offset: const Offset(0, 1),
+             ),
+           ],
+         ),
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+             /// Titre, statut, et plus d’info
+             Row(
+               children: [
+                 Expanded(
+                   flex: 3,
+                   child: Text(
+                     titre,
+                     style: const TextStyle(
+                       fontWeight: FontWeight.bold,
+                       fontSize: 13,
+                     ),
+                     overflow: TextOverflow.ellipsis,
+                   ),
+                 ),
+                 Expanded(
+                   flex: 2,
+                   child: Text(
+                     status,
+                     style: const TextStyle(
+                       color: Colors.blue,
+                       fontWeight: FontWeight.bold,
+                       fontSize: 11,
+                     ),
+                     textAlign: TextAlign.center,
+                   ),
+                 ),
+                 Expanded(
+                   flex: 3,
+                   child: InkWell(
+                     onTap: actionVoirPlus,
+                     child: const Text(
+                       "Plus d'info",
+                       textAlign: TextAlign.end,
+                       style: TextStyle(
+                         fontWeight: FontWeight.bold,
+                         color: Colors.orange,
+                         fontSize: 11,
+                       ),
+                     ),
+                   ),
+                 ),
+               ],
+             ),
 
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color.fromRGBO(245, 240, 250, 1.0),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 0.8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                titre,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-              Spacer(),
-              Text(
-                status,
-                style: TextStyle(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-              Spacer(),
-              InkWell(
-                child:Text(
-                  "Plus d'info",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
-                    fontSize: 11,
-                  ),
-                ) ,
-                onTap: actionVoirPlus,
-              )
-              ,
-            ],
+             const SizedBox(height: 10),
 
-          ),
+             /// Itinéraire
+             Row(
+               children: [
+                 const Icon(Icons.location_on, size: 14, color: Colors.orange),
+                 const SizedBox(width: 6),
+                 Flexible(
+                   child: Text(
+                     itineraire,
+                     style: const TextStyle(fontSize: 12),
+                     overflow: TextOverflow.ellipsis,
+                   ),
+                 ),
+               ],
+             ),
 
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.location_on, size: 10, color: Colors.orange),
-              const SizedBox(width: 4),
-               Text(
-                itineraire,
-                style: TextStyle(fontSize: 10),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.calendar_today, size: 10, color: Colors.orange),
-              const SizedBox(width: 4),
-               Text(
-                'Date prévue : $date',
-                style: TextStyle(fontSize: 10),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children:actions.map((v){
-              return Row(mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [v,  const SizedBox(width: 15)
-                  ]);
+             const SizedBox(height: 8),
 
-            }).toList(),
-          )
+             /// Date prévue
+             Row(
+               children: [
+                 const Icon(Icons.calendar_today, size: 14, color: Colors.orange),
+                 const SizedBox(width: 6),
+                 Text(
+                   'Date prévue : $date',
+                   style: const TextStyle(fontSize: 12),
+                 ),
+               ],
+             ),
 
-        ],
-      ),
-    );
+             const SizedBox(height: 12),
 
-  }
+             /// Actions dynamiques
+             Wrap(
+               spacing: 12,
+               runSpacing: 8,
+               children: actions,
+             ),
+           ],
+         ),
+       );
+     },
+   );
+ }
+
 
 }

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:menji/view/redesign/pageAccueille.dart';
 
+import '../../compenent/AppBarCostum.dart';
 import '../../controller/LivraisonController.dart';
 import '../../model/TypeVehiculeModel.dart';
 
@@ -15,14 +16,7 @@ class VehiculeInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.yellow[800],
-        elevation: 0,
-      ),
+      appBar: AppBarCostum(context:context,libelle:"Description du vehicule").run(),
       body: Column(
         children: [
           // Container avec dégradé orange

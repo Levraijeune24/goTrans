@@ -36,7 +36,7 @@ String formaterDate(String inputDate, {int heure = 9, int minute = 0}) {
     String mm = minute.toString().padLeft(2, '0');
 
     // Construire la chaîne formatée
-    String resultat = '$day ${mois[month - 1]} $year - ${hh}h$mm';
+    String resultat = '$day ${mois[month - 1]} $year ';
 
     return resultat;
   } catch (e) {

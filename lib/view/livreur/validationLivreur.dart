@@ -2,7 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import '../../compenent/AppBarCostum.dart';
+import '../../compenent/EnteteInfo.dart';
 import '../../controller/LivraisonController.dart';
+import '../../services/traking_sevice.dart';
 import 'localisationClient.dart';
 
 
@@ -44,7 +47,7 @@ class _PageValidationState extends State<PageValidation> {
 
   @override
   void dispose() {
-    _positionStreamSubscription.cancel();
+
     super.dispose();
   }
 
@@ -81,7 +84,6 @@ class _PageValidationState extends State<PageValidation> {
       _showSnackBar("La localisation est désactivée");
       return;
     }
-
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -90,50 +92,13 @@ class _PageValidationState extends State<PageValidation> {
         return;
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
       _showSnackBar("Permission définitivement refusée");
       return;
     }
 
-
-
   }
 
-
-  Future<void> _getCurrentLocation() async {
-
-
-      _showSnackBar("Nous vous suivons merci ");
-
-      _positionStreamSubscription = Geolocator.getPositionStream(
-        locationSettings: LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 3,
-        ),
-      ).listen((Position position) {
-        print("helllo");
-        if (_lastPosition == null ||
-            Geolocator.distanceBetween(
-              _lastPosition!.latitude,
-              _lastPosition!.longitude,
-              position.latitude,
-              position.longitude,
-            ) >= 1) {
-          setState(() {
-            _livraisonController.setLocalisation(
-              position.longitude,
-              position.latitude,
-              widget.id_livraison,
-            );
-            //_showSnackBar("longitude :${position.longitude},  latitude :${position.latitude}");
-            _lastPosition = position;
-          });
-        }
-      });
-
-
-  }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -143,15 +108,7 @@ class _PageValidationState extends State<PageValidation> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.orange),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Validation', style: TextStyle(color: Colors.orange)),
-      ),
+      appBar: AppBarCostum(context:context,libelle:"Validation").run(),
       body: isLoading
           ? Form(
         key: _formKey,
@@ -163,7 +120,7 @@ class _PageValidationState extends State<PageValidation> {
               entetePage(),
 
               const SizedBox(height: 15),
-              enteteInfoClient("Exepeditaire"),
+              enteteInfo("Exepeditaire"),
               _buildInfoRowNew('Nom de l\'expéditeur', livraisons[0]["expediteur"] ?? "", Icons.person),
               _buildInfoRowNew(
                 'Adresse de l\'expéditeur',
@@ -178,7 +135,7 @@ class _PageValidationState extends State<PageValidation> {
               ),
 
               _buildInfoRowNew('Téléphone de l\'expéditeur', livraisons[0]["tel_expedition"] ?? "", Icons.person),
-              enteteInfoClient("Destinataire"),
+              enteteInfo("Destinataire"),
 
 
               _buildInfoRowNew('Nom du destinataire', livraisons[0]["destinateur"] ?? "", Icons.person),
@@ -187,7 +144,7 @@ class _PageValidationState extends State<PageValidation> {
               SizedBox(height: 20),
 
               Row(
-                children: [ enteteInfoClient("Tarification"),livraisons[0]["status"]=="terminee"? ElevatedButton.icon(
+                children: [ enteteInfo("Tarification"),livraisons[0]["status"]=="terminee"? ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
                       isState=false;
@@ -206,7 +163,7 @@ class _PageValidationState extends State<PageValidation> {
               )
 
               ,
-              _buildRowNew('Type :: ${livraisons[0]["nom_type"]}',c:Colors.red, ' entre ${livraisons[0]["kilo_initiale"]}kg et ${livraisons[0]["kilo_final"]}kg '),
+              _buildRowNew('Type :: ${livraisons[0]["nom_type"]}',c:Colors.red, ' ${livraisons[0]["kilo_initiale"]}kg  ${livraisons[0]["kilo_final"]}kg '),
 
               _buildRowNew('Prix unitaire', '${livraisons[0]["tarif"]} Fc'),
               isState==false?
@@ -221,25 +178,24 @@ class _PageValidationState extends State<PageValidation> {
               _buildRowNew('Prix total', '$prixTotal Fc'):
               _buildRow('Prix total', '${livraisons[0]["montant"].toString()} Fc')
               ,
-              SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed:  _getCurrentLocation,
-                icon: Icon(Icons.my_location),
-                label: Text("activer ma position actuelle"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
               SizedBox(height: 30),
 
               Center(
                 child: ElevatedButton(
-                  onPressed:isState==false? () {
+                  onPressed:isState==false? ()async {
                     if (_formKey.currentState!.validate()) {
+                      TrackingService.startTracking(
+                        idLivraison: widget.id_livraison,
+                        onUpdate: (longitude, latitude) {
+                          print("la maps ici");
+                          _livraisonController.setLocalisation(
+                            longitude,
+                            latitude,
+                            widget.id_livraison,
+                          );
+                        },
+                      );
+
                       _livraisonController.editLivraisonLivreur(
                         context,
                         livraisons[0]["id"] ?? "",
@@ -268,35 +224,6 @@ class _PageValidationState extends State<PageValidation> {
         ),
       )
           : Center(child: CircularProgressIndicator()),
-    );
-  }
-
-  Widget _sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10, top: 10),
-      child: Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value, IconData icon, {VoidCallback? action}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-          SizedBox(height: 5),
-          Container(
-            padding: EdgeInsets.all(10.0),
-            width: 300,
-            color: Colors.white,
-            child: Text(value),
-          ),
-        ]),
-        if (action != null)
-          InkWell(onTap: action, child: Icon(icon))
-        else
-          Icon(icon),
-      ],
     );
   }
 
@@ -487,17 +414,6 @@ class _PageValidationState extends State<PageValidation> {
     );
   }
 
-  Widget enteteInfoClient(String title){
-
-    return  Text(
-      title,
-      style: TextStyle(
-        color: Colors.orange,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
 
   Widget entetePage(){
 

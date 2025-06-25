@@ -51,13 +51,6 @@ class Listeblocktransport {
               )
           );
 
-      // MoyenTransports.add(
-      //     BlockMoyenTransport((){
-      //       LivraisonController().createScreen(typeVehicule,context);
-      //     }, context: context,
-      //         image: "images/Taxi.png", title: nom_type?? "inconnue", description: "").Run()
-      // );
-
     });
 
 
@@ -75,33 +68,47 @@ Widget _buildCategoryItem(
       required String label,
       required VoidCallback onTap,
     }) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  final screenHeight = MediaQuery.of(context).size.height;
+
   return GestureDetector(
     onTap: onTap,
-    child: Container(//
-      height: MediaQuery.of(context).size.height * 0.15,
-      width: MediaQuery.of(context).size.width * 0.28,
-      padding: const EdgeInsets.only(top: 25),
+    child: Container(
+      height: screenHeight * 0.18,
+      width: screenWidth * 0.30,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      margin: const EdgeInsets.all(6), // pour espacer
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(245, 240, 250, 1.0),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            spreadRadius: 2,
+            offset: const Offset(0, 2),
+          ),
+        ],
 
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
             imagePath,
-            height: 50,
-            width: 50,
+            height: screenHeight * 0.06,
+            width: screenHeight * 0.06,
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) {
               return const Icon(Icons.error, size: 40, color: Colors.red);
             },
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: screenWidth * 0.030,
               fontWeight: FontWeight.w600,
               fontFamily: 'Segoe UI',
               color: Colors.grey[800],

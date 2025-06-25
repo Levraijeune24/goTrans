@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageAccueille.dart';
 import 'package:menji/view/client/pageHistorique.dart';
+import '../../compenent/AppBarCostum.dart';
 import '../../compenent/ButtonClient.dart';
 import '../../compenent/Commande.dart';
+import '../../compenent/EnteteInfo.dart';
 import '../../compenent/LivraisonCards.dart';
 import '../../compenent/MenuNavgation.dart';
 import '../../compenent/Navigation.dart';
@@ -68,22 +70,7 @@ class PageHistoriqueState extends State<PageHistorique> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        backgroundColor: Colors.orange,
-        elevation: 0,
-        title: Text('Mon historique',
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: 30
-          ),),
-        iconTheme: IconThemeData(color: Colors.orange),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications, color: Colors.orange),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      appBar: AppBarCostum(context:context,libelle:"Mon historique").run(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -92,11 +79,7 @@ class PageHistoriqueState extends State<PageHistorique> {
             // Section "Mes livraisons"
             Row(
               children: [
-                Text(
-                  'Mes livraisons',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-
+                enteteInfo("Mes livraisons"),
               ],
             ),
             SizedBox(height: 15),
