@@ -8,21 +8,33 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../controller/LivraisonController.dart';
 
 
 class SuivisColis extends StatefulWidget {
 
+  String nom_livreur,numero_livreur,nom_type_livreur,immatriculation_livreur;
+
+  // "nom_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['name'],
+  // "numero_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['number_phone'],
+  // "nom_type_livreur":data['vehicule']?['type_vehicule']?['nom_type'],
+  // "immatriculation_livreur":data['vehicule']?['immatriculation'],
+
   late String id;
-  SuivisColis(this.id);
+  SuivisColis(this.id,this.nom_livreur,this.numero_livreur,this.nom_type_livreur,this.immatriculation_livreur);
 
   @override
-  _MapState createState() => _MapState(id);
+  _MapState createState() => _MapState(id,
+
+      this.nom_livreur,this.numero_livreur,this.nom_type_livreur,this.immatriculation_livreur);
 }
 
 
 class _MapState extends State<SuivisColis> {
+
+  String nom_livreur,numero_livreur,nom_type_livreur,immatriculation_livreur;
 
 
   late String id;
@@ -49,7 +61,10 @@ class _MapState extends State<SuivisColis> {
   // String _currentLocationName = 'Position actuelle';
   // String _destinationName = 'Palais du Peuple';
 
-  _MapState(this.id);
+  _MapState(this.id,this.nom_livreur,
+      this.numero_livreur,this.nom_type_livreur,
+      this.immatriculation_livreur
+      );
 
 
   // les etats
@@ -326,7 +341,6 @@ class _MapState extends State<SuivisColis> {
 
     if (currentPosition == null) {
       print("Position actuelle non disponible");
-
       return;
     }
 
@@ -390,20 +404,18 @@ class _MapState extends State<SuivisColis> {
 
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
           elevation: 0,
-          title: Text('Suivre mon colis'),
-          iconTheme: IconThemeData(color: Colors.orange),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.notifications, color: Colors.orange),
-              onPressed: () {},
-            ),
-          ],
+          backgroundColor: Colors.orange,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text('Validation', style: TextStyle(color: Colors.white)),
         ),
       backgroundColor: const Color(0xFF0D1136),
       body: Stack(
         children: [
+
           (currentPosition == null || !_lacalisation) ?
             Center(child: CircularProgressIndicator()):
           FlutterMap(
@@ -481,6 +493,8 @@ class _MapState extends State<SuivisColis> {
               ],
             ),
           ),
+          blockArrive(context,nom_livreur,numero_livreur,
+              nom_type_livreur,immatriculation_livreur),
           _lacalisation==false?
           Center(child: CircularProgressIndicator()):
               Center(child: Text(""),)
@@ -490,4 +504,126 @@ class _MapState extends State<SuivisColis> {
     );
   }
 
+}
+
+
+Widget blockArrive(BuildContext context,String nom,String numero,String type_vehicule, String immatriculation) {
+  return Positioned(
+    bottom: MediaQuery.of(context).size.height * 0.1, // Position en bas
+    left: 0,
+    right: 0,
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Ligne du nom avec icônes
+          Row(
+            children: [
+              const Icon(Icons.account_circle, color: Colors.orange, size: 30),
+              const SizedBox(width: 10),
+               Expanded(
+                child: Text(
+                  nom,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.message, color: Colors.orange, size: 24),
+                onPressed: () {
+                  // Action message
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.phone, color: Colors.orange, size: 24),
+                onPressed: () {
+                  _callPhoneNumber(numero);
+                  // Action téléphone
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Véhicule
+       Padding(
+            padding: EdgeInsets.only(left: 5),
+            child: Text(
+              "${type_vehicule} - ${immatriculation} ",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Téléphone
+           Padding(
+            padding: EdgeInsets.only(left: 5),
+            child: Text(
+              numero,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.red,
+              ),
+            ),
+          ),
+          const SizedBox(height: 25),
+
+          // Bouton "Fin course"
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(73, 73, 73, 1.0), // Gris foncé
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
+              onPressed: () {
+                // Action fin course
+              },
+              child: const Text(
+                'Fin course',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Future<void> _callPhoneNumber(String phoneNumber) async {
+  final Uri url = Uri(scheme: 'tel', path: phoneNumber);
+  if (await canLaunchUrl(url)) {
+    await launchUrl(url);
+  } else {
+    throw 'Impossible d\'ouvrir le téléphone pour appeler $phoneNumber';
+  }
 }

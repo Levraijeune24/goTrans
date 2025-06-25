@@ -131,12 +131,21 @@ class LivraisonController {
     return donneesLivraison;
   }
 
-     Suivre(context, String id) {
+     Suivre(context, String id,String nom_livreur,String numero_livreur,String nom_type_livreur,
+
+         String immatriculation_livreur ) {
+
+       // "nom_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['name'],
+       // "numero_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['number_phone'],
+       // "nom_type_livreur":data['vehicule']?['type_vehicule']?['nom_type'],
+       // "immatriculation_livreur":data['vehicule']?['immatriculation'],
 
 
        Navigator.push(
          context,
-         MaterialPageRoute(builder: (context) => SuivisColis(id)),
+         MaterialPageRoute(builder: (context) => SuivisColis(id,nom_livreur,
+             numero_livreur,nom_type_livreur,immatriculation_livreur
+         )),
        );
 
 

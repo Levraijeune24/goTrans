@@ -95,31 +95,26 @@ class _PageValidationState extends State<PageValidation> {
       _showSnackBar("Permission définitivement refusée");
       return;
     }
-    setState(() {
-      Geolocatort=Geolocator;
-    });
+
 
 
   }
 
+
   Future<void> _getCurrentLocation() async {
 
-    if(Geolocatort==null){
 
-      _showSnackBar("erreur de localisation activee votre localisation");
-
-    }else {
       _showSnackBar("Nous vous suivons merci ");
 
-
-      _positionStreamSubscription = Geolocatort.getPositionStream(
+      _positionStreamSubscription = Geolocator.getPositionStream(
         locationSettings: LocationSettings(
           accuracy: LocationAccuracy.high,
           distanceFilter: 3,
         ),
       ).listen((Position position) {
+        print("helllo");
         if (_lastPosition == null ||
-            Geolocatort.distanceBetween(
+            Geolocator.distanceBetween(
               _lastPosition!.latitude,
               _lastPosition!.longitude,
               position.latitude,
@@ -136,7 +131,7 @@ class _PageValidationState extends State<PageValidation> {
           });
         }
       });
-    }
+
 
   }
 
@@ -228,7 +223,7 @@ class _PageValidationState extends State<PageValidation> {
               ,
               SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: null,
+                onPressed:  _getCurrentLocation,
                 icon: Icon(Icons.my_location),
                 label: Text("activer ma position actuelle"),
                 style: ElevatedButton.styleFrom(
@@ -251,7 +246,6 @@ class _PageValidationState extends State<PageValidation> {
                         prixTotal.toString(),
                         poidsController.text,
                       );
-                      _getCurrentLocation();
                     } else {
                       _showSnackBar("Veuillez remplir tous les champs obligatoires");
                     }

@@ -235,7 +235,25 @@ class PageAccueilState extends State<PageAccueil> {
                                           ButtonClient(
                                               libelle: "Suivre",
                                               action: (){
-                                                _livraisonController.Suivre(context,livraison["id"]!);
+                                                _livraisonController.Suivre(context,livraison["id"]!,
+
+                                                  // "nom_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['name'],
+                                                  // "numero_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['number_phone'],
+                                                  // "nom_type_livreur":data['vehicule']?['type_vehicule']?['nom_type'],
+                                                  // "immatriculation_livreur":data['vehicule']?['immatriculation'],
+
+                                                    livraison["nom_livreur"].toString(),
+                                                  livraison["numero_livreur"].toString(),
+                                                  livraison["nom_type_livreur"].toString(),
+                                                  livraison["immatriculation_livreur"].toString(),
+
+
+
+
+
+
+
+                                                );
                                               }
                                           ).run(),
                                           livraison["status"] == "en_cours"?
