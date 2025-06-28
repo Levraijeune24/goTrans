@@ -42,9 +42,7 @@ class Navigation{
       currentIndex: 0,
       onTap: (index) {
 
-
         if(index==2){
-          print('FFFFFF');
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => ProfilePage()),

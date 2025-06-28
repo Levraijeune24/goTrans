@@ -28,24 +28,20 @@ class Listeblocktransport {
           VehiculeType typeVehicule=VehiculeType(
             name: nom_type!,
             description:typeVehile["description"]! ,
-            imagePath: "images/moto.png",
+            imagePath: "images/Icone_moto.png",
             tarif: "",
             capacite: "",
             vitesse: "",
             prix_tarif: typeVehile["prix_tarif"]!,
             kilo_tarif: typeVehile["kilo_tarif"]!,
-
             kilo_initiale:typeVehile["kilo_initiale"]!,
             kilo_finale: typeVehile["kilo_final"]!
-
           );
-
-
 
           MoyenTransports.add(
               _buildCategoryItem(
                 context,
-                imagePath: 'images/moto.png',
+                imagePath: 'images/Icone_moto.png',
                 label: nom_type?? "inconnue",
                 onTap: () => LivraisonController().createScreen(typeVehicule,context),
               )
@@ -74,44 +70,46 @@ Widget _buildCategoryItem(
   return GestureDetector(
     onTap: onTap,
     child: Container(
-      height: screenHeight * 0.18,
+      height: screenHeight * 0.17,
       width: screenWidth * 0.30,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-      margin: const EdgeInsets.all(6), // pour espacer
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      margin: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            spreadRadius: 2,
-            offset: const Offset(0, 2),
-          ),
-        ],
 
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            imagePath,
-            height: screenHeight * 0.06,
-            width: screenHeight * 0.06,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(Icons.error, size: 40, color: Colors.red);
-            },
+          Flexible(
+            flex: 6,
+            child: Image.asset(
+              imagePath,
+              height: screenHeight * 0.08,
+              width: screenWidth * 0.26,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.error, size: 40, color: Colors.red);
+              },
+            ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: screenWidth * 0.030,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Segoe UI',
-              color: Colors.grey[800],
+          const SizedBox(height: 6),
+          Flexible(
+            flex: 3,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: screenWidth * 0.030,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Segoe UI',
+                color: Colors.grey[800],
+              ),
             ),
           ),
         ],
@@ -119,3 +117,5 @@ Widget _buildCategoryItem(
     ),
   );
 }
+
+

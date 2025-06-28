@@ -15,10 +15,12 @@ class ClientController {
   }
 
   void InitClient(BuildContext context) async {
-    Navigator.push(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => PageAccueil()),
+          (route) => false, // Supprime toutes les anciennes routes
     );
+
   }
 
   Future<List<Map<String,String>>>  getClient() async {

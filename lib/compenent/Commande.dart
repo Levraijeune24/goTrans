@@ -26,13 +26,13 @@ class Commande {
          padding: const EdgeInsets.all(12),
          margin:const EdgeInsets.only(bottom: 12) ,
          decoration: BoxDecoration(
-           color:  Colors.white,
+           color:  Color(0xF5F5F5),
            borderRadius: BorderRadius.circular(12),
            boxShadow: [
              BoxShadow(
                color: Colors.grey.withOpacity(0.2),
                spreadRadius: 2,
-               blurRadius: 5,
+
                offset: const Offset(0, 1),
              ),
            ],
@@ -71,7 +71,7 @@ class Commande {
                    child: InkWell(
                      onTap: actionVoirPlus,
                      child: const Text(
-                       "Plus d'info",
+                       "Plus",
                        textAlign: TextAlign.end,
                        style: TextStyle(
                          fontWeight: FontWeight.bold,

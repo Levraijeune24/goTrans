@@ -163,7 +163,7 @@ class _PageValidationState extends State<PageValidation> {
               )
 
               ,
-              _buildRowNew('Type :: ${livraisons[0]["nom_type"]}',c:Colors.red, ' ${livraisons[0]["kilo_initiale"]}kg  ${livraisons[0]["kilo_final"]}kg '),
+              _buildRowNew('Type : ${livraisons[0]["nom_type"]}',c:Colors.red, ' '),
 
               _buildRowNew('Prix unitaire', '${livraisons[0]["tarif"]} Fc'),
               isState==false?
@@ -245,7 +245,7 @@ class _PageValidationState extends State<PageValidation> {
             ),
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 15),
 
       ],
     );

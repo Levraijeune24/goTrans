@@ -22,6 +22,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'Segoe UI',
+      )
+      ,
       routerConfig: router,
     );
   }

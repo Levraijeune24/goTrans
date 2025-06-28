@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:menji/view/client/pageAccueille.dart';
 import 'package:menji/services/ApiServiceLivraison.dart';
 import 'package:menji/view/client/commander.dart';
@@ -50,12 +51,10 @@ class LivraisonController {
   }
 
 
-  void cancel(String id_livraison,BuildContext context){
+ Future<void>  cancel(String id_livraison,BuildContext context)async{
     v.annuler(id_livraison);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("vous avez annulee une livraison")),
-    );
+
   }
 
 
@@ -134,11 +133,6 @@ class LivraisonController {
      Suivre(context, String id,String nom_livreur,String numero_livreur,String nom_type_livreur,
 
          String immatriculation_livreur ) {
-
-       // "nom_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['name'],
-       // "numero_livreur":data['vehicule']?['livreurs']?[0]?['livreur']?['user']?['number_phone'],
-       // "nom_type_livreur":data['vehicule']?['type_vehicule']?['nom_type'],
-       // "immatriculation_livreur":data['vehicule']?['immatriculation'],
 
 
        Navigator.push(

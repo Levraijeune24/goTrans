@@ -1,121 +1,85 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:menji/controller/LivraisonController.dart';
 import 'package:menji/view/client/pageAccueille.dart';
 import '../../compenent/AppBarCostum.dart';
 import '../../controller/ClientController.dart';
 import '../../controller/authController.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
 
 class PageCommander extends StatefulWidget {
   final String nom_type;
 
-  PageCommander(this.nom_type);
+  const PageCommander(this.nom_type, {super.key});
+
   @override
-  _PageCommanderState createState() => _PageCommanderState();
+  State<PageCommander> createState() => _PageCommanderState();
 }
 
 class _PageCommanderState extends State<PageCommander> {
   LatLng? currentPosition;
   final MapController _mapController = MapController();
-  Set<Marker> _markers = {};
-  bool _isLoading = true;
   double _zoomLevel = 17.0;
   bool isCliqued = false;
-  bool testEnvoiColis = false;
-
-  List<LatLng> polylineCoordinates = [];
-  PolylinePoints polylinePoints = PolylinePoints();
-  Polyline? routePolyline;
+  bool isLoadingClient = true;
 
   final _formKey = GlobalKey<FormState>();
   final LivraisonController _livraisonController = LivraisonController();
   final ClientController _clientController = ClientController();
 
   List<Map<String, String>> clients = [];
-  bool isLoadingClient = true;
-
   String selectedValueName = '';
-  dynamic id_client = null;
+  dynamic id_client;
   dynamic roleUser;
 
-  final TextEditingController controllerAdresseExpediteur = TextEditingController();
-  final TextEditingController controllerAdresseDestinateur = TextEditingController();
-  final TextEditingController controllerNumeroDestinateur = TextEditingController();
-  final TextEditingController controllerNomDestinateur = TextEditingController();
-  final TextEditingController controllerNumeroExpediteur = TextEditingController();
+  final controllerAdresseExpediteur = TextEditingController();
+  final controllerAdresseDestinateur = TextEditingController();
+  final controllerNumeroDestinateur = TextEditingController();
+  final controllerNomDestinateur = TextEditingController();
+  final controllerNumeroExpediteur = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _initialisationClients();
-    _determinePosition();
+    _initializeData();
   }
 
-  void _initialisationClients() async {
+  Future<void> _initializeData() async {
     await _livraisonController.init();
     await _clientController.init();
     roleUser = await AuthController().getRole();
     clients = await _clientController.getClient();
-
-    setState(() {
-      isLoadingClient = false;
-    });
+    await _determinePosition();
+    setState(() => isLoadingClient = false);
   }
 
   Future<void> _determinePosition() async {
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        print('Les services de localisation sont désactivés');
-        return;
-      }
+      if (!await Geolocator.isLocationServiceEnabled()) return;
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          print('Les permissions de localisation sont refusées');
-          return;
-        }
+        if (permission == LocationPermission.denied) return;
       }
 
       Position position = await Geolocator.getCurrentPosition();
-
-      print('=== COORDONNÉES GPS ===');
-      print('Latitude: ${position.latitude}');
-      print('Longitudes: ${position.longitude}');
-      print('Altitude: ${position.altitude}');
-      print('Précision: ${position.accuracy}m');
-      print('========================');
-
       setState(() {
         currentPosition = LatLng(position.latitude, position.longitude);
         _mapController.move(currentPosition!, _zoomLevel);
-        _isLoading = false;
       });
-
     } catch (e) {
-      print('Erreur lors de la récupération de la position: $e');
-      setState(() => _isLoading = false);
+      debugPrint('Erreur position: $e');
     }
   }
 
-  void _zoomIn() {
+  void _zoom(bool zoomIn) {
     setState(() {
-      _zoomLevel += 1;
-      _mapController.move(_mapController.camera.center, _zoomLevel);
-    });
-  }
-
-  void _zoomOut() {
-    setState(() {
-      _zoomLevel -= 1;
+      _zoomLevel += zoomIn ? 1 : -1;
       _mapController.move(_mapController.camera.center, _zoomLevel);
     });
   }
@@ -124,10 +88,10 @@ class _PageCommanderState extends State<PageCommander> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      appBar: AppBarCostum(context:context,libelle:"Commander").run(),
+      appBar: AppBarCostum(context: context, libelle: "Commander").run(),
       body: Stack(
         children: [
-          (currentPosition != null)
+          currentPosition != null
               ? FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -136,7 +100,8 @@ class _PageCommanderState extends State<PageCommander> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate:
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 subdomains: ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.app',
                 tileBuilder: (context, widget, tile) {
@@ -153,87 +118,19 @@ class _PageCommanderState extends State<PageCommander> {
               ),
               MarkerLayer(
                 markers: [
-                  if (currentPosition != null)
-                    Marker(
-                      point: currentPosition!,
-                      width: 60,
-                      height: 60,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          const Icon(Icons.location_on, color: Colors.red, size: 60),
-                          Positioned(
-                            top: 15,
-                            child: Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            child: Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                  Marker(
+                    point: currentPosition!,
+                    width: 60,
+                    height: 60,
+                    child: const Icon(Icons.location_on,
+                        color: Colors.red, size: 60),
+                  )
                 ],
-              ),
+              )
             ],
           )
-              : Center(child: CircularProgressIndicator()),
-          Positioned(
-            right: 15,
-            bottom: 520,
-            child: FloatingActionButton(
-              mini: true,
-              heroTag: 'location',
-              onPressed: _determinePosition,
-              child: const Icon(Icons.my_location),
-              backgroundColor: Colors.white,
-            ),
-          ),
-          Positioned(
-            right: 15,
-            bottom: 400,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                  mini: true,
-                  heroTag: 'zoomIn',
-                  onPressed: _zoomIn,
-                  child: const Icon(Icons.add),
-                  backgroundColor: Colors.white,
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton(
-                  mini: true,
-                  heroTag: 'zoomOut',
-                  onPressed: _zoomOut,
-                  child: const Icon(Icons.remove),
-                  backgroundColor: Colors.white,
-                ),
-              ],
-            ),
-          ),
+              : const Center(child: CircularProgressIndicator()),
+          _buildFloatingButtons(),
           Form(
             key: _formKey,
             child: Column(
@@ -248,187 +145,7 @@ class _PageCommanderState extends State<PageCommander> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Expanded(
-                  child: DraggableScrollableSheet(
-                    initialChildSize: 0.5,
-                    minChildSize: 0.3,
-                    maxChildSize: 1.0,
-                    builder: (BuildContext context, ScrollController scrollController) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, -3),
-                            ),
-                          ],
-                        ),
-                        child: SingleChildScrollView(
-                          controller: scrollController,
-                          padding: const EdgeInsets.all(35),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Section Expéditeur
-                              Row(
-                                children: [
-                                  Text(
-                                    'Expéditeur',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Image.asset(
-                                    "images/Icone_exp.png",
-                                    width: 20,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              _buildCompactTextField(
-                                controller: controllerAdresseExpediteur,
-                                hintText: 'Adresse',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildCompactTextField(
-                                controller: controllerNumeroExpediteur,
-                                hintText: 'Numéro téléphone',
-                                keyboardType: TextInputType.phone,
-                              ),
-                              const SizedBox(height: 12),
-
-                              // Section Destinataire
-                              Row(
-                                children: [
-                                  Text(
-                                    'Destinataire',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Image.asset(
-                                    "images/Icone_exp.png",
-                                    width: 20,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              if (!isLoadingClient)
-                                _buildCompactClientComboBox(
-                                  id_client_encours: roleUser.id.toString(),
-                                  controller: controllerNomDestinateur,
-                                  onChanged: (String? id, String? nom) {
-                                    setState(() {
-                                      id_client = id ?? null;
-                                      selectedValueName = nom ?? "";
-                                    });
-                                  },
-                                  options: clients,
-                                )
-                              else
-                                const Center(child: CircularProgressIndicator()),
-                              const SizedBox(height: 8),
-                              _buildCompactTextField(
-                                controller: controllerAdresseDestinateur,
-                                hintText: 'Adresse',
-                              ),
-                              const SizedBox(height: 8),
-
-                              const SizedBox(height: 8),
-                              _buildCompactTextField(
-                                controller: controllerNumeroDestinateur,
-                                hintText: 'Numéro téléphone',
-                                keyboardType: TextInputType.phone,
-                              ),
-                              const SizedBox(height: 16),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      setState(() {
-                                        isCliqued = true;
-                                      });
-
-                                      try {
-
-                                        await _livraisonController.store(
-                                          roleUser.id.toString(),
-                                          id_client,
-                                          selectedValueName,
-                                          controllerAdresseExpediteur.text,
-                                          controllerAdresseDestinateur.text,
-                                          controllerNumeroDestinateur.text,
-                                          controllerNumeroExpediteur.text,
-                                          widget.nom_type,
-                                          context,
-                                          currentPosition!.longitude.toString()?? "",
-                                          currentPosition!.latitude.toString()?? "",
-                                          "444",
-                                          "555",
-                                        );
-
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => PageAccueil()),
-                                        );
-
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text("La livraison a été ajoutée avec succès !")),
-                                        );
-                                      } catch (e) {
-                                        if (e.toString().contains('SocketException')) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Aucune connexion Internet. Vérifiez votre réseau."))
-                                          );
-                                        } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Une erreur inattendue est survenue."))
-                                          );
-                                        }
-                                      } finally {
-                                        setState(() {
-                                          isCliqued = false;
-                                        });
-                                      }
-                                    } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text("Veuillez remplir tous les champs obligatoires")),
-                                      );
-                                    }
-                                  },
-                                  child: isCliqued == true
-                                      ? Text("Chargement en cours...")
-                                      : const Text(
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontFamily: "Segoe UI",
-                                      ),
-                                      'Commander'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
-                                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                Expanded(child: _buildDraggableForm())
               ],
             ),
           ),
@@ -437,13 +154,116 @@ class _PageCommanderState extends State<PageCommander> {
     );
   }
 
-  Widget _buildCompactTextField({
-    required TextEditingController controller,
-    required String hintText,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+  Widget _buildFloatingButtons() => Positioned(
+    right: 15,
+    bottom: 400,
+    child: Column(
+      children: [
+        FloatingActionButton(
+          mini: true,
+          onPressed: () => _zoom(true),
+          child: const Icon(Icons.add),
+          backgroundColor: Colors.white,
+        ),
+        const SizedBox(height: 10),
+        FloatingActionButton(
+          mini: true,
+          onPressed: () => _zoom(false),
+          child: const Icon(Icons.remove),
+          backgroundColor: Colors.white,
+        ),
+        const SizedBox(height: 10),
+        FloatingActionButton(
+          mini: true,
+          onPressed: _determinePosition,
+          child: const Icon(Icons.my_location),
+          backgroundColor: Colors.white,
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildDraggableForm() => DraggableScrollableSheet(
+    initialChildSize: 0.5,
+    minChildSize: 0.3,
+    maxChildSize: 1.0,
+    builder: (context, scrollController) => Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        controller: scrollController,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle('Expéditeur'),
+            _buildCompactTextField(controllerAdresseExpediteur, 'Adresse'),
+            const SizedBox(height: 8),
+            _buildCompactTextField(controllerNumeroExpediteur, 'Numéro téléphone',
+                keyboardType: TextInputType.phone),
+            const SizedBox(height: 16),
+            _buildSectionTitle('Destinataire'),
+            isLoadingClient
+                ? const Center(child: CircularProgressIndicator())
+                : _buildClientComboBox(),
+            const SizedBox(height: 8),
+            _buildCompactTextField(controllerAdresseDestinateur, 'Adresse'),
+            const SizedBox(height: 8),
+            _buildCompactTextField(controllerNumeroDestinateur, 'Numéro téléphone',
+                keyboardType: TextInputType.phone),
+            const SizedBox(height: 16),
+            Center(
+              child: ElevatedButton(
+                onPressed: _handleSubmit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 40, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  isCliqued ? "Chargement..." : 'Commander',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontFamily: "Segoe UI",
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  Widget _buildSectionTitle(String title) => Row(
+    children: [
+      Text(title,
+          style: const TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold)),
+      const SizedBox(width: 8),
+      Image.asset("images/Icone_exp.png", width: 20),
+    ],
+  );
+
+  Widget _buildCompactTextField(TextEditingController controller, String hintText,
+      {TextInputType keyboardType = TextInputType.text}) {
     return Container(
       height: 50,
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -454,19 +274,28 @@ class _PageCommanderState extends State<PageCommander> {
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hintText,
-          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          contentPadding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           border: InputBorder.none,
           isDense: true,
         ),
-        validator: (value) {
-          if (value == null || value.trim().isEmpty) {
-            return 'Ce champ est requis';
-          }
-          return null;
-        },
+        validator: (value) =>
+        (value == null || value.trim().isEmpty) ? 'Ce champ est requis' : null,
       ),
     );
   }
+
+  Widget _buildClientComboBox() => _buildCompactClientComboBox(
+    id_client_encours: roleUser.id.toString(),
+    controller: controllerNomDestinateur,
+    onChanged: (id, nom) {
+      setState(() {
+        id_client = id;
+        selectedValueName = nom ?? "";
+      });
+    },
+    options: clients,
+  );
 
   Widget _buildCompactClientComboBox({
     required String id_client_encours,
@@ -482,41 +311,77 @@ class _PageCommanderState extends State<PageCommander> {
         border: Border.all(color: Colors.orange[300]!),
       ),
       child: Autocomplete<Map<String, String>>(
-        optionsBuilder: (TextEditingValue textEditingValue) {
-          if (textEditingValue.text == '') {
-            return const Iterable<Map<String, String>>.empty();
-          }
-          return options.where((client) =>
+        optionsBuilder: (text) {
+          return text.text.isEmpty
+              ? const Iterable<Map<String, String>>.empty()
+              : options.where((client) =>
           client["id"] != id_client_encours &&
-              client["nom"]!.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+              client["nom"]!
+                  .toLowerCase()
+                  .contains(text.text.toLowerCase()));
         },
-        displayStringForOption: (option) => '${option["nom"]} (${option["email"]})',
-        fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+        displayStringForOption: (option) =>
+        '${option["nom"]} (${option["email"]})',
+        fieldViewBuilder: (context, textEditingController, focusNode, _) {
           return TextFormField(
             controller: textEditingController,
             focusNode: focusNode,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Nom',
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: InputBorder.none,
               isDense: true,
             ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Ce champ est requis';
-              }
-              return null;
-            },
-            onChanged: (text) {
-              onChanged(null, text);
-            },
+            validator: (value) =>
+            (value == null || value.trim().isEmpty) ? 'Ce champ est requis' : null,
+            onChanged: (text) => onChanged(null, text),
           );
         },
-        onSelected: (Map<String, String> selection) {
+        onSelected: (selection) {
           controller.text = selection["nom"]!;
           onChanged(selection["id"], selection["nom"]);
         },
       ),
     );
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Veuillez remplir tous les champs.")));
+      return;
+    }
+
+    setState(() => isCliqued = true);
+    try {
+      await _livraisonController.store(
+        roleUser.id.toString(),
+        id_client,
+        selectedValueName,
+        controllerAdresseExpediteur.text,
+        controllerAdresseDestinateur.text,
+        controllerNumeroDestinateur.text,
+        controllerNumeroExpediteur.text,
+        widget.nom_type,
+        context,
+        currentPosition?.longitude.toString() ?? "",
+        currentPosition?.latitude.toString() ?? "",
+        "",
+        "",
+      );
+
+      if (!mounted) return;
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) =>  PageAccueil()));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("La livraison a été ajoutée avec succès !")));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString().contains('SocketException')
+              ? "Aucune connexion Internet."
+              : "Une erreur inattendue est survenue.")));
+    } finally {
+      setState(() => isCliqued = false);
+    }
   }
 }

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../compenent/ButtonClient.dart';
 import '../../compenent/Commande.dart';
+import '../../compenent/EnteteInfo.dart';
 import '../../compenent/MenuNavgation.dart';
 import '../../compenent/ShowCodeConfirmationDialog.dart';
+import '../../compenent/TextBienvenue.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/LivreurController.dart';
 import '../../controller/authController.dart';
@@ -12,34 +15,44 @@ import '../../utils/elpers/elperDate.dart';
 import '../authentification/ProfilePage.dart';
 
 class PageLivreur extends StatefulWidget {
-  const PageLivreur({super.key});
+  const PageLivreur({Key? key}) : super(key: key);
+
 
   @override
   _PageLivreurState createState() => _PageLivreurState();
 }
-
 class _PageLivreurState extends State<PageLivreur> {
   final LivraisonController _livraisonController = LivraisonController();
   final TextEditingController codeController = TextEditingController();
+
   final int _currentIndex = 0;
+
+  dynamic roleUser;
+  String nomLivreur = "";
+
   late Future<List<Map<String, String>>> livraisonsFuture;
 
-  Future<void> _initLivraisons() async {
+  Future<List<Map<String, String>>> _initLivraisons() async {
     await _livraisonController.init();
-    final roleUser = await AuthController().getRole();
-    livraisonsFuture = _livraisonController.getForLivreur(roleUser!.id);
-    setState(() {});
+    roleUser = await AuthController().getRole();
+
+    final livraisons = await _livraisonController.getForLivreur(roleUser!.id);
+
+    if (livraisons.isNotEmpty) {
+      nomLivreur = livraisons[0]["nom_livreur"] ?? "";
+    }
+
+    return livraisons;
   }
 
   @override
   void initState() {
     super.initState();
-    _initLivraisons();
+    livraisonsFuture = _initLivraisons(); // assigné une seule fois ici
   }
 
   @override
   void dispose() {
-    TrackingService.stopTracking();
     codeController.dispose();
     super.dispose();
   }
@@ -66,17 +79,26 @@ class _PageLivreurState extends State<PageLivreur> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 200,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('images/map_image.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
+            TextBienvenue(name: nomLivreur).run(),
+            const SizedBox(height: 30),
+            enteteInfo("Mes livraisons", color: Colors.black, size: 28),
+            const SizedBox(height: 15),
+            ButtonClient(
+              paddingHorizontale: 0,
+              width: 9,
+              isSelected: true,
+              libelle: "Missions",
+              height: 40,
+              action: () {
+                setState(() {
+                  livraisonsFuture = _initLivraisons(); // recharge
+                });
+              },
+            ).run(),
+            const SizedBox(height: 30),
             Expanded(
               child: FutureBuilder<List<Map<String, String>>>(
                 future: livraisonsFuture,
@@ -96,19 +118,17 @@ class _PageLivreurState extends State<PageLivreur> {
                     itemBuilder: (context, index) {
                       final livraison = livraisons[index];
                       final status = livraison["status"];
+
                       if (status != "validee" && status != "en_cours" && status != "terminee") {
                         return const SizedBox.shrink();
                       }
+
                       return Commande(
                         status: " $status ",
                         titre: "Commande #${livraison["code"]} ",
-                        itineraire: "De : Combe > Lingwala",
+                        itineraire: "De : ${livraison["adresse_expedition"]} > ${livraison["adresse_destination"]}",
                         date: formaterDate(livraison["date"]!),
                         actions: [
-                          ButtonClient(
-                            libelle: "",
-                            action: () {},
-                          ).run(),
                           if (status == "en_cours")
                             ButtonClient(
                               libelle: "Fin course",
@@ -141,17 +161,12 @@ class _PageLivreurState extends State<PageLivreur> {
       bottomNavigationBar: MenuNavigation(
         action: (index) {
           if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) =>  ProfilePage()),
-            );
+            context.push("/profil");
           } else if (index == 1) {
-            // Historique : à implémenter si nécessaire
+            // Historique livreur : à implémenter plus tard
           } else if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PageLivreur()),
-            );
+
+            context.go('/homeLivreur?reload=${DateTime.now().millisecondsSinceEpoch}');
           }
         },
         currentIndex: _currentIndex,

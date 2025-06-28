@@ -6,18 +6,17 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../serviceAu/apiServiceUser.dart';
 import '../serviceAu/local_storage_service.dart';
 import '../model/userModel.dart';
+import '../services/traking_sevice.dart';
 
 class AuthController {
   final ApiService _apiService = ApiService();
   final LocalStorageService _localStorage = LocalStorageService();
 
   Future<User> login(String email, String password) async {
-    print('GGGGGGG');
+
 
     final result = await _apiService.login(email, password);
 
-    print(result);
-    print("ggggggg");
     final token = result['token'];
 
 
@@ -48,6 +47,7 @@ class AuthController {
 
   Future<void> logout() async {
     await _localStorage.clearToken();
+    TrackingService.stopTracking();
   }
 
   Future<User> register(

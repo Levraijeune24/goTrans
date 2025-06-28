@@ -62,7 +62,11 @@ class ApiServiceLivraison {
 
     if (response.statusCode == 200) {
       isStore = true;
+
     }
+
+    print(jsonDecode(response.body)["erreur"]);
+    print("gggg");
 
     return isStore;
   }
@@ -140,10 +144,13 @@ class ApiServiceLivraison {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       data["data"].forEach((livraison) {
+        print(livraison);
         livraisons.add({
           "id": livraison["id"].toString(),
           "id_livreur": livraison["vehicule"]["livreurs"][0]["livreur"]["id"].toString(),
           "status": livraison["status"],
+          "nom_livreur": livraison['vehicule']?['livreurs']?[0]?['livreur']?['user']?['name'] ?? "",
+
           "date": livraison["date"],
           "code": livraison["code"],
           "kilo": livraison["kilo_total"].toString(),
@@ -175,6 +182,7 @@ class ApiServiceLivraison {
           "status": livraison["status"],
           "expedition_longitude": livraison["expedition"]["longitude"].toString(),
           "expedition_latitude": livraison["expedition"]["latitude"].toString(),
+
           "date": livraison["date"],
           "montant": livraison["montant"].toString(),
           "code": livraison["code"],
@@ -196,6 +204,7 @@ class ApiServiceLivraison {
   }
 
   Future<String> annuler(String id) async {
+
     final url = Uri.parse(adresse + 'api/livraison/cancel/$id');
 
     final response = await http.get(url, headers: _headers);

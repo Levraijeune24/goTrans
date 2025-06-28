@@ -17,9 +17,9 @@ class ApiServiceTypeVehicule{
 
 
   Future<void> init() async {
-    print("Initialisation en cours...");
+
     token = await LocalStorageService().getToken();
-    print("Token récupéré : $token");
+
   }
 
 
@@ -37,14 +37,13 @@ class ApiServiceTypeVehicule{
 
       final data = jsonDecode(response.body);
       data["typeVehicule"].forEach((typeVehile) {
-        print("vvvv");
-        print(typeVehile);
+
         mesTypes.add({"id":typeVehile["id"].toString(),
           "nom_type":typeVehile["nom_type"],
           "kilo_initiale":typeVehile["kilo_initiale"].toString(),
           "kilo_final":typeVehile["kilo_final"].toString(),
-          "kilo_tarif":typeVehile["tarif"]["kilo_tarif"].toString(),
-          "prix_tarif":typeVehile["tarif"]["prix_tarif"].toString(),
+          "kilo_tarif":typeVehile["tarif"]["valeur"].toString(),
+          "prix_tarif":typeVehile["tarif"]["prix"].toString(),
           "description":typeVehile["description"].toString(),
         },
         );
