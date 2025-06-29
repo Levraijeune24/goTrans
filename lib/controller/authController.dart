@@ -19,8 +19,6 @@ class AuthController {
 
     final token = result['token'];
 
-
-
     final user = result['user'] as User;
     final roleInfo = result['roleInfo'] as RoleInfo;
 

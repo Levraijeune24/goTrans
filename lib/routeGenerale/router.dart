@@ -31,21 +31,15 @@ final GoRouter router = GoRouter(
     }
 
     // Gestion d'accès en fonction du rôle
-    if (loggedIn) {
-      if (roleinfo?.role == "client" && currentPath.startsWith('/homeLivreur')) {
-        return '/home'; // redirection interdite au livreur
-      }
-
-      if (roleinfo?.role == "client" && currentPath.startsWith('/cancel')) {
-        return '/home'; // redirection interdite au livreur
-      }
-
-      if (roleinfo?.role == "livreur" && currentPath.startsWith('/home')) {
-        return '/homeLivreur'; // redirection interdite au client
-      }
-
-
-    }
+    // if (loggedIn) {
+    //   if (roleinfo?.role == "client" && currentPath.startsWith('/homeLivreur')) {
+    //     return '/home'; // redirection interdite au livreur
+    //   }
+    //
+    //   if (roleinfo?.role == "livreur" && currentPath.startsWith('/home')) {
+    //     return '/homeLivreur'; // redirection interdite au client
+    //   }
+    // }
     return null; // Pas de redirection
   },
 
@@ -80,8 +74,8 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/homeLivreur',
       builder: (context, state){
-final reload = state.uri.queryParameters['reload'];
-return PageLivreur(key: ValueKey(reload ?? 'default'));
+      final reload = state.uri.queryParameters['reload'];
+      return PageLivreur(key: ValueKey(reload ?? 'default'));
 
 
 

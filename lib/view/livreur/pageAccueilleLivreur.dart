@@ -10,13 +10,13 @@ import '../../compenent/TextBienvenue.dart';
 import '../../controller/LivraisonController.dart';
 import '../../controller/LivreurController.dart';
 import '../../controller/authController.dart';
-import '../../services/traking_sevice.dart';
+import '../../model/userModel.dart';
+import '../../serviceAu/local_storage_service.dart';
 import '../../utils/elpers/elperDate.dart';
-import '../authentification/ProfilePage.dart';
+
 
 class PageLivreur extends StatefulWidget {
   const PageLivreur({Key? key}) : super(key: key);
-
 
   @override
   _PageLivreurState createState() => _PageLivreurState();
@@ -24,31 +24,32 @@ class PageLivreur extends StatefulWidget {
 class _PageLivreurState extends State<PageLivreur> {
   final LivraisonController _livraisonController = LivraisonController();
   final TextEditingController codeController = TextEditingController();
+  late Future<List<Map<String, String>>> livraisonsFuture;
 
   final int _currentIndex = 0;
 
   dynamic roleUser;
   String nomLivreur = "";
 
-  late Future<List<Map<String, String>>> livraisonsFuture;
+  _initName()async{
+    User? user= await LocalStorageService().getUser();
+    nomLivreur =user!.name ;
+    setState(() {
+
+    });
+  }
 
   Future<List<Map<String, String>>> _initLivraisons() async {
     await _livraisonController.init();
     roleUser = await AuthController().getRole();
-
-    final livraisons = await _livraisonController.getForLivreur(roleUser!.id);
-
-    if (livraisons.isNotEmpty) {
-      nomLivreur = livraisons[0]["nom_livreur"] ?? "";
-    }
-
-    return livraisons;
+    return await _livraisonController.getForLivreur(roleUser!.id);
   }
 
   @override
   void initState() {
     super.initState();
-    livraisonsFuture = _initLivraisons(); // assigné une seule fois ici
+    livraisonsFuture = _initLivraisons();
+    _initName();
   }
 
   @override
@@ -93,9 +94,6 @@ class _PageLivreurState extends State<PageLivreur> {
               libelle: "Missions",
               height: 40,
               action: () {
-                setState(() {
-                  livraisonsFuture = _initLivraisons(); // recharge
-                });
               },
             ).run(),
             const SizedBox(height: 30),
@@ -110,12 +108,12 @@ class _PageLivreurState extends State<PageLivreur> {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(child: Text('Aucune livraison pour vous maintenant'));
                   }
-
                   final livraisons = snapshot.data!;
 
                   return ListView.builder(
                     itemCount: livraisons.length,
                     itemBuilder: (context, index) {
+                      nomLivreur=nomLivreur;
                       final livraison = livraisons[index];
                       final status = livraison["status"];
 
@@ -163,9 +161,7 @@ class _PageLivreurState extends State<PageLivreur> {
           if (index == 2) {
             context.push("/profil");
           } else if (index == 1) {
-            // Historique livreur : à implémenter plus tard
           } else if (index == 0) {
-
             context.go('/homeLivreur?reload=${DateTime.now().millisecondsSinceEpoch}');
           }
         },
